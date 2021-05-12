@@ -6,5 +6,6 @@
   "dependencies": [],
   "version": "0.1.0",  
   "requirements": ["python-forecastio==1.4.0"],
-  "codeowners": ["@alexander0042"]
+  "codeowners": ["@alexander0042"],
+  "iot_class": "cloud_polling"
 }
