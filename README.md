@@ -2,6 +2,8 @@
 
 This integration is designed to replace the default [Dark Sky](https://www.home-assistant.io/integrations/darksky/) integration in [Home Assistant](https://github.com/home-assistant/core/tree/dev/homeassistant/components/darksky) with a slightly modified, but fully compatable version that relies on the [Pirate Weather API](https://pirateweather.net/) instead! 
 
+To get a feel for the data returned by this API, check out <https://weather.pirateweather.net>!
+
 ## Notices
 
 This integration will take priority over the built in Dark Sky integration. While it is deigned to be a drop in replacement, it is possibile that small differences will occur. The underlying API shoudld return similar results, but specific weather variables may be missing, and additional testing is needed to find and correct these edge cases. Please [document any issues](https://github.com/alexander0042/pirate-weather-hacs/issues), and I can either update this integration or the weather API. 
@@ -38,8 +40,9 @@ Since this integration returns the same type of data as the defauly Dark Sky int
 7. Register for a Pirate Weather API Key here: <https://pirateweather.net/>
 8. Log into the Pirate Weather API interface (<https://pirateweather.net/apis>), select `PirateForecas Beta`, and **click Subscribe**!
 
-Edit your `configuration.yaml` file with:
-
-`weather:`
-`  - platform: darksky`
-`    api_key: <APIKEY>`
+Either add or edit to your `configuration.yaml` file with this block, using the new API key:
+```text
+weather:
+  - platform: darksky
+    api_key: <APIKEY>
+```
