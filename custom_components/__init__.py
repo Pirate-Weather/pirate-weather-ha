@@ -1,1 +1,1 @@
-"""Custom components module."""
+"""The darksky component."""

@@ -1,0 +1,10 @@
+{
+  "domain": "darksky",
+  "name": "Dark Sky",
+  "documentation": "https://github.com/alexander0042/pirate-weather-hacs",
+  "issue_tracker": "https://github.com/alexander0042/pirate-weather-hacs/issues",
+  "dependencies": [],
+  "version": "0.1.0",  
+  "requirements": ["python-forecastio==1.4.0"],
+  "codeowners": ["@alexander0042"]
+}
