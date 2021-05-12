@@ -38,7 +38,7 @@ Since this integration returns the same type of data as the defauly Dark Sky int
 5. Place the files you downloaded in the new directory (folder) you created.
 6. Restart Home Assistant
 7. Register for a Pirate Weather API Key here: <https://pirateweather.net/>
-8. Log into the Pirate Weather API interface (<https://pirateweather.net/apis>), select `PirateForecas Beta`, and **click Subscribe**!
+8. Log into the Pirate Weather API interface (<https://pirateweather.net/apis>), select `PirateForecast Beta`, and **click Subscribe**!
 
 Either add or edit to your `configuration.yaml` file with this block, using the new API key:
 ```text
