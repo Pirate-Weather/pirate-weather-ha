@@ -1,11 +1,9 @@
 {
-    "name": "Integration blueprint",
-    "hacs": "1.6.0",
+    "name": "Pirate Weather",
     "domains": [
-        "binary_sensor",
-        "sensor",
-        "switch"
+        "weather",
+        "sensor"
     ],
-    "iot_class": "Cloud Polling",
-    "homeassistant": "0.118.0"
+	"render_readme": true,
+    "iot_class": "Cloud Polling"
 }

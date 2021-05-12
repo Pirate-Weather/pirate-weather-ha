@@ -1,0 +1,6 @@
+Code in this repository is adapted from the Home Assistant Core Dark Sky Component, maintained by @fabaff: 
+https://github.com/home-assistant/core/tree/dev/homeassistant/components/darksky
+https://github.com/fabaff
+
+As well as the Integration Blueprint:
+https://github.com/custom-components/integration_blueprint 
