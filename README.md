@@ -1,7 +1,9 @@
 ﻿# Pirate Weather Integrations
 This integration is designed to replace the default [Dark Sky](https://www.home-assistant.io/integrations/darksky/) integration in [Home Assistant](https://github.com/home-assistant/core/tree/dev/homeassistant/components/darksky) with a slightly modified, but fully compatible version that relies on the [Pirate Weather API](https://pirateweather.net/) instead! 
 
-To get a feel for the data returned by this API, check out <https://weather.pirateweather.net>!
+To get a feel for the data returned by this API, check out <https://weather.pirateweather.net>! 
+
+I'm really hoping to keep free access going for this API, but it does take money to run the AWS back-end. If you'd like to support this project, I have a sponsorship link setup on my [profile](https://github.com/sponsors/alexander0042/)!
 
 ## Notices
 This integration will take priority over the built-in Dark Sky integration. While it is deigned to be a drop in replacement, it is possible that small differences will occur. The underlying API should return similar results, but specific weather variables may be missing, and additional testing is needed to find and correct these edge cases. Please [document any issues](https://github.com/alexander0042/pirate-weather-hacs/issues), and I can either update this integration or the weather API. 
