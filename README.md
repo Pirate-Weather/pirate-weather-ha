@@ -23,7 +23,7 @@ The only other change is to call the API every 15 minutes instead of every 3. I 
 <a href="https://www.buymeacoffee.com/pirateweather" target="_blank"><img src="https://www.buymeacoffee.com/assets/img/custom_images/orange_img.png" alt="Buy Me A Coffee" style="height: 41px !important;width: 174px !important;box-shadow: 0px 3px 2px 0px rgba(190, 190, 190, 0.5) !important;-webkit-box-shadow: 0px 3px 2px 0px rgba(190, 190, 190, 0.5) !important;" ></a>
 
 ## Documentation
-Since this integration returns the same type of data as the default Dark Sky integration, the parameter documentation is the same as described here: <https://www.home-assistant.io/integrations/darksky/>.
+Since this integration returns the same type of data as the default Dark Sky integration, the parameter documentation is the same as described at <https://www.home-assistant.io/integrations/weather.darksky> for the weather card and here: <https://www.home-assistant.io/integrations/darksky/> for the sensor.
 
 ## Installation
 1. Using the tool of choice open the directory (folder) for your HA configuration (where you find `configuration.yaml`).
