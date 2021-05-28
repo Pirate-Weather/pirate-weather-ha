@@ -46,7 +46,7 @@ from homeassistant.util.pressure import convert as convert_pressure
 
 _LOGGER = logging.getLogger(__name__)
 
-ATTRIBUTION = "Powered by PirateWeather"
+ATTRIBUTION = "Powered by Alexander"
 
 FORECAST_MODE = ["hourly", "daily"]
 
@@ -81,7 +81,7 @@ PLATFORM_SCHEMA = PLATFORM_SCHEMA.extend(
     }
 )
 
-MIN_TIME_BETWEEN_UPDATES = timedelta(minutes=15)
+MIN_TIME_BETWEEN_UPDATES = timedelta(minutes=3)
 
 
 def setup_platform(hass, config, add_entities, discovery_info=None):
@@ -201,9 +201,12 @@ class DarkSkyWeather(WeatherEntity):
                     ).isoformat(),
                     ATTR_FORECAST_TEMP: entry.d.get("temperatureHigh"),
                     ATTR_FORECAST_TEMP_LOW: entry.d.get("temperatureLow"),
+                    #ATTR_FORECAST_PRECIPITATION: calc_precipitation(
+                    #    entry.d.get("precipIntensity"), 24
+                    #),
                     ATTR_FORECAST_PRECIPITATION: calc_precipitation(
-                        entry.d.get("precipIntensity"), 24
-                    ),
+                        entry.d.get("precipAccumulation"), 1
+                    ),                    
                     ATTR_FORECAST_WIND_SPEED: entry.d.get("windSpeed"),
                     ATTR_FORECAST_WIND_BEARING: entry.d.get("windBearing"),
                     ATTR_FORECAST_CONDITION: MAP_CONDITION.get(entry.d.get("icon")),
