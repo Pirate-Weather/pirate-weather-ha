@@ -830,7 +830,7 @@ class DarkSkyData:
             #    units=self.units,
             #    lang=self.language,
             #)
-            forecastString = "https://api.pirateweather.net/forecast/" +  self._api_key + "/" + str(self.latitude) + "," + str(self.longitude) + "?units=" + self.requested_units
+            forecastString = "https://api.pirateweather.net/forecast/" +  self._api_key + "/" + str(self.latitude) + "," + str(self.longitude) + "?units=" + self.units
             self.data = forecastio.manual(forecastString)			
             if self._connect_error:
                 self._connect_error = False
