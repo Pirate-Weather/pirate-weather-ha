@@ -38,6 +38,22 @@ Since this integration returns the same type of data as the default Dark Sky int
 Either add or edit to your `configuration.yaml` file with this block, using the new API key:
 ```text
 weather:
-  - platform: darksky
+  - platform: pirateweather
     api_key: <APIKEY>
+    
+
+# you can also get a sensor data
+sensor:
+  - platform: pirateweather
+    api_key: <APIKEY>
+    scan_interval: '00:05:00'
+    monitored_conditions:
+      - temperature
+      - precip_probability
+      - precip_type
+      - humidity
+      - cloud_cover
+      - nearest_storm_distance
+      - precip_intensity
+      - wind_speed
 ```
