@@ -81,7 +81,7 @@ PLATFORM_SCHEMA = PLATFORM_SCHEMA.extend(
     }
 )
 
-MIN_TIME_BETWEEN_UPDATES = timedelta(minutes=3)
+MIN_TIME_BETWEEN_UPDATES = timedelta(minutes=15)
 
 
 def setup_platform(hass, config, add_entities, discovery_info=None):
