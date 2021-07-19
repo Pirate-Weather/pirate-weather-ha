@@ -6,7 +6,7 @@ To get a feel for the data returned by this API, check out <https://weather.pira
 I'm really hoping to keep free access going for this API, but it does take money to run the AWS back-end. If you'd like to support this project, I have a sponsorship link setup on my [profile](https://github.com/sponsors/alexander0042/)!
 
 ## Notices
-This integration will take priority over the built-in Dark Sky integration. While it is deigned to be a drop in replacement, it is possible that small differences will occur. The underlying API should return similar results, but specific weather variables may be missing, and additional testing is needed to find and correct these edge cases. Please [document any issues](https://github.com/alexander0042/pirate-weather-hacs/issues), and I can either update this integration or the weather API. 
+While this integration is designed to be a drop in replacement for the Dark Sky integration, it is possible that small differences will occur. The underlying API should return similar results, but specific weather variables may be missing, and additional testing is needed to find and correct these edge cases. Please [document any issues](https://github.com/alexander0042/pirate-weather-ha/issues), and I can either update this integration or the weather API. 
 
 The two most notable missing pieces at the moment are the language options and text summaries. Both of those are possible with the way I have things designed, but I need to write the code that generates the text, and then feed that into the Dark Sky translation module. For now, the text will display whatever the icon is showing, and it will always be in English.
 
