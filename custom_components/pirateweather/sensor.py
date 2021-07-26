@@ -1,4 +1,4 @@
-"""Support for Dark Sky weather service."""
+"""Support for PirateWeather (Dark Sky Compatable weather service."""
 from datetime import timedelta
 import logging
 
@@ -45,7 +45,7 @@ CONF_LANGUAGE = "language"
 CONF_UNITS = "units"
 
 DEFAULT_LANGUAGE = "en"
-DEFAULT_NAME = "Dark Sky"
+DEFAULT_NAME = "PirateWeather"
 SCAN_INTERVAL = timedelta(seconds=900)
 
 DEPRECATED_SENSOR_TYPES = {
@@ -487,7 +487,7 @@ PLATFORM_SCHEMA = PLATFORM_SCHEMA.extend(
 
 
 def setup_platform(hass, config, add_entities, discovery_info=None):
-    """Set up the Dark Sky sensor."""
+    """Set up the PirateWeather sensor."""
     latitude = config.get(CONF_LATITUDE, hass.config.latitude)
     longitude = config.get(CONF_LONGITUDE, hass.config.longitude)
     language = config.get(CONF_LANGUAGE)
@@ -548,7 +548,7 @@ def setup_platform(hass, config, add_entities, discovery_info=None):
 
 
 class DarkSkySensor(SensorEntity):
-    """Implementation of a Dark Sky sensor."""
+    """Implementation of a PirateWeather sensor."""
 
     def __init__(
         self, forecast_data, sensor_type, name, forecast_day=None, forecast_hour=None
@@ -628,7 +628,7 @@ class DarkSkySensor(SensorEntity):
         return {ATTR_ATTRIBUTION: ATTRIBUTION}
 
     def update(self):
-        """Get the latest data from Dark Sky and updates the states."""
+        """Get the latest data from PirateWeather and updates the states."""
         # Call the API for new forecast data. Each sensor will re-trigger this
         # same exact call, but that's fine. We cache results for a short period
         # of time to prevent hitting API limits. Note that Dark Sky will
@@ -834,11 +834,11 @@ class DarkSkyData:
             self.data = forecastio.manual(forecastString)			
             if self._connect_error:
                 self._connect_error = False
-                _LOGGER.info("Reconnected to Dark Sky")
+                _LOGGER.info("Reconnected to PirateWeather")
         except (ConnectError, HTTPError, Timeout, ValueError) as error:
             if not self._connect_error:
                 self._connect_error = True
-                _LOGGER.error("Unable to connect to Dark Sky: %s", error)
+                _LOGGER.error("Unable to connect to PirateWeather: %s", error)
             self.data = None
         self.unit_system = self.data and self.data.json["flags"]["units"]
 

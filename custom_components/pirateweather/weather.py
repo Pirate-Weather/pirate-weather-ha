@@ -1,4 +1,4 @@
-"""Support for retrieving meteorological data from Dark Sky."""
+"""Support for retrieving meteorological data from PirateWeather."""
 from datetime import timedelta
 import logging
 
@@ -46,7 +46,7 @@ from homeassistant.util.pressure import convert as convert_pressure
 
 _LOGGER = logging.getLogger(__name__)
 
-ATTRIBUTION = "Powered by Alexander"
+ATTRIBUTION = "Powered by PirateWeather"
 
 FORECAST_MODE = ["hourly", "daily"]
 
@@ -68,7 +68,7 @@ MAP_CONDITION = {
 
 CONF_UNITS = "units"
 
-DEFAULT_NAME = "Dark Sky"
+DEFAULT_NAME = "PirateWeather"
 
 PLATFORM_SCHEMA = PLATFORM_SCHEMA.extend(
     {
@@ -85,7 +85,7 @@ MIN_TIME_BETWEEN_UPDATES = timedelta(minutes=15)
 
 
 def setup_platform(hass, config, add_entities, discovery_info=None):
-    """Set up the Dark Sky weather."""
+    """Set up the PirateWeather weather."""
     latitude = config.get(CONF_LATITUDE, hass.config.latitude)
     longitude = config.get(CONF_LONGITUDE, hass.config.longitude)
     name = config.get(CONF_NAME)
@@ -104,7 +104,7 @@ class DarkSkyWeather(WeatherEntity):
     """Representation of a weather condition."""
 
     def __init__(self, name, dark_sky, mode):
-        """Initialize Dark Sky weather."""
+        """Initialize PirateWeather weather via the Dark Sky module."""
         self._name = name
         self._dark_sky = dark_sky
         self._mode = mode
@@ -116,7 +116,7 @@ class DarkSkyWeather(WeatherEntity):
 
     @property
     def available(self):
-        """Return if weather data is available from Dark Sky."""
+        """Return if weather data is available from PirateWeather."""
         return self._ds_data is not None
 
     @property
@@ -242,7 +242,7 @@ class DarkSkyWeather(WeatherEntity):
 
 
 class DarkSkyData:
-    """Get the latest data from Dark Sky."""
+    """Get the latest data from PirateWeather."""
 
     def __init__(self, api_key, latitude, longitude, units):
         """Initialize the data object."""
@@ -259,7 +259,7 @@ class DarkSkyData:
 
     @Throttle(MIN_TIME_BETWEEN_UPDATES)
     def update(self):
-        """Get the latest data from Dark Sky."""
+        """Get the latest data from PirateWeather."""
         try:
             #self.data = forecastio.load_forecast(
             #    self._api_key, self.latitude, self.longitude, units=self.requested_units
@@ -271,11 +271,11 @@ class DarkSkyData:
             self.daily = self.data.daily()
             if self._connect_error:
                 self._connect_error = False
-                _LOGGER.info("Reconnected to Dark Sky")
+                _LOGGER.info("Reconnected to PirateWeather")
         except (ConnectError, HTTPError, Timeout, ValueError) as error:
             if not self._connect_error:
                 self._connect_error = True
-                _LOGGER.error("Unable to connect to Dark Sky. %s", error)
+                _LOGGER.error("Unable to connect to PirateWeather. %s", error)
             self.data = None
 
     @property

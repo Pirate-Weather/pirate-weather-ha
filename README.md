@@ -25,15 +25,28 @@ The only other change is to call the API every 15 minutes instead of every 3. I 
 ## Documentation
 Since this integration returns the same type of data as the default Dark Sky integration, the parameter documentation is the same as described at <https://www.home-assistant.io/integrations/weather.darksky> for the weather card and here: <https://www.home-assistant.io/integrations/darksky/> for the sensor.
 
-## Installation
+# Installation
+There are two methods to install this installation:
+
+## HACS Installation (easiest)
+1. Add `https://github.com/alexander0042/pirate-weather-ha` as a custom repository
+2. Restart Home Assistant
+3. Register for a Pirate Weather API Key here: <https://pirateweather.net/>
+4. Log into the Pirate Weather API interface (<https://pirateweather.net/apis>), select `PirateForecast Beta`, and **click Subscribe**!
+5. Edit to your `configuration.yaml` file following the instructions below.
+
+## Manual Installation 
 1. Using the tool of choice open the directory (folder) for your HA configuration (where you find `configuration.yaml`).
 2. If you do not have a `custom_component` directory (folder) there, you need to create it.
-3. In the `custom_components` directory (folder) create a new folder called `darksky`.
-4. Download _all_ the files from the `custom_components/darksky/` directory (folder) in this repository.
+3. In the `custom_components` directory (folder) create a new folder called `pirateweather`.
+4. Download _all_ the files from the `custom_components/pirateweather/` directory (folder) in this repository.
 5. Place the files you downloaded in the new directory (folder) you created.
 6. Restart Home Assistant
 7. Register for a Pirate Weather API Key here: <https://pirateweather.net/>
 8. Log into the Pirate Weather API interface (<https://pirateweather.net/apis>), select `PirateForecast Beta`, and **click Subscribe**!
+9. Edit to your `configuration.yaml` file following the instructions below.
+
+## Configuration
 
 Either add or edit to your `configuration.yaml` file with this block, using the new API key:
 ```text
@@ -57,3 +70,5 @@ sensor:
       - precip_intensity
       - wind_speed
 ```
+
+If you'd rather keep the integration as close to the build in Dark Sky Integration as possibile for compatability considerations, then follow the steps above, except name the directory in the `custom_component` folder `darksky`, and use `darksky` instead of `pirateweather` in the `configuration.yaml` file. This overrides the built in Dark Sky Integration with PirateWeather, but keeps the naming the same. 
