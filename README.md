@@ -59,7 +59,7 @@ weather:
 sensor:
   - platform: pirateweather
     api_key: <APIKEY>
-    scan_interval: '00:05:00'
+    scan_interval: '00:15:00'
     monitored_conditions:
       - temperature
       - precip_probability
