@@ -167,7 +167,7 @@ class DarkSkyWeather(WeatherEntity):
         pressure = self._ds_currently.get("pressure")
         if "us" in self._dark_sky.units:
             return round(convert_pressure(pressure, PRESSURE_HPA, PRESSURE_INHG), 2)
-        return pressure
+        return round(pressure, 2)
 
     @property
     def visibility(self):
