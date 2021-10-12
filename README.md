@@ -49,10 +49,15 @@ There are two methods to install this installation:
 ## Configuration
 
 Either add or edit to your `configuration.yaml` file with this block, using the new API key:
-```text
+```yaml
 weather:
   - platform: pirateweather
     api_key: <APIKEY>
+    # Additional optional values:
+    latitude: Location latitude
+    longitude: Location longitude
+    mode: "hourly" (default) or "daily"
+    name: Custom name
     
 
 # you can also get a sensor data
