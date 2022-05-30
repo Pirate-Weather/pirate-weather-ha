@@ -1,4 +1,7 @@
 ﻿# Pirate Weather Integrations
+NOTE: This is a testing branch to create a web based config flow for this integration. It also switches the logic over to asyncio, as well as modernising the entire code base. 
+This branch is not working yet and should not be used. 
+
 This integration is designed to replace the default [Dark Sky](https://www.home-assistant.io/integrations/darksky/) integration in [Home Assistant](https://github.com/home-assistant/core/tree/dev/homeassistant/components/darksky) with a slightly modified, but fully compatible version that relies on the [Pirate Weather API](https://pirateweather.net/) instead! 
 
 To get a feel for the data returned by this API, check out <https://weather.pirateweather.net>! 
