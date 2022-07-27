@@ -36,6 +36,8 @@ from .const import (
     CONF_UNITS,
     DEFAULT_UNITS,
     DEFAULT_NAME,
+    FORECASTS_HOURLY,
+    FORECASTS_DAILY,
 )
 
 #from .weather_update_coordinator import WeatherUpdateCoordinator, DarkSkyData
@@ -51,10 +53,10 @@ async def async_setup(hass: HomeAssistant, config: dict) -> bool:
     hass.data.setdefault(DOMAIN, {})
 
     weather_configs = _filter_domain_configs(config.get("weather", []), DOMAIN)
-    #sensor_configs = _filter_domain_configs(config.get("sensor", []), DOMAIN)
+    sensor_configs = _filter_domain_configs(config.get("sensor", []), DOMAIN)
 
-    #_import_configs(hass, weather_configs + sensor_configs)
-    _import_configs(hass, weather_configs)
+    _import_configs(hass, weather_configs + sensor_configs)
+    #_import_configs(hass, weather_configs)
     _LOGGER.info("PW Setup B")
     return True
 
@@ -68,7 +70,9 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     language = _get_config_value(entry, CONF_LANGUAGE)
     conditions = _get_config_value(entry, CONF_MONITORED_CONDITIONS)
     units = _get_config_value(entry, CONF_UNITS)
-
+    forecast_days = _get_config_value(entry, FORECASTS_DAILY)
+    forecast_hours = _get_config_value(entry, FORECASTS_HOURLY)
+    
     _LOGGER.info("PW CONF_MODE_I")
     _LOGGER.info(forecast_mode)
     _LOGGER.info(entry)
@@ -96,10 +100,13 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         CONF_LONGITUDE: longitude,
         CONF_UNITS: units,
         CONF_MONITORED_CONDITIONS: conditions,
-        CONF_MODE: forecast_mode
+        CONF_MODE: forecast_mode,
+        FORECASTS_DAILY: forecast_days,
+        FORECASTS_HOURLY: forecast_hours
     }
 
     hass.config_entries.async_setup_platforms(entry, PLATFORMS)
+    #await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
 
     update_listener = entry.add_update_listener(async_update_options)
     hass.data[DOMAIN][entry.entry_id][UPDATE_LISTENER] = update_listener

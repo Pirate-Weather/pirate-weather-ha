@@ -27,17 +27,19 @@ from .const import (
     LANGUAGES,
     CONF_UNITS,
     DEFAULT_UNITS,
+    FORECASTS_DAILY,
+    FORECASTS_HOURLY
 )
 
 ATTRIBUTION = "Powered by Pirate Weather"
 _LOGGER = logging.getLogger(__name__)
 
 
-all_conditions = {'Condition 1': 'Condition 1',
-                   'Condition 2': 'Condition 2',
-                   'Condition 3': 'Condition 3',
-                   'Condition 4': 'Condition 4',
-                   'Condition 5': 'Condition 5',
+all_conditions = {'precip_type': 'precip_type',
+                   'precip_intensity': 'precip_intensity',
+                   'precip_probability': 'precip_probability',
+                   'precip_accumulation': 'precip_accumulation',
+                   'temperature': 'temperature',
                    'Condition 6': 'Condition 6',
                    'Condition 7': 'Condition 7',
                    'Condition 8': 'Condition 8',
@@ -95,12 +97,17 @@ class PirateWeatherConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
               ),
               vol.Required(CONF_LANGUAGE, default=DEFAULT_LANGUAGE): vol.In(
                   LANGUAGES
-              ),                
-              vol.Optional(CONF_MONITORED_CONDITIONS, default=None):  cv.multi_select(
-                  all_conditions
-              ),                     
+              ),                                    
               vol.Optional(CONF_UNITS, default=DEFAULT_UNITS): vol.In(["si", "us", "ca", "uk"]
               ),
+              vol.Optional(FORECASTS_DAILY): vol.All(vol.Coerce(int), vol.Range(min=0, max=7)
+              ),
+              vol.Optional(FORECASTS_HOURLY): vol.All(
+                vol.Coerce(int), vol.Range(min=0, max=48)
+              ),
+              vol.Optional(CONF_MONITORED_CONDITIONS, default=None):  cv.multi_select(
+                  all_conditions
+              ),               
           }
         ) 
         
@@ -133,11 +140,15 @@ class PirateWeatherConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         if CONF_MODE not in config:
             config[CONF_MODE] = DEFAULT_FORECAST_MODE
         if CONF_LANGUAGE not in config:
-            config[CONF_LANGUAGE] = DEFAULT_LANGUAGE
-        if CONF_MONITORED_CONDITIONS not in config:
-            config[CONF_MONITORED_CONDITIONS] = None    
+            config[CONF_LANGUAGE] = DEFAULT_LANGUAGE 
         if CONF_UNITS not in config:
-            config[CONF_UNITS] = DEFAULT_UNITS                    
+            config[CONF_UNITS] = DEFAULT_UNITS
+        if CONF_MONITORED_CONDITIONS not in config:
+            config[CONF_MONITORED_CONDITIONS] = None   
+        if FORECASTS_DAILY not in config:
+            config[FORECASTS_DAILY] = None               
+        if FORECASTS_HOURLY not in config:
+            config[FORECASTS_HOURLY] = None                            
         return await self.async_step_user(config)
 
 class PirateWeatherOptionsFlow(config_entries.OptionsFlow):

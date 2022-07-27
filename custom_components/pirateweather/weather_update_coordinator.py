@@ -79,7 +79,7 @@ from .const import (
 )
 _LOGGER = logging.getLogger(__name__)
 
-WEATHER_UPDATE_INTERVAL = timedelta(minutes=15)
+WEATHER_UPDATE_INTERVAL = timedelta(minutes=1)
 ATTRIBUTION = "Powered by Pirate Weather"
 
         
@@ -152,17 +152,17 @@ class WeatherUpdateCoordinator(DataUpdateCoordinator):
     async def _async_update_data(self):
         """Update the data."""
         data = {}
-        #_LOGGER.info("PW_Update_Data_A")
+        _LOGGER.info("PW_Update_Data_A")
         async with async_timeout.timeout(20):
             try:
                 data = await self._get_pw_weather()
-                #_LOGGER.info("PW_Update_Data_B")
+                _LOGGER.info("PW_Update_Data_B")
             except (APIRequestError, UnauthorizedError) as error:
                 raise UpdateFailed(error) from error
         return data
 
     async def _get_pw_weather(self):
-        """Poll weather data from OWM."""
+        """Poll weather data from PW."""
         _LOGGER.info("Made it to get PW V10")        
         forecastString = "https://api.pirateweather.net/forecast/" +  self._api_key + "/" + str(self.latitude) + "," + str(self.longitude) + "?units=" + self.requested_units
         #data = await self.hass.async_add_executor_job(forecastio.manual(forecastString))

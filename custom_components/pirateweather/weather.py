@@ -1,4 +1,4 @@
-"""Support for the OpenWeatherMap (OWM) service."""
+"""Support for the Pirate Weather (PW) service."""
 from __future__ import annotations
 
 from datetime import timedelta
@@ -54,6 +54,27 @@ from homeassistant.const import (
     PRESSURE_INHG,
     TEMP_CELSIUS,
     TEMP_FAHRENHEIT,
+)
+
+from .const import (
+    CONF_LANGUAGE,
+    CONFIG_FLOW_VERSION,
+    DEFAULT_FORECAST_MODE,
+    DEFAULT_LANGUAGE,
+    DEFAULT_NAME,
+    DOMAIN,
+    FORECAST_MODES,
+    LANGUAGES,
+    CONF_UNITS,
+    DEFAULT_UNITS,
+    ENTRY_NAME,
+    ENTRY_WEATHER_COORDINATOR,
+    FORECAST_MODES,
+    PLATFORMS,
+    UPDATE_LISTENER,   
+    MANUFACTURER,    
+    FORECASTS_HOURLY,
+    FORECASTS_DAILY,
 )
 
 

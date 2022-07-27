@@ -503,74 +503,122 @@ ALLOWED_UNITS = ["auto", "si", "us", "ca", "uk", "uk2"]
 
 ALERTS_ATTRS = ["time", "description", "expires", "severity", "uri", "regions", "title"]
 
-PLATFORM_SCHEMA = PLATFORM_SCHEMA.extend(
-    {
-        vol.Required(CONF_MONITORED_CONDITIONS): vol.All(
-            cv.ensure_list, [vol.In(SENSOR_TYPES)]
-        ),
-        vol.Required(CONF_API_KEY): cv.string,
-        vol.Optional(CONF_NAME, default=DEFAULT_NAME): cv.string,
-        vol.Optional(CONF_UNITS): vol.In(ALLOWED_UNITS),
-        vol.Optional(CONF_LANGUAGE, default=DEFAULT_LANGUAGE): vol.In(LANGUAGE_CODES),
-        vol.Inclusive(
-            CONF_LATITUDE, "coordinates", "Latitude and longitude must exist together"
-        ): cv.latitude,
-        vol.Inclusive(
-            CONF_LONGITUDE, "coordinates", "Latitude and longitude must exist together"
-        ): cv.longitude,
-        vol.Optional(CONF_FORECAST): vol.All(cv.ensure_list, [vol.Range(min=0, max=7)]),
-        vol.Optional(CONF_HOURLY_FORECAST): vol.All(
-            cv.ensure_list, [vol.Range(min=0, max=48)]
-        ),
-    }
-)
-
-
 async def async_setup_entry(
-    hass: HomeAssistant,
+    hass: HomeAssistant, 
     config_entry: ConfigEntry,
-    async_add_entities: AddEntitiesCallback,
+    async_add_entities: AddEntitiesCallback
 ) -> None:
     """Set up Pirate Weather sensor entities based on a config entry."""
+    
     domain_data = hass.data[DOMAIN][config_entry.entry_id]
     name = domain_data[CONF_NAME]
-    weather_coordinator = domain_data[ENTRY_WEATHER_COORDINATOR]
-    api_key = domain_data[CONF_API_KEY]
-    latitude = domain_data[CONF_LATITUDE]
-    longitude = domain_data[CONF_LONGITUDE]
-    units = domain_data[CONF_UNITS]
-    forecast_mode = domain_data[CONF_MODE]
-    conditions = domain_data(CONF_MONITORED_CONDITIONS)
     
+    weather_coordinator = domain_data[ENTRY_WEATHER_COORDINATOR]
+    conditions = domain_data[CONF_MONITORED_CONDITIONS]
+
     forecast_days = domain_data[FORECASTS_DAILY]
     forecast_hours = domain_data[FORECASTS_HOURLY]
-    unique_id = f"{config_entry.unique_id}"
-
-    sensors: list[AccuWeatherSensor] = []
+    
+    sensors: list[PirateWeatherSensor] = []
+    
+    
     for condition in conditions:
-      if forecast_days is not None:
-        for forecast_day in forecast_days:
-          unique_id = f"{config_entry.unique_id}-{condition}-daily-{forecast_day}"
-          forecast_hour = None
-          
-          sensors.append(AccuWeatherSensor(name, unique_id, coordinator, forecast_day, forecast_hour, condition))
-      elif forecast_hours is not None:
-        for forecast_hour in forecast_hours:
-          unique_id = f"{config_entry.unique_id}-{condition}-hourly-{forecast_hour}"
-          forecast_day = None
-          sensors.append(AccuWeatherSensor(name, unique_id, coordinator, forecast_day, forecast_hour, condition))
+        _LOGGER.info("PW_conditions")
+        
+        unit_index = {"si": 1, "us": 2, "ca": 3, "uk": 4, "uk2": 5}.get(
+            domain_data[CONF_UNITS], 1
+        )
+        
+        sensorDescription = SensorEntityDescription(
+          key=condition,
+          name=SENSOR_TYPES[condition][0],
+          native_unit_of_measurement=SENSOR_TYPES[condition][unit_index],
+        )
+        
+        if condition in DEPRECATED_SENSOR_TYPES:
+            _LOGGER.warning("Monitored condition %s is deprecated", condition)
+            
+        if not SENSOR_TYPES[condition][7] or "currently" in SENSOR_TYPES[condition][7]:
+            unique_id = f"{config_entry.unique_id}-sensor-{condition}"
+            #if condition == "alerts":
+                #sensors.append(PirateWeatherAlertSensor(weather_coordinator, condition, name,  unique_id, forecast_day=None, forecast_hour=None))
+            #else:
+            sensors.append(PirateWeatherSensor(weather_coordinator, condition, name,  unique_id, forecast_day=None, forecast_hour=None, description=sensorDescription))
+
+        if forecast_days is not None and "daily" in SENSOR_TYPES[condition][7]:
+            for forecast_day in range(0, forecast_days):
+                unique_id = f"{config_entry.unique_id}-sensor-{condition}-daily-{forecast_day}"
+                sensors.append(
+                    PirateWeatherSensor(
+                        weather_coordinator, condition, name, unique_id, forecast_day=forecast_day, forecast_hour=None, description=sensorDescription
+                    )
+                )
+        if forecast_hours is not None and "hourly" in SENSOR_TYPES[condition][7]:
+            for forecast_h in range(0, forecast_hours):
+                unique_id = f"{config_entry.unique_id}-sensor-{condition}-hourly-{forecast_h}"
+                sensors.append(
+                    PirateWeatherSensor(
+                        weather_coordinator, condition, name, unique_id, forecast_day=None, forecast_hour=forecast_h, description=sensorDescription
+                    )
+                )
 
     async_add_entities(sensors)
-    
-    
-    forecast = config.get(CONF_FORECAST)
-    forecast_hour = config.get(CONF_HOURLY_FORECAST)
-    sensors = []
-    
 
-    for variable in config[CONF_MONITORED_CONDITIONS]:
+
+class PirateWeatherSensor(SensorEntity):
+    """Class for an PirateWeather sensor."""
+
+    #_attr_should_poll = False
+    _attr_attribution = ATTRIBUTION
     
-    
+    def __init__(
+        self,
+        weather_coordinator: WeatherUpdateCoordinator,
+        condition: str,
+        name: str,
+        unique_id,
+        forecast_day: int,
+        forecast_hour: int,
+        description:  SensorEntityDescription
+    ) -> None:
+        """Initialize the sensor."""
+        self.client_name = name
+                
+        description=description
+        self.entity_description = description
+        
+        _LOGGER.info("PW_SensorClass")
+        _LOGGER.info(description)
+        
+        self._weather_coordinator = weather_coordinator
+        
+        self._attr_unique_id = unique_id
+        self._attr_name = name
+        
+        self._attr_device_info = DeviceInfo(
+            entry_type=DeviceEntryType.SERVICE,
+            identifiers={(DOMAIN, unique_id)},
+            manufacturer=MANUFACTURER,
+            name=DEFAULT_NAME,
+        )
+
+        #self._ds_data = self._weather_coordinator.data
+        #self._ds_currently = self._weather_coordinator.data.currently()
+        #self._ds_hourly = self._weather_coordinator.data.hourly()
+        #self._ds_daily = self._weather_coordinator.data.daily()
+        
+        self.forecast_day = forecast_day
+        self.forecast_hour = forecast_hour
+        self.type = condition
+        #self._state = None
+        self._icon = None
+        #self._unit_of_measurement = None
+        self._name = SENSOR_TYPES[condition][0]
+
+        self.description=description
+        
+    @property
+    def name(self):
         """Return the name of the sensor."""
         if self.forecast_day is not None:
             return f"{self.client_name} {self._name} {self.forecast_day}d"
@@ -579,94 +627,26 @@ async def async_setup_entry(
         return f"{self.client_name} {self._name}"
         
         
-        
-        if variable in DEPRECATED_SENSOR_TYPES:
-            _LOGGER.warning("Monitored condition %s is deprecated", variable)
-        if not SENSOR_TYPES[variable][7] or "currently" in SENSOR_TYPES[variable][7]:
-            if variable == "alerts":
-                sensors.append(DarkSkyAlertSensor(forecast_data, variable, name))
-            else:
-                sensors.append(DarkSkySensor(forecast_data, variable, name))
-
-        if forecast is not None and "daily" in SENSOR_TYPES[variable][7]:
-            for forecast_day in forecast:
-                sensors.append(
-                    DarkSkySensor(
-                        forecast_data, variable, name, forecast_day=forecast_day
-                    )
-                )
-        if forecast_hour is not None and "hourly" in SENSOR_TYPES[variable][7]:
-            for forecast_h in forecast_hour:
-                sensors.append(
-                    DarkSkySensor(
-                        forecast_data, variable, name, forecast_hour=forecast_h
-                    )
-                )
-
-    add_entities(sensors, True)
-
-
-
-class PirateWeatherSensor(SensorEntity):
-    """Class for an PirateWeather sensor."""
-
-    _attr_should_poll = False
-    _attr_attribution = ATTRIBUTION
-
-    def __init__(
-        self,
-        name: str,
-        unique_id,
-        weather_coordinator: WeatherUpdateCoordinator,
-        forecast_day: int,
-        forecast_hour: int,
-        condition: str,
-    ) -> None:
-        """Initialize the sensor."""
-        self._weather_coordinator = weather_coordinator
-        
-        self._attr_unique_id = unique_id
-        self._attr_name = name
-        self._attr_device_info = DeviceInfo(
-            entry_type=DeviceEntryType.SERVICE,
-            identifiers={(DOMAIN, unique_id)},
-            manufacturer=MANUFACTURER,
-            name=DEFAULT_NAME,
-        )
-
-        self._ds_data = self._weather_coordinator.data
-        self._ds_currently = self._weather_coordinator.data.currently()
-        self._ds_hourly = self._weather_coordinator.data.hourly()
-        self._ds_daily = self._weather_coordinator.data.daily()
-        
-        self.forecast_day = forecast_day
-        self.forecast_hour = forecast_hour
-        self.type = condition
-        self._state = None
-        self._icon = None
-        self._unit_of_measurement = None
-        
-
     @property
     def available(self) -> bool:
-        """Return True if entity is available."""
-        return self._coordinator.last_update_success
-
-
-    @property
-    def native_value(self) -> StateType:
-        """Return the state of the device."""
-        return self._weather_coordinator.data.get(self.entity_description.key, None)
+        """Return if weather data is available from PirateWeather."""
+        #return self._weather_coordinator.data is not None
+        return True
 
     @property
-    def state(self):
-        """Return the state of the sensor."""
-        return self._state
+    def attribution(self):
+        """Return the attribution."""
+        return ATTRIBUTION
+
+    #@property
+    #def state(self):
+    #    """Return the state of the sensor."""
+    #    return self._state
 
     @property
     def unit_of_measurement(self):
         """Return the unit of measurement of this entity, if any."""
-        return self._unit_of_measurement
+        return self.entity_description.native_unit_of_measurement
 
     @property
     def unit_system(self):
@@ -712,15 +692,69 @@ class PirateWeatherSensor(SensorEntity):
         """Return the state attributes."""
         return {ATTR_ATTRIBUTION: ATTRIBUTION}
 
+    @property
+    def native_value(self) -> StateType:
+        """Return the state of the device."""       
+        #_LOGGER.info("PW_Sensor_StateA4")
+        lookup_type = convert_to_camel(self.type)
+        #_LOGGER.info(self.forecast_hour)
+        #_LOGGER.info(self.forecast_day)
+        
+        
+        if self.type == "minutely_summary":
+            native_val = self._weather_coordinator.data.minutely().d.get("summary")
+            self._icon = self._weather_coordinator.data.minutely().d.get("icon")
+        elif self.type == "hourly_summary":
+            native_val = self._weather_coordinator.data.hourly().d.get("summary")
+            self._icon = self._weather_coordinator.data.hourly().d.get("icon")
+            
+        elif self.forecast_hour is not None:
+            hourly = self._weather_coordinator.data.hourly()
+            #_LOGGER.info('hourly')
+            if hasattr(hourly, "data"):
+                #_LOGGER.info(hourly.data[self.forecast_hour].d.get(self.type))
+                native_val = self.get_state(hourly.data[self.forecast_hour].d)
+            else:
+                native_val = 0
+                
+        elif self.type == "daily_summary":
+            native_val = self._weather_coordinator.data.daily().d.get("summary")
+            self._icon =  self._weather_coordinator.data.daily().d.get("icon")
+            
+        elif self.forecast_day is not None:
+            daily = self._weather_coordinator.data.daily()
+            #_LOGGER.info('daily')
+            if hasattr(daily, "data"):
+                native_val = self.get_state(daily.data[self.forecast_day].d)
+            else:
+                native_val = 0
+        else:
+            #_LOGGER.info('currently')
+            currently = self._weather_coordinator.data.currently()
+            native_val = self.get_state(currently.d)
+      
+        _LOGGER.info(native_val)
+        
+        #self._state = native_val
+
+        return native_val
+
+
     def get_state(self, data):
         """
         Return a new state based on the type.
 
         If the sensor type is unknown, the current state is returned.
         """
+        _LOGGER.info("PW_GetState")
         lookup_type = convert_to_camel(self.type)
-        state = getattr(data, lookup_type, None)
-
+        #_LOGGER.info(lookup_type)
+        _LOGGER.info(data)
+        #state = getattr(data, lookup_type, None)
+        state = data.get(lookup_type)
+        
+        #_LOGGER.info(state)
+        
         if state is None:
             return state
 
@@ -731,7 +765,9 @@ class PirateWeatherSensor(SensorEntity):
         # percentages
         if self.type in ["precip_probability", "cloud_cover", "humidity"]:
             return round(state * 100, 1)
-
+        
+        
+        
         if self.type in [
             "dew_point",
             "temperature",
@@ -755,42 +791,16 @@ class PirateWeatherSensor(SensorEntity):
     async def async_added_to_hass(self) -> None:
         """Connect to dispatcher listening for entity data notifications."""
         self.async_on_remove(
-            self._coordinator.async_add_listener(self.async_write_ha_state)
+            self._weather_coordinator.async_add_listener(self.async_write_ha_state)
         )
+            
+        
     async def async_update(self) -> None:
         """Get the latest data from PW and updates the states."""
-        _LOGGER.info("PW_Sensor_C")
-        await self._coordinator.async_request_refresh()   
-        _LOGGER.info("PW_Sensor_D")
+        _LOGGER.info("PW_Sensor_UpdateA")
+        await self._weather_coordinator.async_request_refresh()   
+        _LOGGER.info("PW_Sensor_UpdateB")
         
-        if self.type == "minutely_summary":
-            minutely = self._weather_coordinator.data.minutely()
-            self._state = getattr(minutely, "summary", "")
-            self._icon = getattr(minutely, "icon", "")
-        elif self.type == "hourly_summary":
-            hourly = self._weather_coordinator.data.hourly()
-            self._state = getattr(hourly, "summary", "")
-            self._icon = getattr(hourly, "icon", "")
-        elif self.forecast_hour is not None:
-            hourly = self._weather_coordinator.data.hourly()
-            if hasattr(hourly, "data"):
-                self._state = self.get_state(hourly.data[self.forecast_hour])
-            else:
-                self._state = 0
-        elif self.type == "daily_summary":
-            daily = self._weather_coordinator.data.daily()
-            self._state = getattr(daily, "summary", "")
-            self._icon = getattr(daily, "icon", "")
-        elif self.forecast_day is not None:
-            daily = self._weather_coordinator.data.daily()
-            if hasattr(daily, "data"):
-                self._state = self.get_state(daily.data[self.forecast_day])
-            else:
-                self._state = 0
-        else:
-            self.forecast_data.update_currently()
-            currently = self.forecast_data.data_currently
-            self._state = self.get_state(currently)
 
 
 def convert_to_camel(data):
