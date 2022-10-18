@@ -1,6 +1,4 @@
-"""Config flow for OpenWeatherMap."""
-from pyowm import OWM
-from pyowm.commons.exceptions import APIRequestError, UnauthorizedError
+"""Config flow for Pirate Weather."""
 import voluptuous as vol
 import logging
 
@@ -28,44 +26,15 @@ from .const import (
     CONF_UNITS,
     DEFAULT_UNITS,
     FORECASTS_DAILY,
-    FORECASTS_HOURLY
+    FORECASTS_HOURLY,
+    ALL_CONDITIONS,
 )
 
 ATTRIBUTION = "Powered by Pirate Weather"
 _LOGGER = logging.getLogger(__name__)
 
-
-all_conditions = {'precip_type': 'precip_type',
-                   'precip_intensity': 'precip_intensity',
-                   'precip_probability': 'precip_probability',
-                   'precip_accumulation': 'precip_accumulation',
-                   'temperature': 'temperature',
-                   'Condition 6': 'Condition 6',
-                   'Condition 7': 'Condition 7',
-                   'Condition 8': 'Condition 8',
-                   'Condition 9': 'Condition 9',
-                   'Condition 10': 'Condition 10',
-                   'Condition 11': 'Condition 11',
-                   'Condition 12': 'Condition 12',
-                   'Condition 13': 'Condition 13',
-                   'Condition 14': 'Condition 14',
-                   'Condition 15': 'Condition 15',
-                   'Condition 16': 'Condition 16',
-                   'Condition 17': 'Condition 17',
-                   'Condition 18': 'Condition 18'
-                }
-
-#SCHEMA = vol.Schema(
-#    {
-#        vol.Required(CONF_API_KEY): cv.string,
-#        vol.Optional(CONF_LATITUDE): cv.latitude,
-#        vol.Optional(CONF_LONGITUDE): cv.longitude,
-#        vol.Optional(CONF_MODE, default="hourly"): vol.In(FORECAST_MODES),
-#        vol.Optional(CONF_UNITS): vol.In(["auto", "si", "us", "ca", "uk", "uk2"]),
-#        vol.Optional(CONF_NAME, default=DEFAULT_NAME): cv.string,
-#    }
-#)
-
+CONF_FORECAST = "forecast"
+CONF_HOURLY_FORECAST = "hourly_forecast"
 
 
 class PirateWeatherConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
@@ -82,6 +51,7 @@ class PirateWeatherConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
     async def async_step_user(self, user_input=None):
         """Handle a flow initialized by the user."""
         errors = {}
+
         schema = vol.Schema(
           {
               vol.Required(CONF_API_KEY): str,
@@ -98,28 +68,28 @@ class PirateWeatherConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
               vol.Required(CONF_LANGUAGE, default=DEFAULT_LANGUAGE): vol.In(
                   LANGUAGES
               ),                                    
-              vol.Optional(CONF_UNITS, default=DEFAULT_UNITS): vol.In(["si", "us", "ca", "uk"]
-              ),
-              vol.Optional(FORECASTS_DAILY): vol.All(vol.Coerce(int), vol.Range(min=0, max=7)
-              ),
-              vol.Optional(FORECASTS_HOURLY): vol.All(
-                vol.Coerce(int), vol.Range(min=0, max=48)
-              ),
+              vol.Optional(CONF_FORECAST, default=""): str,
+              vol.Optional(CONF_HOURLY_FORECAST, default=""): str,
               vol.Optional(CONF_MONITORED_CONDITIONS, default=None):  cv.multi_select(
-                  all_conditions
-              ),               
+                  ALL_CONDITIONS
+              ),
+              vol.Optional(CONF_UNITS, default=DEFAULT_UNITS): vol.In(["si", "us", "ca", "uk"]
+              ),                             
           }
         ) 
         
+    
         
         if user_input is not None:
             latitude = user_input[CONF_LATITUDE]
             longitude = user_input[CONF_LONGITUDE]
-
-            _LOGGER.info("PW Unique ID")
-            await self.async_set_unique_id(f"{latitude}-{longitude}")            
+            forecastDays = user_input[CONF_FORECAST]
+            forecastHours = user_input[CONF_HOURLY_FORECAST]
+            
+            # Unique value includes the location and forcastHours/ forecastDays to seperate WeatherEntity/ Sensor            
+            await self.async_set_unique_id(f"pirateweather-{latitude}-{longitude}-{forecastDays}-{forecastHours}")            
             self._abort_if_unique_id_configured()
-
+            
             if not errors:
                 return self.async_create_entry(
                     title=user_input[CONF_NAME], data=user_input
@@ -131,6 +101,7 @@ class PirateWeatherConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
     async def async_step_import(self, import_input=None):
         """Set the config entry up from yaml."""
         config = import_input.copy()
+        
         if CONF_NAME not in config:
             config[CONF_NAME] = DEFAULT_NAME
         if CONF_LATITUDE not in config:
@@ -145,11 +116,15 @@ class PirateWeatherConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             config[CONF_UNITS] = DEFAULT_UNITS
         if CONF_MONITORED_CONDITIONS not in config:
             config[CONF_MONITORED_CONDITIONS] = None   
-        if FORECASTS_DAILY not in config:
-            config[FORECASTS_DAILY] = None               
-        if FORECASTS_HOURLY not in config:
-            config[FORECASTS_HOURLY] = None                            
+        if CONF_FORECAST not in config:
+            config[CONF_FORECAST] = None               
+        if CONF_HOURLY_FORECAST not in config:
+            config[CONF_HOURLY_FORECAST] = None
+        if CONF_API_KEY not in config:
+            config[CONF_API_KEY] = None   
+                                               
         return await self.async_step_user(config)
+
 
 class PirateWeatherOptionsFlow(config_entries.OptionsFlow):
     """Handle options."""
@@ -163,14 +138,39 @@ class PirateWeatherOptionsFlow(config_entries.OptionsFlow):
         if user_input is not None:
             return self.async_create_entry(title="", data=user_input)
 
-        return self.async_show_form(
-            step_id="init",
-            data_schema=self._get_options_schema(),
-        )
+        #return self.async_show_form(
+        #    step_id="user",
+        #    data_schema=self._get_options_schema(),
+        #)
 
-    def _get_options_schema(self):
-        return vol.Schema(
-            {
+    #def _get_options_schema(self):
+        #return vol.Schema(
+        
+        return self.async_show_form(
+            step_id="user",
+            data_schema=vol.Schema(
+              {
+                vol.Optional(
+                    CONF_NAME,
+                     default=self.config_entry.options.get(
+                       CONF_NAME,
+                       self.config_entry.data.get(CONF_NAME, DEFAULT_NAME),
+                       ),
+                       ): str,      
+                vol.Optional(
+                    CONF_LATITUDE,
+                     default=self.config_entry.options.get(
+                       CONF_LATITUDE,
+                       self.config_entry.data.get(CONF_LATITUDE, self.hass.config.latitude),
+                       ),
+                       ): cv.latitude,   
+                vol.Optional(
+                    CONF_LONGITUDE,
+                     default=self.config_entry.options.get(
+                       CONF_LONGITUDE,
+                       self.config_entry.data.get(CONF_LONGITUDE, self.hass.config.longitude),
+                       ),
+                       ): cv.longitude,                                                               
                 vol.Optional(
                     CONF_MODE,
                     default=self.config_entry.options.get(
@@ -185,9 +185,37 @@ class PirateWeatherOptionsFlow(config_entries.OptionsFlow):
                         self.config_entry.data.get(CONF_LANGUAGE, DEFAULT_LANGUAGE),
                     ),
                 ): vol.In(LANGUAGES),
-            }
+                vol.Optional(
+                    CONF_FORECAST,
+                     default=self.config_entry.options.get(
+                       CONF_FORECAST,
+                       self.config_entry.data.get(CONF_FORECAST, CONF_FORECAST),
+                       ),
+                       ): str,  
+                vol.Optional(
+                    CONF_HOURLY_FORECAST,
+                     default=self.config_entry.options.get(
+                       CONF_HOURLY_FORECAST,
+                       self.config_entry.data.get(CONF_HOURLY_FORECAST, CONF_HOURLY_FORECAST),
+                       ),
+                       ): str,           
+                vol.Optional(
+                    CONF_MONITORED_CONDITIONS,
+                     default=self.config_entry.options.get(
+                       CONF_MONITORED_CONDITIONS,
+                       self.config_entry.data.get(CONF_MONITORED_CONDITIONS, CONF_MONITORED_CONDITIONS),
+                       ),
+                       ): cv.multi_select(ALL_CONDITIONS),        
+                vol.Optional(
+                    CONF_UNITS,
+                     default=self.config_entry.options.get(
+                       CONF_UNITS,
+                       self.config_entry.data.get(CONF_UNITS, DEFAULT_UNITS),
+                       ),
+                       ): vol.In(["si", "us", "ca", "uk"]),                                                                         
+              }
+            ),
         )
-
 
 async def _is_pw_api_online(hass, api_key, lat, lon):
     return

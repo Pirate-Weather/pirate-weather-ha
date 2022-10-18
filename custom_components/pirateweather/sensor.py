@@ -5,19 +5,22 @@ import logging
 import forecastio
 from requests.exceptions import ConnectionError as ConnectError, HTTPError, Timeout
 import voluptuous as vol
+import homeassistant.helpers.config_validation as cv
 
 from homeassistant.components.sensor import (
     SensorDeviceClass,
     SensorEntity,
     SensorEntityDescription,
+    SensorStateClass
 )
-from homeassistant.config_entries import ConfigEntry
+from homeassistant.config_entries import SOURCE_IMPORT, ConfigEntry
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.device_registry import DeviceEntryType
 from homeassistant.helpers.entity import DeviceInfo
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.helpers.typing import StateType
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator
+from homeassistant.helpers.typing import DiscoveryInfoType
 from homeassistant.util import dt as dt_util
 
 from homeassistant.components.sensor import (
@@ -33,7 +36,6 @@ from homeassistant.const import (
     CONF_LONGITUDE,
     CONF_MONITORED_CONDITIONS,
     CONF_NAME,
-    CONF_SCAN_INTERVAL,
     DEGREE,
     LENGTH_CENTIMETERS,
     LENGTH_KILOMETERS,
@@ -67,9 +69,9 @@ from .const import (
     MANUFACTURER,    
     FORECASTS_HOURLY,
     FORECASTS_DAILY,
+    ALL_CONDITIONS,
 )
 
-import homeassistant.helpers.config_validation as cv
 from homeassistant.util import Throttle
 
 from .weather_update_coordinator import WeatherUpdateCoordinator
@@ -85,7 +87,6 @@ CONF_UNITS = "units"
 
 DEFAULT_LANGUAGE = "en"
 DEFAULT_NAME = "PirateWeather"
-SCAN_INTERVAL = timedelta(seconds=900)
 
 DEPRECATED_SENSOR_TYPES = {
     "apparent_temperature_max",
@@ -502,6 +503,53 @@ LANGUAGE_CODES = [
 ALLOWED_UNITS = ["auto", "si", "us", "ca", "uk", "uk2"]
 
 ALERTS_ATTRS = ["time", "description", "expires", "severity", "uri", "regions", "title"]
+   
+HOURS = [i for i in range(7)]
+       
+PLATFORM_SCHEMA = PLATFORM_SCHEMA.extend(
+    {
+        vol.Required(CONF_API_KEY): cv.string,
+        vol.Optional(CONF_NAME, default=DEFAULT_NAME): cv.string,
+        vol.Optional(CONF_UNITS): vol.In(ALLOWED_UNITS),
+        vol.Optional(CONF_LANGUAGE, default=DEFAULT_LANGUAGE): vol.In(LANGUAGE_CODES),
+        vol.Inclusive(
+            CONF_LATITUDE, "coordinates", "Latitude and longitude must exist together"
+        ): cv.latitude,
+        vol.Inclusive(
+            CONF_LONGITUDE, "coordinates", "Latitude and longitude must exist together"
+        ): cv.longitude,
+        vol.Optional(CONF_FORECAST): cv.multi_select(HOURS),
+        vol.Optional(CONF_HOURLY_FORECAST): cv.multi_select(HOURS),
+        vol.Optional(CONF_MONITORED_CONDITIONS, default=None):  cv.multi_select(
+            ALL_CONDITIONS
+        ),          
+    }
+)
+
+
+
+async def async_setup_platform(
+    hass: HomeAssistant,
+    config_entry: ConfigEntry,
+    async_add_entities: AddEntitiesCallback,
+    discovery_info: DiscoveryInfoType | None = None,
+) -> None:
+    """Import the platform into a config entry."""
+    _LOGGER.warning(
+        "Configuration of Pirate Weather sensor in YAML is deprecated "
+        "Your existing configuration has been imported into the UI automatically "
+        "and can be safely removed from your configuration.yaml file"
+    )
+
+    # Add source to config
+    config_entry['Source'] = 'Sensor_YAML'
+    
+    hass.async_create_task(
+      hass.config_entries.flow.async_init(
+        DOMAIN, context={"source": SOURCE_IMPORT}, data = config_entry
+      )
+    )
+
 
 async def async_setup_entry(
     hass: HomeAssistant, 
@@ -510,29 +558,36 @@ async def async_setup_entry(
 ) -> None:
     """Set up Pirate Weather sensor entities based on a config entry."""
     
-    domain_data = hass.data[DOMAIN][config_entry.entry_id]
-    name = domain_data[CONF_NAME]
     
+    domain_data = hass.data[DOMAIN][config_entry.entry_id]
+    
+    name = domain_data[CONF_NAME]
+    api_key = domain_data[CONF_API_KEY] 
     weather_coordinator = domain_data[ENTRY_WEATHER_COORDINATOR]
     conditions = domain_data[CONF_MONITORED_CONDITIONS]
-
-    forecast_days = domain_data[FORECASTS_DAILY]
-    forecast_hours = domain_data[FORECASTS_HOURLY]
+    latitude = domain_data[CONF_LATITUDE]
+    longitude = domain_data[CONF_LONGITUDE]
+    units = domain_data[CONF_UNITS]    
+    forecast_days = domain_data[CONF_FORECAST]
+    forecast_hours = domain_data[CONF_HOURLY_FORECAST]
     
     sensors: list[PirateWeatherSensor] = []
     
     
     for condition in conditions:
-        _LOGGER.info("PW_conditions")
         
         unit_index = {"si": 1, "us": 2, "ca": 3, "uk": 4, "uk2": 5}.get(
             domain_data[CONF_UNITS], 1
         )
         
+        # Save units for conversion later
+        requestUnits = domain_data[CONF_UNITS]
+        
         sensorDescription = SensorEntityDescription(
           key=condition,
           name=SENSOR_TYPES[condition][0],
           native_unit_of_measurement=SENSOR_TYPES[condition][unit_index],
+          state_class=SensorStateClass.MEASUREMENT
         )
         
         if condition in DEPRECATED_SENSOR_TYPES:
@@ -540,25 +595,25 @@ async def async_setup_entry(
             
         if not SENSOR_TYPES[condition][7] or "currently" in SENSOR_TYPES[condition][7]:
             unique_id = f"{config_entry.unique_id}-sensor-{condition}"
-            #if condition == "alerts":
-                #sensors.append(PirateWeatherAlertSensor(weather_coordinator, condition, name,  unique_id, forecast_day=None, forecast_hour=None))
-            #else:
-            sensors.append(PirateWeatherSensor(weather_coordinator, condition, name,  unique_id, forecast_day=None, forecast_hour=None, description=sensorDescription))
-
+            sensors.append(PirateWeatherSensor(weather_coordinator, condition, name,  unique_id, forecast_day=None, forecast_hour=None, description=sensorDescription, requestUnits=requestUnits))
+        
+      
         if forecast_days is not None and "daily" in SENSOR_TYPES[condition][7]:
-            for forecast_day in range(0, forecast_days):
+            #for forecast_day in range(0, forecast_days):
+            for forecast_day in forecast_days:
                 unique_id = f"{config_entry.unique_id}-sensor-{condition}-daily-{forecast_day}"
                 sensors.append(
                     PirateWeatherSensor(
-                        weather_coordinator, condition, name, unique_id, forecast_day=forecast_day, forecast_hour=None, description=sensorDescription
+                        weather_coordinator, condition, name, unique_id, forecast_day=int(forecast_day), forecast_hour=None, description=sensorDescription, requestUnits=requestUnits
                     )
                 )
         if forecast_hours is not None and "hourly" in SENSOR_TYPES[condition][7]:
-            for forecast_h in range(0, forecast_hours):
+            #for forecast_h in range(0, forecast_hours):
+            for forecast_h in forecast_hours:
                 unique_id = f"{config_entry.unique_id}-sensor-{condition}-hourly-{forecast_h}"
                 sensors.append(
                     PirateWeatherSensor(
-                        weather_coordinator, condition, name, unique_id, forecast_day=None, forecast_hour=forecast_h, description=sensorDescription
+                        weather_coordinator, condition, name, unique_id, forecast_day=None, forecast_hour=int(forecast_h), description=sensorDescription, requestUnits=requestUnits
                     )
                 )
 
@@ -579,7 +634,8 @@ class PirateWeatherSensor(SensorEntity):
         unique_id,
         forecast_day: int,
         forecast_hour: int,
-        description:  SensorEntityDescription
+        description:  SensorEntityDescription,
+        requestUnits:str
     ) -> None:
         """Initialize the sensor."""
         self.client_name = name
@@ -587,8 +643,6 @@ class PirateWeatherSensor(SensorEntity):
         description=description
         self.entity_description = description
         
-        _LOGGER.info("PW_SensorClass")
-        _LOGGER.info(description)
         
         self._weather_coordinator = weather_coordinator
         
@@ -601,18 +655,12 @@ class PirateWeatherSensor(SensorEntity):
             manufacturer=MANUFACTURER,
             name=DEFAULT_NAME,
         )
-
-        #self._ds_data = self._weather_coordinator.data
-        #self._ds_currently = self._weather_coordinator.data.currently()
-        #self._ds_hourly = self._weather_coordinator.data.hourly()
-        #self._ds_daily = self._weather_coordinator.data.daily()
         
         self.forecast_day = forecast_day
         self.forecast_hour = forecast_hour
+        self.requestUnits = requestUnits
         self.type = condition
-        #self._state = None
         self._icon = None
-        #self._unit_of_measurement = None
         self._name = SENSOR_TYPES[condition][0]
 
         self.description=description
@@ -630,21 +678,16 @@ class PirateWeatherSensor(SensorEntity):
     @property
     def available(self) -> bool:
         """Return if weather data is available from PirateWeather."""
-        #return self._weather_coordinator.data is not None
-        return True
+        return self._weather_coordinator.data is not None
 
     @property
     def attribution(self):
         """Return the attribution."""
         return ATTRIBUTION
 
-    #@property
-    #def state(self):
-    #    """Return the state of the sensor."""
-    #    return self._state
 
     @property
-    def unit_of_measurement(self):
+    def native_unit_of_measurement(self):
         """Return the unit of measurement of this entity, if any."""
         return self.entity_description.native_unit_of_measurement
 
@@ -666,9 +709,12 @@ class PirateWeatherSensor(SensorEntity):
 
     def update_unit_of_measurement(self):
         """Update units based on unit system."""
+        #unit_index = {"si": 1, "us": 2, "ca": 3, "uk": 4, "uk2": 5}.get(
+        #    self.unit_system, 1
+        #)
         unit_index = {"si": 1, "us": 2, "ca": 3, "uk": 4, "uk2": 5}.get(
-            self.unit_system, 1
-        )
+            self.requestUnits, 1)
+        
         self._unit_of_measurement = SENSOR_TYPES[self.type][unit_index]
 
     @property
@@ -695,13 +741,29 @@ class PirateWeatherSensor(SensorEntity):
     @property
     def native_value(self) -> StateType:
         """Return the state of the device."""       
-        #_LOGGER.info("PW_Sensor_StateA4")
         lookup_type = convert_to_camel(self.type)
-        #_LOGGER.info(self.forecast_hour)
-        #_LOGGER.info(self.forecast_day)
         
         
-        if self.type == "minutely_summary":
+        if  self.type == "alerts":
+            data = self._weather_coordinator.data.alerts()
+            
+            alerts = {}
+            if data is None:
+                self._alerts = alerts
+                return data
+    
+            multiple_alerts = len(data) > 1
+            for i, alert in enumerate(data):
+                for attr in ALERTS_ATTRS:
+                    if multiple_alerts:
+                        dkey = f"{attr}_{i!s}"
+                    else:
+                        dkey = attr
+                    alerts[dkey] = getattr(alert, attr)
+            self._alerts = alerts
+            native_val =  len(data)
+            
+        elif self.type == "minutely_summary":
             native_val = self._weather_coordinator.data.minutely().d.get("summary")
             self._icon = self._weather_coordinator.data.minutely().d.get("icon")
         elif self.type == "hourly_summary":
@@ -710,9 +772,7 @@ class PirateWeatherSensor(SensorEntity):
             
         elif self.forecast_hour is not None:
             hourly = self._weather_coordinator.data.hourly()
-            #_LOGGER.info('hourly')
             if hasattr(hourly, "data"):
-                #_LOGGER.info(hourly.data[self.forecast_hour].d.get(self.type))
                 native_val = self.get_state(hourly.data[self.forecast_hour].d)
             else:
                 native_val = 0
@@ -723,17 +783,13 @@ class PirateWeatherSensor(SensorEntity):
             
         elif self.forecast_day is not None:
             daily = self._weather_coordinator.data.daily()
-            #_LOGGER.info('daily')
             if hasattr(daily, "data"):
                 native_val = self.get_state(daily.data[self.forecast_day].d)
             else:
                 native_val = 0
         else:
-            #_LOGGER.info('currently')
             currently = self._weather_coordinator.data.currently()
             native_val = self.get_state(currently.d)
-      
-        _LOGGER.info(native_val)
         
         #self._state = native_val
 
@@ -746,14 +802,8 @@ class PirateWeatherSensor(SensorEntity):
 
         If the sensor type is unknown, the current state is returned.
         """
-        _LOGGER.info("PW_GetState")
         lookup_type = convert_to_camel(self.type)
-        #_LOGGER.info(lookup_type)
-        _LOGGER.info(data)
-        #state = getattr(data, lookup_type, None)
         state = data.get(lookup_type)
-        
-        #_LOGGER.info(state)
         
         if state is None:
             return state
@@ -767,6 +817,44 @@ class PirateWeatherSensor(SensorEntity):
             return round(state * 100, 1)
         
         
+        # Logic to convert from SI to requsested units for compatability
+        # Temps in F
+        if self.requestUnits in ["us"]:
+          if self.type in [
+              "dew_point",
+              "temperature",
+              "apparent_temperature",
+              "temperature_high",
+              "temperature_low",
+              "apparent_temperature_high",
+              "apparent_temperature_low",     
+          ]:
+              return ((state * 9 / 5) + 32)
+              
+        # KM to Miles      
+        if self.requestUnits in ["us", "uk", "uk2"]:
+          if self.type in [
+              "visibility",
+              "nearest_storm_distance",    
+          ]:
+              return (state * 0.621371)
+                      
+        # Meters to Miles      
+        if self.requestUnits in ["us", "uk", "uk2"]:
+          if self.type in [
+              "wind_speed",
+              "wind_gust",    
+          ]:
+              return (state * 0.000621371)        
+        
+        # Meters to Miles      
+        if self.requestUnits in ["ca"]:
+          if self.type in [
+              "wind_speed",
+              "wind_gust",    
+          ]:
+              return (state * 0.001)           
+   
         
         if self.type in [
             "dew_point",
@@ -795,11 +883,9 @@ class PirateWeatherSensor(SensorEntity):
         )
             
         
-    async def async_update(self) -> None:
-        """Get the latest data from PW and updates the states."""
-        _LOGGER.info("PW_Sensor_UpdateA")
-        await self._weather_coordinator.async_request_refresh()   
-        _LOGGER.info("PW_Sensor_UpdateB")
+    #async def async_update(self) -> None:
+    #    """Get the latest data from PW and updates the states."""
+    #    await self._weather_coordinator.async_request_refresh()   
         
 
 

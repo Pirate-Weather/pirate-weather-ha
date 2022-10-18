@@ -75,15 +75,50 @@ PLATFORMS = [Platform.SENSOR, Platform.WEATHER]
 
 FORECAST_MODE_HOURLY = "hourly"
 FORECAST_MODE_DAILY = "daily"
+FORECAST_MODE_NONE = "none"
 
 FORECAST_MODES = [
     FORECAST_MODE_HOURLY,
     FORECAST_MODE_DAILY,
+    FORECAST_MODE_NONE,    
     ]
 DEFAULT_FORECAST_MODE = FORECAST_MODE_DAILY
 
 FORECASTS_HOURLY = "forecasts_hourly"
 FORECASTS_DAILY = "forecasts_daily"
+
+ALL_CONDITIONS = {'summary': 'summary',
+                   'icon': 'icon',
+                   'precip_type': 'precip_type',
+                   'precip_intensity': 'precip_intensity',
+                   'precip_probability': 'precip_probability',
+                   'precip_accumulation': 'precip_accumulation',
+                   'temperature': 'temperature',
+                   'apparent_temperature': 'apparent_temperature',
+                   'dew_point': 'dew_point',
+                   'wind_speed': 'wind_speed',
+                   'wind_gust': 'wind_gust',
+                   'wind_bearing': 'wind_bearing',
+                   'cloud_cover': 'cloud_cover',
+                   'pressure': 'pressure',
+                   'visibility': 'visibility',
+                   'ozone': 'ozone',
+                   'minutely_summary': 'minutely_summary',
+                   'hourly_summary': 'hourly_summary',
+                   'daily_summary': 'daily_summary',
+                   'temperature_high': 'temperature_high',
+                   'temperature_low': 'temperature_low',
+                   'apparent_temperature_high': 'apparent_temperature_high',
+                   'apparent_temperature_low': 'apparent_temperature_low',
+                   'precip_intensity_max': 'precip_intensity_max',
+                   'uv_index': 'uv_index',
+                   'moon_phase': 'moon_phase',
+                   'sunrise_time': 'sunrise_time',
+                   'sunset_time': 'sunset_time',
+                   'nearest_storm_distance': 'nearest_storm_distance',         
+                   'nearest_storm_bearing': 'nearest_storm_bearing',
+                   'alerts': 'alerts'                   
+                }
 
 LANGUAGES = [
     "af",

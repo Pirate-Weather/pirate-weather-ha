@@ -40,25 +40,15 @@ from .const import (
     FORECASTS_DAILY,
 )
 
+CONF_FORECAST = "forecast"
+CONF_HOURLY_FORECAST = "hourly_forecast"
+
 #from .weather_update_coordinator import WeatherUpdateCoordinator, DarkSkyData
 from .weather_update_coordinator import WeatherUpdateCoordinator
 
 _LOGGER = logging.getLogger(__name__)
 ATTRIBUTION = "Powered by Pirate Weather"
 
-
-async def async_setup(hass: HomeAssistant, config: dict) -> bool:
-    """Set up the PirateWeather component."""
-    _LOGGER.info("PW Setup A")
-    hass.data.setdefault(DOMAIN, {})
-
-    weather_configs = _filter_domain_configs(config.get("weather", []), DOMAIN)
-    sensor_configs = _filter_domain_configs(config.get("sensor", []), DOMAIN)
-
-    _import_configs(hass, weather_configs + sensor_configs)
-    #_import_configs(hass, weather_configs)
-    _LOGGER.info("PW Setup B")
-    return True
 
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     """Set up Pirate Weather as config entry."""
@@ -70,28 +60,41 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     language = _get_config_value(entry, CONF_LANGUAGE)
     conditions = _get_config_value(entry, CONF_MONITORED_CONDITIONS)
     units = _get_config_value(entry, CONF_UNITS)
-    forecast_days = _get_config_value(entry, FORECASTS_DAILY)
-    forecast_hours = _get_config_value(entry, FORECASTS_HOURLY)
-    
-    _LOGGER.info("PW CONF_MODE_I")
-    _LOGGER.info(forecast_mode)
-    _LOGGER.info(entry)
-    _LOGGER.info(CONF_MODE)
-    
-#    owm = OWM(api_key, config_dict).weather_manager()
-#    weather_coordinator = WeatherUpdateCoordinator(
-#        owm, latitude, longitude, forecast_mode, hass
-#    )
+    forecast_days = _get_config_value(entry, CONF_FORECAST)
+    forecast_hours = _get_config_value(entry, CONF_HOURLY_FORECAST)
 
-    #dark_sky = DarkSkyData(api_key, latitude, longitude, units, hass)
-    #weather_coordinator = WeatherUpdateCoordinator(dark_sky, latitude, longitude, forecast_mode, hass)
-    weather_coordinator = WeatherUpdateCoordinator(api_key, latitude, longitude, units, forecast_mode, hass)
-
-    #_LOGGER.info("PW_Init_A")
-    #await weather_coordinator.async_config_entry_first_refresh()
-    await weather_coordinator.async_refresh()
+    # Extract list of int from forecast days/ hours string if present
+    if type(forecast_days) == str:
+      # If empty, set to none
+      if forecast_days == "":
+        forecast_days = None
+      else:
+        forecast_days = forecast_days.split(",")
+        forecast_days = [int(i) for i in forecast_days]
+    if type(forecast_hours) == str:
+    # If empty, set to none
+      if forecast_hours == "":
+        forecast_hours = None
+      else:
+        forecast_hours = forecast_hours.split(",")
+        forecast_hours = [int(i) for i in forecast_hours]
+      
+    unique_location = (f"pw-{latitude}-{longitude}")
+    _LOGGER.info("Pirate Weather Init")  
     
     hass.data.setdefault(DOMAIN, {})
+    # If coordinator already exists for this API key, we'll use that, otherwise
+    # we have to create a new one
+    if unique_location in hass.data[DOMAIN]:
+      weather_coordinator = hass.data[DOMAIN].get(unique_location)
+      #_LOGGER.warning('Old Coordinator')  
+    else:
+      weather_coordinator = WeatherUpdateCoordinator(api_key, latitude, longitude, hass)
+      hass.data[DOMAIN][unique_location] = weather_coordinator    
+      #_LOGGER.warning('New Coordinator') 
+
+    await weather_coordinator.async_refresh()
+    
     hass.data[DOMAIN][entry.entry_id] = {
         ENTRY_NAME: name,
         ENTRY_WEATHER_COORDINATOR: weather_coordinator,
@@ -101,16 +104,39 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         CONF_UNITS: units,
         CONF_MONITORED_CONDITIONS: conditions,
         CONF_MODE: forecast_mode,
-        FORECASTS_DAILY: forecast_days,
-        FORECASTS_HOURLY: forecast_hours
+        CONF_FORECAST: forecast_days,
+        CONF_HOURLY_FORECAST: forecast_hours
     }
-
-    hass.config_entries.async_setup_platforms(entry, PLATFORMS)
-    #await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
-
+  
+  
+    # If no source, then  from GUI
+    if "Source" not in entry.data:
+      # If no sensors
+      if forecast_days is None and forecast_hours is None:
+        #_LOGGER.info('GUI-No Sensors') 
+        await hass.config_entries.async_forward_entry_setup(entry, PLATFORMS[1])
+      elif forecast_mode is None: # If no weather entity is needed
+        #_LOGGER.info('GUI-No Weather') 
+        await hass.config_entries.async_forward_entry_setup(entry, PLATFORMS[0])
+      else:
+        #_LOGGER.info('GUI-Both') 
+        await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
+    # If only weather (from YAML) (Check for either forecast_days or forecast_hours
+    elif entry.data['Source'] == 'Weather_YAML':
+      #_LOGGER.info('YAML Weather') 
+      await hass.config_entries.async_forward_entry_setup(entry, PLATFORMS[1])
+    # else if sensor  
+    elif  entry.data['Source'] == 'Sensor_YAML':
+      #_LOGGER.info('YAML Sensor') 
+      await hass.config_entries.async_forward_entry_setup(entry, PLATFORMS[0])
+    #else both from GUI
+    else:
+      #_LOGGER.info('Source Other')
+      await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
+    
+    
     update_listener = entry.add_update_listener(async_update_options)
     hass.data[DOMAIN][entry.entry_id][UPDATE_LISTENER] = update_listener
-    _LOGGER.info("PW_Init_B")
     return True
 
 
@@ -138,14 +164,3 @@ def _get_config_value(config_entry: ConfigEntry, key: str) -> Any:
 
 def _filter_domain_configs(elements, domain):
     return list(filter(lambda elem: elem["platform"] == domain, elements))
-    
-def _import_configs(hass, configs):
-    for config in configs:
-        _LOGGER.info("Importing PW Config!")
-        hass.async_create_task(
-            hass.config_entries.flow.async_init(
-                DOMAIN,
-                context={"source": SOURCE_IMPORT},
-                data=config,
-            )
-        )
