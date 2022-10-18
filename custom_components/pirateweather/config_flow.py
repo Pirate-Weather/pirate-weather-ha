@@ -147,7 +147,7 @@ class PirateWeatherOptionsFlow(config_entries.OptionsFlow):
         #return vol.Schema(
         
         return self.async_show_form(
-            step_id="user",
+            step_id="init",
             data_schema=vol.Schema(
               {
                 vol.Optional(
