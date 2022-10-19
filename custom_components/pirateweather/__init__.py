@@ -38,6 +38,8 @@ from .const import (
     DEFAULT_NAME,
     FORECASTS_HOURLY,
     FORECASTS_DAILY,
+    PW_PLATFORMS,
+    PW_PLATFORM,    
 )
 
 CONF_FORECAST = "forecast"
@@ -62,6 +64,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     units = _get_config_value(entry, CONF_UNITS)
     forecast_days = _get_config_value(entry, CONF_FORECAST)
     forecast_hours = _get_config_value(entry, CONF_HOURLY_FORECAST)
+    pw_entity_platform = entry.data[PW_PLATFORM]
 
     # Extract list of int from forecast days/ hours string if present
     if type(forecast_days) == str:
@@ -69,14 +72,21 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
       if forecast_days == "":
         forecast_days = None
       else:
-        forecast_days = forecast_days.split(",")
+        if forecast_days[0] == '[':
+          forecast_days = forecast_days[1:-1].split(",")
+        else:    
+          forecast_days = forecast_days.split(",")
         forecast_days = [int(i) for i in forecast_days]
+        
     if type(forecast_hours) == str:
     # If empty, set to none
       if forecast_hours == "":
         forecast_hours = None
       else:
-        forecast_hours = forecast_hours.split(",")
+        if forecast_hours[0] == '[':
+          forecast_hours = forecast_hours[1:-1].split(",")
+        else:    
+          forecast_hours = forecast_hours.split(",")
         forecast_hours = [int(i) for i in forecast_hours]
       
     unique_location = (f"pw-{latitude}-{longitude}")
@@ -105,34 +115,20 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         CONF_MONITORED_CONDITIONS: conditions,
         CONF_MODE: forecast_mode,
         CONF_FORECAST: forecast_days,
-        CONF_HOURLY_FORECAST: forecast_hours
+        CONF_HOURLY_FORECAST: forecast_hours,
+        PW_PLATFORM: pw_entity_platform
     }
   
-  
-    # If no source, then  from GUI
-    if "Source" not in entry.data:
-      # If no sensors
-      if forecast_days is None and forecast_hours is None:
-        #_LOGGER.info('GUI-No Sensors') 
-        await hass.config_entries.async_forward_entry_setup(entry, PLATFORMS[1])
-      elif forecast_mode is None: # If no weather entity is needed
-        #_LOGGER.info('GUI-No Weather') 
-        await hass.config_entries.async_forward_entry_setup(entry, PLATFORMS[0])
-      else:
-        #_LOGGER.info('GUI-Both') 
-        await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
-    # If only weather (from YAML) (Check for either forecast_days or forecast_hours
-    elif entry.data['Source'] == 'Weather_YAML':
-      #_LOGGER.info('YAML Weather') 
-      await hass.config_entries.async_forward_entry_setup(entry, PLATFORMS[1])
-    # else if sensor  
-    elif  entry.data['Source'] == 'Sensor_YAML':
-      #_LOGGER.info('YAML Sensor') 
-      await hass.config_entries.async_forward_entry_setup(entry, PLATFORMS[0])
-    #else both from GUI
-    else:
-      #_LOGGER.info('Source Other')
+     
+    # If both platforms
+    if  (PW_PLATFORMS[0] in pw_entity_platform) and (PW_PLATFORMS[1] in pw_entity_platform):
       await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
+    # If only sensor  
+    elif PW_PLATFORMS[0] in pw_entity_platform:
+      await hass.config_entries.async_forward_entry_setup(entry, PLATFORMS[0])
+    # If only weather
+    elif PW_PLATFORMS[1] in pw_entity_platform:
+      await hass.config_entries.async_forward_entry_setup(entry, PLATFORMS[1])
     
     
     update_listener = entry.add_update_listener(async_update_options)
@@ -147,7 +143,20 @@ async def async_update_options(hass: HomeAssistant, entry: ConfigEntry) -> None:
 
 async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     """Unload a config entry."""
-    unload_ok = await hass.config_entries.async_unload_platforms(entry, PLATFORMS)
+    pw_entity_platform = entry.data[PW_PLATFORM]
+    #_LOGGER.warning(pw_entity_platform) 
+    
+    # If both
+    if (PW_PLATFORMS[0] in pw_entity_platform) and (PW_PLATFORMS[1] in pw_entity_platform):
+      unload_ok = await hass.config_entries.async_unload_platforms(entry, [PLATFORMS])
+    # If only sensor
+    elif PW_PLATFORMS[0] in pw_entity_platform:
+      unload_ok = await hass.config_entries.async_unload_platforms(entry, [PLATFORMS[0]])
+    # If only Weather
+    elif PW_PLATFORMS[1] in pw_entity_platform:
+      unload_ok = await hass.config_entries.async_unload_platforms(entry, [PLATFORMS[1]])
+
+   
     if unload_ok:
         update_listener = hass.data[DOMAIN][entry.entry_id][UPDATE_LISTENER]
         update_listener()

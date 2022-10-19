@@ -71,17 +71,18 @@ ATTR_API_WEATHER_CODE = "weather_code"
 ATTR_API_FORECAST = "forecast"
 UPDATE_LISTENER = "update_listener"
 PLATFORMS = [Platform.SENSOR, Platform.WEATHER]
-#PLATFORMS = [Platform.WEATHER]
+PW_PLATFORMS = ["Sensor", "Weather"]
+PW_PLATFORM = "pw_platform"
 
 FORECAST_MODE_HOURLY = "hourly"
 FORECAST_MODE_DAILY = "daily"
-FORECAST_MODE_NONE = "none"
 
 FORECAST_MODES = [
     FORECAST_MODE_HOURLY,
-    FORECAST_MODE_DAILY,
-    FORECAST_MODE_NONE,    
+    FORECAST_MODE_DAILY,    
     ]
+    
+    
 DEFAULT_FORECAST_MODE = FORECAST_MODE_DAILY
 
 FORECASTS_HOURLY = "forecasts_hourly"
@@ -96,6 +97,7 @@ ALL_CONDITIONS = {'summary': 'summary',
                    'temperature': 'temperature',
                    'apparent_temperature': 'apparent_temperature',
                    'dew_point': 'dew_point',
+                   'humidity': 'humidity',
                    'wind_speed': 'wind_speed',
                    'wind_gust': 'wind_gust',
                    'wind_bearing': 'wind_bearing',

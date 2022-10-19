@@ -70,6 +70,8 @@ from .const import (
     FORECASTS_HOURLY,
     FORECASTS_DAILY,
     ALL_CONDITIONS,
+    PW_PLATFORMS,
+    PW_PLATFORM,
 )
 
 from homeassistant.util import Throttle
@@ -504,8 +506,9 @@ ALLOWED_UNITS = ["auto", "si", "us", "ca", "uk", "uk2"]
 
 ALERTS_ATTRS = ["time", "description", "expires", "severity", "uri", "regions", "title"]
    
-HOURS = [i for i in range(7)]
-       
+HOURS = [i for i in range(49)]
+DAYS = [i for i in range(7)]     
+ 
 PLATFORM_SCHEMA = PLATFORM_SCHEMA.extend(
     {
         vol.Required(CONF_API_KEY): cv.string,
@@ -518,9 +521,12 @@ PLATFORM_SCHEMA = PLATFORM_SCHEMA.extend(
         vol.Inclusive(
             CONF_LONGITUDE, "coordinates", "Latitude and longitude must exist together"
         ): cv.longitude,
-        vol.Optional(CONF_FORECAST): cv.multi_select(HOURS),
+        vol.Optional(PW_PLATFORM): cv.multi_select(
+                  PW_PLATFORMS
+              ),
+        vol.Optional(CONF_FORECAST): cv.multi_select(DAYS),
         vol.Optional(CONF_HOURLY_FORECAST): cv.multi_select(HOURS),
-        vol.Optional(CONF_MONITORED_CONDITIONS, default=None):  cv.multi_select(
+        vol.Optional(CONF_MONITORED_CONDITIONS, default=None): cv.multi_select(
             ALL_CONDITIONS
         ),          
     }
@@ -541,8 +547,8 @@ async def async_setup_platform(
         "and can be safely removed from your configuration.yaml file"
     )
 
-    # Add source to config
-    config_entry['Source'] = 'Sensor_YAML'
+    # Define as a sensor platform
+    config_entry[PW_PLATFORM] = [PW_PLATFORMS[0]]
     
     hass.async_create_task(
       hass.config_entries.flow.async_init(

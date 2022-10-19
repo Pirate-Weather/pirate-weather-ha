@@ -81,6 +81,8 @@ from .const import (
     MANUFACTURER,    
     FORECASTS_HOURLY,
     FORECASTS_DAILY,
+    PW_PLATFORMS,
+    PW_PLATFORM,
 )
 
 
@@ -93,6 +95,7 @@ PLATFORM_SCHEMA = PLATFORM_SCHEMA.extend(
         vol.Required(CONF_API_KEY): cv.string,
         vol.Optional(CONF_LATITUDE): cv.latitude,
         vol.Optional(CONF_LONGITUDE): cv.longitude,
+        vol.Optional(PW_PLATFORM): cv.string,
         vol.Optional(CONF_MODE, default="hourly"): vol.In(FORECAST_MODES),
         vol.Optional(CONF_UNITS): vol.In(["auto", "si", "us", "ca", "uk", "uk2"]),
         vol.Optional(CONF_NAME, default=DEFAULT_NAME): cv.string,
@@ -136,7 +139,7 @@ async def async_setup_platform(
     
     
     # Add source to config
-    config_entry['Source'] = 'Weather_YAML'
+    config_entry[PW_PLATFORM] = [PW_PLATFORMS[1]]
     
     hass.async_create_task(
       hass.config_entries.flow.async_init(
