@@ -72,6 +72,7 @@ from .const import (
     ALL_CONDITIONS,
     PW_PLATFORMS,
     PW_PLATFORM,
+    PW_PREVPLATFORM,
 )
 
 from homeassistant.util import Throttle
@@ -524,6 +525,7 @@ PLATFORM_SCHEMA = PLATFORM_SCHEMA.extend(
         vol.Optional(PW_PLATFORM): cv.multi_select(
                   PW_PLATFORMS
               ),
+        vol.Optional(PW_PREVPLATFORM): cv.string,
         vol.Optional(CONF_FORECAST): cv.multi_select(DAYS),
         vol.Optional(CONF_HOURLY_FORECAST): cv.multi_select(HOURS),
         vol.Optional(CONF_MONITORED_CONDITIONS, default=None): cv.multi_select(
@@ -549,6 +551,8 @@ async def async_setup_platform(
 
     # Define as a sensor platform
     config_entry[PW_PLATFORM] = [PW_PLATFORMS[0]]
+    # Previous platform tracks what needs to be unloaded after options flow
+    #config_entry[PW_PREVPLATFORM] = [PW_PLATFORMS[0]]
     
     hass.async_create_task(
       hass.config_entries.flow.async_init(
@@ -770,11 +774,11 @@ class PirateWeatherSensor(SensorEntity):
             native_val =  len(data)
             
         elif self.type == "minutely_summary":
-            native_val = self._weather_coordinator.data.minutely().d.get("summary")
-            self._icon = self._weather_coordinator.data.minutely().d.get("icon")
+            native_val = getattr(self._weather_coordinator.data.minutely(),"summary", "")
+            self._icon = getattr(self._weather_coordinator.data.minutely(),"icon", "")
         elif self.type == "hourly_summary":
-            native_val = self._weather_coordinator.data.hourly().d.get("summary")
-            self._icon = self._weather_coordinator.data.hourly().d.get("icon")
+            native_val = getattr(self._weather_coordinator.data.hourly(),"summary", "")
+            self._icon = getattr(self._weather_coordinator.data.hourly(),"icon", "")
             
         elif self.forecast_hour is not None:
             hourly = self._weather_coordinator.data.hourly()
@@ -784,8 +788,8 @@ class PirateWeatherSensor(SensorEntity):
                 native_val = 0
                 
         elif self.type == "daily_summary":
-            native_val = self._weather_coordinator.data.daily().d.get("summary")
-            self._icon =  self._weather_coordinator.data.daily().d.get("icon")
+            native_val = getattr(self._weather_coordinator.data.daily(),"summary", "")
+            self._icon = getattr(self._weather_coordinator.data.daily(),"icon", "")
             
         elif self.forecast_day is not None:
             daily = self._weather_coordinator.data.daily()

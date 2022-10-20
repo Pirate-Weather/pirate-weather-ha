@@ -83,6 +83,7 @@ from .const import (
     FORECASTS_DAILY,
     PW_PLATFORMS,
     PW_PLATFORM,
+    PW_PREVPLATFORM,
 )
 
 
@@ -96,6 +97,7 @@ PLATFORM_SCHEMA = PLATFORM_SCHEMA.extend(
         vol.Optional(CONF_LATITUDE): cv.latitude,
         vol.Optional(CONF_LONGITUDE): cv.longitude,
         vol.Optional(PW_PLATFORM): cv.string,
+        vol.Optional(PW_PREVPLATFORM): cv.string,
         vol.Optional(CONF_MODE, default="hourly"): vol.In(FORECAST_MODES),
         vol.Optional(CONF_UNITS): vol.In(["auto", "si", "us", "ca", "uk", "uk2"]),
         vol.Optional(CONF_NAME, default=DEFAULT_NAME): cv.string,
@@ -140,6 +142,8 @@ async def async_setup_platform(
     
     # Add source to config
     config_entry[PW_PLATFORM] = [PW_PLATFORMS[1]]
+    # Previous platform tracks what needs to be unloaded after options flow
+    # config_entry[PW_PREVPLATFORM] = [PW_PLATFORMS[1]]
     
     hass.async_create_task(
       hass.config_entries.flow.async_init(

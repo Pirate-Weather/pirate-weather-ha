@@ -73,6 +73,7 @@ UPDATE_LISTENER = "update_listener"
 PLATFORMS = [Platform.SENSOR, Platform.WEATHER]
 PW_PLATFORMS = ["Sensor", "Weather"]
 PW_PLATFORM = "pw_platform"
+PW_PREVPLATFORM = "pw_prevplatform"
 
 FORECAST_MODE_HOURLY = "hourly"
 FORECAST_MODE_DAILY = "daily"

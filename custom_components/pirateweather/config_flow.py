@@ -30,6 +30,7 @@ from .const import (
     ALL_CONDITIONS,
     PW_PLATFORMS,
     PW_PLATFORM,
+    PW_PREVPLATFORM,
 )
 
 ATTRIBUTION = "Powered by Pirate Weather"
@@ -92,13 +93,17 @@ class PirateWeatherConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             forecastHours = user_input[CONF_HOURLY_FORECAST]
             
             # Unique value includes the location and forcastHours/ forecastDays to seperate WeatherEntity/ Sensor            
-            await self.async_set_unique_id(f"pirate-{latitude}-{longitude}-{forecastDays}-{forecastHours}")            
-            self._abort_if_unique_id_configured()
+            await self.async_set_unique_id(f"pirate2-{latitude}-{longitude}-{forecastDays}-{forecastHours}")            
             
+            self._abort_if_unique_id_configured()
+
+              
             if not errors:
                 return self.async_create_entry(
                     title=user_input[CONF_NAME], data=user_input
                 )
+            else:
+                _LOGGER.wanring(errors)
         
         return self.async_show_form(step_id="user", data_schema=schema, errors=errors)
 
@@ -128,7 +133,9 @@ class PirateWeatherConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         if CONF_API_KEY not in config:
             config[CONF_API_KEY] = None   
         if PW_PLATFORM not in config:
-            config[PW_PLATFORM] = None                                                  
+            config[PW_PLATFORM] = None     
+        if PW_PREVPLATFORM not in config:
+            config[PW_PREVPLATFORM] = None                                                              
         return await self.async_step_user(config)
 
 
@@ -142,8 +149,17 @@ class PirateWeatherOptionsFlow(config_entries.OptionsFlow):
     async def async_step_init(self, user_input=None):
         """Manage the options."""
         if user_input is not None:
+            entry = self.config_entry
+            
+            #if self.config_entry.options:
+            #  user_input[PW_PREVPLATFORM] = self.config_entry.options[PW_PLATFORM]
+            #else:
+            #user_input[PW_PREVPLATFORM] = self.hass.data[DOMAIN][entry.entry_id][PW_PLATFORM]
+            #self.hass.data[DOMAIN][entry.entry_id][PW_PREVPLATFORM] = self.hass.data[DOMAIN][entry.entry_id][PW_PLATFORM]
+            #user_input[PW_PREVPLATFORM] = self.hass.data[DOMAIN][entry.entry_id][PW_PLATFORM]
+            
             return self.async_create_entry(title="", data=user_input)
-        
+            
         return self.async_show_form(
             step_id="init",
             data_schema=vol.Schema(
@@ -169,13 +185,13 @@ class PirateWeatherOptionsFlow(config_entries.OptionsFlow):
                        self.config_entry.data.get(CONF_LONGITUDE, self.hass.config.longitude),
                        ),
                        ): cv.longitude,          
-                #vol.Required(
-                #    PW_PLATFORM,
-                #    default=self.config_entry.options.get(
-                #        PW_PLATFORM,
-                #        self.config_entry.data.get(PW_PLATFORM, []),
-                #    ),
-                #): cv.multi_select(PW_PLATFORMS),                                                                            
+                vol.Required(
+                    PW_PLATFORM,
+                    default=self.config_entry.options.get(
+                        PW_PLATFORM,
+                        self.config_entry.data.get(PW_PLATFORM, []),
+                    ),
+                ): cv.multi_select(PW_PLATFORMS),                                                                            
                 vol.Optional(
                     CONF_MODE,
                     default=self.config_entry.options.get(

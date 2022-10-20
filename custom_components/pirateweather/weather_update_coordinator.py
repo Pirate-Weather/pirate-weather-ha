@@ -53,7 +53,7 @@ class WeatherUpdateCoordinator(DataUpdateCoordinator):
         """Update the data."""
         #_LOGGER.warning("PW Weather Update A")   
         data = {}
-        async with async_timeout.timeout(20):
+        async with async_timeout.timeout(30):
             try:
                 data = await self._get_pw_weather()
             except (APIRequestError, UnauthorizedError) as error:

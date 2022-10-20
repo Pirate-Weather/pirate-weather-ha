@@ -19,7 +19,8 @@
                     "units": "Units for sensors. Not used unless sperate sensors are needed",
                     "forecast": "Daily forecasts sensors in csv form from 0-7 (ex. '0,1,3')",
                     "hourly_forecast":  "Hourly forecast sensors in csv form from 0-47 (ex. '0,1,10')",
-                    "monitored_conditions": "Monitored conditions sensors"
+                    "monitored_conditions": "Monitored conditions sensors",
+                    "pw_platform": "Weather Entity and/ or Sensor Entity"
                     
                 },
                 "description": "Set up Pirate Weather integration. To generate API key go to https://pirateweather.net",
@@ -40,7 +41,8 @@
                     "units": "Units for sensors. Not used unless sperate sensors are needed",
                     "forecast": "Daily forecasts sensors in csv form from 0-7 (ex. '0,1,3')",
                     "hourly_forecast":  "Hourly forecast sensors in csv form from 0-47 (ex. '0,1,10')",
-                    "monitored_conditions": "Monitored conditions sensors"
+                    "monitored_conditions": "Monitored conditions sensors",
+                    "pw_platform": "Weather Entity and/ or Sensor Entity"
                     
                 },
                 "description": "Set up Pirate Weather integration. To generate API key go to https://pirateweather.net",
