@@ -14,14 +14,14 @@
                     "language": "Language",
                     "latitude": "Latitude",
                     "longitude": "Longitude",
-                    "mode": "Weather entity forecast mode",
+                    "mode": "Forecast mode for the Weather entity",
                     "name": "Integration Name",
                     "units": "Units for sensors. Not used unless sperate sensors are needed",
-                    "forecast": "Daily forecasts sensors in csv form from 0-7 (ex. '0,1,3')",
-                    "hourly_forecast":  "Hourly forecast sensors in csv form from 0-47 (ex. '0,1,10')",
-                    "monitored_conditions": "Monitored conditions sensors",
-                    "pw_platform": "Weather Entity and/ or Sensor Entity"
-                    
+                    "forecast": "Daily forecasts sensors in csv form from 0-7 (ex. '0,1,3'). Only use if seperate sensors are needed!",
+                    "hourly_forecast":  "Hourly forecast sensors in csv form from 0-47 (ex. '0,1,10'). Only use if seperate sensors are needed!",
+                    "monitored_conditions": "Monitored conditions. Only use if seperate sensors are needed!",
+                    "pw_platform": "Weather Entity and/or Sensor Entity. Selecting Sensor will create seperate entities for each condition at each time! If unsure, only select Weather!",
+                    "pw_round": "Round values to the nearest integer. Ensure that the selected units match the system units."                    
                 },
                 "description": "Set up Pirate Weather integration. To generate API key go to https://pirateweather.net",
                 "title": "Pirate Weather"
@@ -36,14 +36,14 @@
                     "language": "Language",
                     "latitude": "Latitude",
                     "longitude": "Longitude",
-                    "mode": "Weather entity forecast mode",
+                    "mode": "Forecast mode for the Weather entity",
                     "name": "Integration Name",
                     "units": "Units for sensors. Not used unless sperate sensors are needed",
-                    "forecast": "Daily forecasts sensors in csv form from 0-7 (ex. '0,1,3')",
-                    "hourly_forecast":  "Hourly forecast sensors in csv form from 0-47 (ex. '0,1,10')",
-                    "monitored_conditions": "Monitored conditions sensors",
-                    "pw_platform": "Weather Entity and/ or Sensor Entity"
-                    
+                    "forecast": "Daily forecasts sensors in csv form from 0-7 (ex. '0,1,3'). Only use if seperate sensors are needed!",
+                    "hourly_forecast":  "Hourly forecast sensors in csv form from 0-47 (ex. '0,1,10'). Only use if seperate sensors are needed!",
+                    "monitored_conditions": "Monitored conditions. Only use if seperate sensors are needed!",
+                    "pw_platform": "Weather Entity and/or Sensor Entity. Selecting Sensor will create seperate entities for each condition at each time! If unsure, only select Weather!",
+                    "pw_round": "Round values to the nearest integer. Ensure that the selected units match the system units." 
                 },
                 "description": "Set up Pirate Weather integration. To generate API key go to https://pirateweather.net",
                 "title": "Pirate Weather"

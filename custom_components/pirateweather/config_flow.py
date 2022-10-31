@@ -31,6 +31,7 @@ from .const import (
     PW_PLATFORMS,
     PW_PLATFORM,
     PW_PREVPLATFORM,
+    PW_ROUND,
 )
 
 ATTRIBUTION = "Powered by Pirate Weather"
@@ -79,6 +80,8 @@ class PirateWeatherConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
               vol.Optional(CONF_MONITORED_CONDITIONS, default=[]):  cv.multi_select(
                   ALL_CONDITIONS
               ),
+              vol.Optional(PW_ROUND, default="No"): vol.In(["Yes", "No"]
+              ),                
               vol.Optional(CONF_UNITS, default=DEFAULT_UNITS): vol.In(["si", "us", "ca", "uk"]
               ),                             
           }
@@ -91,9 +94,10 @@ class PirateWeatherConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             longitude = user_input[CONF_LONGITUDE]
             forecastDays = user_input[CONF_FORECAST]
             forecastHours = user_input[CONF_HOURLY_FORECAST]
+            forecastMode = user_input[CONF_MODE]
             
             # Unique value includes the location and forcastHours/ forecastDays to seperate WeatherEntity/ Sensor            
-            await self.async_set_unique_id(f"pirate2-{latitude}-{longitude}-{forecastDays}-{forecastHours}")            
+            await self.async_set_unique_id(f"pirate2-{latitude}-{longitude}-{forecastDays}-{forecastHours}-{forecastMode}")            
             
             self._abort_if_unique_id_configured()
 
@@ -135,7 +139,9 @@ class PirateWeatherConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         if PW_PLATFORM not in config:
             config[PW_PLATFORM] = None     
         if PW_PREVPLATFORM not in config:
-            config[PW_PREVPLATFORM] = None                                                              
+            config[PW_PREVPLATFORM] = None        
+        if PW_ROUND not in config:
+            config[PW_ROUND] = "No"                                        
         return await self.async_step_user(config)
 
 
@@ -233,7 +239,14 @@ class PirateWeatherOptionsFlow(config_entries.OptionsFlow):
                        CONF_UNITS,
                        self.config_entry.data.get(CONF_UNITS, DEFAULT_UNITS),
                        ),
-                       ): vol.In(["si", "us", "ca", "uk"]),                                                                         
+                       ): vol.In(["si", "us", "ca", "uk"]),   
+                vol.Optional(
+                    PW_ROUND,
+                     default=self.config_entry.options.get(
+                       PW_ROUND,
+                       self.config_entry.data.get(PW_ROUND, "No"),
+                       ),
+                       ): vol.In(["Yes", "No"]),                                                                                              
               }
             ),
         )

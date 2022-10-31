@@ -74,6 +74,7 @@ PLATFORMS = [Platform.SENSOR, Platform.WEATHER]
 PW_PLATFORMS = ["Sensor", "Weather"]
 PW_PLATFORM = "pw_platform"
 PW_PREVPLATFORM = "pw_prevplatform"
+PW_ROUND = "pw_round" 
 
 FORECAST_MODE_HOURLY = "hourly"
 FORECAST_MODE_DAILY = "daily"
@@ -89,38 +90,38 @@ DEFAULT_FORECAST_MODE = FORECAST_MODE_DAILY
 FORECASTS_HOURLY = "forecasts_hourly"
 FORECASTS_DAILY = "forecasts_daily"
 
-ALL_CONDITIONS = {'summary': 'summary',
-                   'icon': 'icon',
-                   'precip_type': 'precip_type',
-                   'precip_intensity': 'precip_intensity',
-                   'precip_probability': 'precip_probability',
-                   'precip_accumulation': 'precip_accumulation',
-                   'temperature': 'temperature',
-                   'apparent_temperature': 'apparent_temperature',
-                   'dew_point': 'dew_point',
-                   'humidity': 'humidity',
-                   'wind_speed': 'wind_speed',
-                   'wind_gust': 'wind_gust',
-                   'wind_bearing': 'wind_bearing',
-                   'cloud_cover': 'cloud_cover',
-                   'pressure': 'pressure',
-                   'visibility': 'visibility',
-                   'ozone': 'ozone',
-                   'minutely_summary': 'minutely_summary',
-                   'hourly_summary': 'hourly_summary',
-                   'daily_summary': 'daily_summary',
-                   'temperature_high': 'temperature_high',
-                   'temperature_low': 'temperature_low',
-                   'apparent_temperature_high': 'apparent_temperature_high',
-                   'apparent_temperature_low': 'apparent_temperature_low',
-                   'precip_intensity_max': 'precip_intensity_max',
-                   'uv_index': 'uv_index',
-                   'moon_phase': 'moon_phase',
-                   'sunrise_time': 'sunrise_time',
-                   'sunset_time': 'sunset_time',
-                   'nearest_storm_distance': 'nearest_storm_distance',         
-                   'nearest_storm_bearing': 'nearest_storm_bearing',
-                   'alerts': 'alerts'                   
+ALL_CONDITIONS = {'summary': 'Summary',
+                   'icon': 'Icon',
+                   'precip_type': 'Precipitation Type',
+                   'precip_intensity': 'Precipitation Intensity',
+                   'precip_probability': 'Precipitation Probability',
+                   'precip_accumulation': 'Precipitation Accumulation',
+                   'temperature': 'Temperature',
+                   'apparent temperature': 'Apparent Temperature',
+                   'dew_point': 'Dew Point',
+                   'humidity': 'Humidity',
+                   'wind_speed': 'Wind Speed',
+                   'wind_gust': 'Wind Gust',
+                   'wind_bearing': 'Wind Bearing',
+                   'cloud_cover': 'Cloud Cover',
+                   'pressure': 'Pressure',
+                   'visibility': 'Visibility',
+                   'ozone': 'Ozone',
+                   'minutely_summary': 'Minutely Summary',
+                   'hourly_summary': 'Hourly Summary',
+                   'daily_summary': 'Daily Summary',
+                   'temperature_high': 'Temperature High',
+                   'temperature_low': 'Temperature Low',
+                   'apparent_temperature_high': 'Apparent Temperatur High',
+                   'apparent_temperature_low': 'Apparent Temperature Low',
+                   'precip_intensity_max': 'Precip Intensity Max',
+                   'uv_index': 'UV Index',
+                   'moon_phase': 'Moon Phase',
+                   'sunrise_time': 'Sunrise Time',
+                   'sunset_time': 'Sunset Time',
+                   'nearest_storm_distance': 'Nearest Storm Distance',         
+                   'nearest_storm_bearing': 'Nearest Storm Bearing',
+                   'alerts': 'Alerts'                   
                 }
 
 LANGUAGES = [

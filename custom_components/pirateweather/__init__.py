@@ -41,6 +41,7 @@ from .const import (
     PW_PLATFORMS,
     PW_PLATFORM, 
     PW_PREVPLATFORM,   
+    PW_ROUND,
 )
 
 CONF_FORECAST = "forecast"
@@ -66,7 +67,9 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     forecast_days = _get_config_value(entry, CONF_FORECAST)
     forecast_hours = _get_config_value(entry, CONF_HOURLY_FORECAST)
     pw_entity_platform = _get_config_value(entry, PW_PLATFORM)
-
+    pw_entity_rounding = _get_config_value(entry, PW_ROUND)
+    
+    
     # Extract list of int from forecast days/ hours string if present
     if type(forecast_days) == str:
       # If empty, set to none
@@ -117,7 +120,8 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         CONF_MODE: forecast_mode,
         CONF_FORECAST: forecast_days,
         CONF_HOURLY_FORECAST: forecast_hours,
-        PW_PLATFORM: pw_entity_platform
+        PW_PLATFORM: pw_entity_platform,
+        PW_ROUND: pw_entity_rounding
     }
 
     # If both platforms
@@ -158,8 +162,6 @@ async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     # If only Weather
     elif PW_PLATFORMS[1] in pw_entity_prevplatform:
       unload_ok = await hass.config_entries.async_unload_platforms(entry, [PLATFORMS[1]])
-    
-    _LOGGER.warning(unload_ok)
     
     if unload_ok:
         update_listener = hass.data[DOMAIN][entry.entry_id][UPDATE_LISTENER]

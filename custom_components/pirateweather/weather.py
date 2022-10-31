@@ -84,6 +84,7 @@ from .const import (
     PW_PLATFORMS,
     PW_PLATFORM,
     PW_PREVPLATFORM,
+    PW_ROUND,
 )
 
 
@@ -142,9 +143,10 @@ async def async_setup_platform(
     
     # Add source to config
     config_entry[PW_PLATFORM] = [PW_PLATFORMS[1]]
-    # Previous platform tracks what needs to be unloaded after options flow
-    # config_entry[PW_PREVPLATFORM] = [PW_PLATFORMS[1]]
-    
+
+    # Set as no rounding for compatability
+    config_entry[PW_ROUND] = "No"  
+        
     hass.async_create_task(
       hass.config_entries.flow.async_init(
         DOMAIN, context={"source": SOURCE_IMPORT}, data = config_entry
@@ -170,9 +172,10 @@ async def async_setup_entry(
     
     unique_id = f"{config_entry.unique_id}"
     
-    #dark_sky = DarkSkyData(api_key, latitude, longitude, units, hass)
-    
-    pw_weather = PirateWeather(name, unique_id, forecast_mode, weather_coordinator)
+    # Round Output
+    outputRound = domain_data[PW_ROUND]     
+     
+    pw_weather = PirateWeather(name, unique_id, forecast_mode, weather_coordinator, outputRound)
 
     async_add_entities([pw_weather], False)
     #_LOGGER.info(pw_weather.__dict__)
@@ -195,6 +198,7 @@ class PirateWeather(WeatherEntity):
         unique_id,
         forecast_mode: str,
         weather_coordinator: WeatherUpdateCoordinator,
+        outputRound: str,
     ) -> None:
         """Initialize the sensor."""
         self._attr_name = name
@@ -212,7 +216,8 @@ class PirateWeather(WeatherEntity):
         self._ds_currently = self._weather_coordinator.data.currently()
         self._ds_hourly = self._weather_coordinator.data.hourly()
         self._ds_daily = self._weather_coordinator.data.daily()
-
+        
+        self.outputRound = outputRound
 
     @property
     def unique_id(self):
@@ -237,19 +242,34 @@ class PirateWeather(WeatherEntity):
     @property
     def native_temperature(self):
         """Return the temperature."""
-        return self._weather_coordinator.data.currently().d.get("temperature")
-
+        temperature = self._weather_coordinator.data.currently().d.get("temperature")
+        
+        if self.outputRound=="Yes":
+          return round(temperature, 0)
+        else:
+          return round(temperature, 2)
                 
     @property
     def humidity(self):
         """Return the humidity."""
-        return round(self._weather_coordinator.data.currently().d.get("humidity") * 100.0, 2)
+        humidity = self._weather_coordinator.data.currently().d.get("humidity") * 100.0
 
+        if self.outputRound=="Yes":
+          return round(humidity, 0)
+        else:
+          return round(humidity, 2)
+          
+          
     @property
     def native_wind_speed(self):
         """Return the wind speed."""
-        return self._weather_coordinator.data.currently().d.get("windSpeed")
+        windspeed = self._weather_coordinator.data.currently().d.get("windSpeed")
 
+        if self.outputRound=="Yes":
+          return round(windspeed, 0)
+        else:
+          return round(windspeed, 2)
+          
     @property
     def wind_bearing(self):
         """Return the wind bearing."""
@@ -258,19 +278,33 @@ class PirateWeather(WeatherEntity):
     @property
     def ozone(self):
         """Return the ozone level."""
-        return self._weather_coordinator.data.currently().d.get("ozone")
-
+        ozone = self._weather_coordinator.data.currently().d.get("ozone")
+        
+        if self.outputRound=="Yes":
+          return round(ozone, 0)
+        else:
+          return round(ozone, 2)
+          
     @property
     def native_pressure(self):
         """Return the pressure."""
         pressure = self._weather_coordinator.data.currently().d.get("pressure")
-        return round(pressure, 2)
+        
+        if self.outputRound=="Yes":
+          return round(pressure, 0)
+        else:
+          return round(pressure, 2)
 
         
     @property
     def native_visibility(self):
         """Return the visibility."""
-        return self._weather_coordinator.data.currently().d.get("visibility")
+        visibility = self._weather_coordinator.data.currently().d.get("visibility")
+        
+        if self.outputRound=="Yes":
+          return round(visibility, 0)
+        else:
+          return round(visibility, 2)        
 
     @property
     def condition(self):

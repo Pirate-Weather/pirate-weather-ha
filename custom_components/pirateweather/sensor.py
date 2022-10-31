@@ -73,6 +73,7 @@ from .const import (
     PW_PLATFORMS,
     PW_PLATFORM,
     PW_PREVPLATFORM,
+    PW_ROUND,
 )
 
 from homeassistant.util import Throttle
@@ -554,6 +555,9 @@ async def async_setup_platform(
     # Previous platform tracks what needs to be unloaded after options flow
     #config_entry[PW_PREVPLATFORM] = [PW_PLATFORMS[0]]
     
+    # Set as no rounding for compatability
+    config_entry[PW_ROUND] = "No"    
+    
     hass.async_create_task(
       hass.config_entries.flow.async_init(
         DOMAIN, context={"source": SOURCE_IMPORT}, data = config_entry
@@ -581,7 +585,11 @@ async def async_setup_entry(
     forecast_days = domain_data[CONF_FORECAST]
     forecast_hours = domain_data[CONF_HOURLY_FORECAST]
     
+    # Round Output
+    outputRound = domain_data[PW_ROUND]    
+    
     sensors: list[PirateWeatherSensor] = []
+    
     
     
     for condition in conditions:
@@ -605,7 +613,7 @@ async def async_setup_entry(
             
         if not SENSOR_TYPES[condition][7] or "currently" in SENSOR_TYPES[condition][7]:
             unique_id = f"{config_entry.unique_id}-sensor-{condition}"
-            sensors.append(PirateWeatherSensor(weather_coordinator, condition, name,  unique_id, forecast_day=None, forecast_hour=None, description=sensorDescription, requestUnits=requestUnits))
+            sensors.append(PirateWeatherSensor(weather_coordinator, condition, name,  unique_id, forecast_day=None, forecast_hour=None, description=sensorDescription, requestUnits=requestUnits, outputRound=outputRound))
         
       
         if forecast_days is not None and "daily" in SENSOR_TYPES[condition][7]:
@@ -614,7 +622,7 @@ async def async_setup_entry(
                 unique_id = f"{config_entry.unique_id}-sensor-{condition}-daily-{forecast_day}"
                 sensors.append(
                     PirateWeatherSensor(
-                        weather_coordinator, condition, name, unique_id, forecast_day=int(forecast_day), forecast_hour=None, description=sensorDescription, requestUnits=requestUnits
+                        weather_coordinator, condition, name, unique_id, forecast_day=int(forecast_day), forecast_hour=None, description=sensorDescription, requestUnits=requestUnits, outputRound=outputRound
                     )
                 )
         if forecast_hours is not None and "hourly" in SENSOR_TYPES[condition][7]:
@@ -623,7 +631,7 @@ async def async_setup_entry(
                 unique_id = f"{config_entry.unique_id}-sensor-{condition}-hourly-{forecast_h}"
                 sensors.append(
                     PirateWeatherSensor(
-                        weather_coordinator, condition, name, unique_id, forecast_day=None, forecast_hour=int(forecast_h), description=sensorDescription, requestUnits=requestUnits
+                        weather_coordinator, condition, name, unique_id, forecast_day=None, forecast_hour=int(forecast_h), description=sensorDescription, requestUnits=requestUnits, outputRound=outputRound
                     )
                 )
 
@@ -645,7 +653,8 @@ class PirateWeatherSensor(SensorEntity):
         forecast_day: int,
         forecast_hour: int,
         description:  SensorEntityDescription,
-        requestUnits:str
+        requestUnits: str,
+        outputRound: str
     ) -> None:
         """Initialize the sensor."""
         self.client_name = name
@@ -669,6 +678,7 @@ class PirateWeatherSensor(SensorEntity):
         self.forecast_day = forecast_day
         self.forecast_hour = forecast_hour
         self.requestUnits = requestUnits
+        self.outputRound = outputRound
         self.type = condition
         self._icon = None
         self._name = SENSOR_TYPES[condition][0]
@@ -821,10 +831,16 @@ class PirateWeatherSensor(SensorEntity):
         if "summary" in self.type:
             self._icon = getattr(data, "icon", "")
 
+        # If output rounding is requested, round to nearest integer
+        if self.outputRound == "Yes":
+          roundingVal = 0
+        else:
+          roundingVal = 1
+
         # Some state data needs to be rounded to whole values or converted to
         # percentages
         if self.type in ["precip_probability", "cloud_cover", "humidity"]:
-            return round(state * 100, 1)
+            state = round(state * 100, roundingVal)
         
         
         # Logic to convert from SI to requsested units for compatability
@@ -839,31 +855,32 @@ class PirateWeatherSensor(SensorEntity):
               "apparent_temperature_high",
               "apparent_temperature_low",     
           ]:
-              return ((state * 9 / 5) + 32)
+              state = ((state * 9 / 5) + 32)
               
-        # KM to Miles      
+        # Km to Miles      
         if self.requestUnits in ["us", "uk", "uk2"]:
           if self.type in [
               "visibility",
               "nearest_storm_distance",    
           ]:
-              return (state * 0.621371)
+              state = (state * 0.621371)
                       
-        # Meters to Miles      
+        # Meters/second to Miles/hour      
         if self.requestUnits in ["us", "uk", "uk2"]:
           if self.type in [
               "wind_speed",
               "wind_gust",    
           ]:
-              return (state * 0.000621371)        
+              state =  (state * 2.23694)        
         
-        # Meters to Miles      
+        # Meters/second to Km/ hour      
         if self.requestUnits in ["ca"]:
           if self.type in [
               "wind_speed",
               "wind_gust",    
           ]:
-              return (state * 0.001)           
+              state = (state * 3.6)           
+   
    
         
         if self.type in [
@@ -882,9 +899,15 @@ class PirateWeatherSensor(SensorEntity):
             "pressure",
             "ozone",
             "uvIndex",
+            "wind_speed",
+            "wind_gust",
         ]:
-            return round(state, 1)
-        return state
+            outState = round(state, roundingVal)
+            
+        else:
+          outState = state
+        
+        return outState
 
     async def async_added_to_hass(self) -> None:
         """Connect to dispatcher listening for entity data notifications."""
