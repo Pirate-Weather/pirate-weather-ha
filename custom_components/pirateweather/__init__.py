@@ -168,7 +168,11 @@ async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         update_listener()
          
         hass.data[DOMAIN].pop(entry.entry_id)
-
+    
+    #_LOGGER.warning('INIT UNLOAD')
+    #_LOGGER.warning(entry.entry_id)
+    #_LOGGER.warning(unload_ok)
+    
     return unload_ok
 
 

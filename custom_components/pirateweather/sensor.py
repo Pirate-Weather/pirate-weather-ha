@@ -840,7 +840,10 @@ class PirateWeatherSensor(SensorEntity):
         # Some state data needs to be rounded to whole values or converted to
         # percentages
         if self.type in ["precip_probability", "cloud_cover", "humidity"]:
-            state = round(state * 100, roundingVal)
+            if roundingVal == 0:
+              state = int(round(state * 100, roundingVal))
+            else:
+              state = round(state * 100, roundingVal)
         
         
         # Logic to convert from SI to requsested units for compatability
@@ -902,7 +905,11 @@ class PirateWeatherSensor(SensorEntity):
             "wind_speed",
             "wind_gust",
         ]:
-            outState = round(state, roundingVal)
+        
+            if roundingVal == 0:
+              outState = int(round(state, roundingVal))
+            else:
+              outState = round(state, roundingVal)
             
         else:
           outState = state
