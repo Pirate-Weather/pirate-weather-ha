@@ -17,24 +17,25 @@ from homeassistant.helpers import sun
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, UpdateFailed
 from homeassistant.util import dt
 
+
 from .const import (
     DOMAIN,
 )
 
 _LOGGER = logging.getLogger(__name__)
 
-WEATHER_UPDATE_INTERVAL = timedelta(minutes=10)
 ATTRIBUTION = "Powered by Pirate Weather"
 
         
 class WeatherUpdateCoordinator(DataUpdateCoordinator):
     """Weather data update coordinator."""
 
-    def __init__(self, api_key, latitude, longitude, hass):
+    def __init__(self, api_key, latitude, longitude, pw_scan_Int, hass):
         """Initialize coordinator."""
         self._api_key = api_key
         self.latitude = latitude
         self.longitude = longitude
+        self.pw_scan_Int = pw_scan_Int
         self.requested_units = "si"
         
         self.data = None
@@ -44,14 +45,13 @@ class WeatherUpdateCoordinator(DataUpdateCoordinator):
         self._connect_error = False
 
         super().__init__(
-            hass, _LOGGER, name=DOMAIN, update_interval=WEATHER_UPDATE_INTERVAL
+            hass, _LOGGER, name=DOMAIN, update_interval=pw_scan_Int
         )
                
                  
                         
     async def _async_update_data(self):
         """Update the data."""
-        #_LOGGER.warning("PW Weather Update A")   
         data = {}
         async with async_timeout.timeout(30):
             try:
@@ -72,7 +72,6 @@ class WeatherUpdateCoordinator(DataUpdateCoordinator):
             status = resp.raise_for_status()
             
             data = Forecast(jsonText, status, headers)
-            #_LOGGER.warning("PW Weather Update B")   
                 
         return data
 

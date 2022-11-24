@@ -1,6 +1,7 @@
 """Config flow for Pirate Weather."""
 import voluptuous as vol
 import logging
+from datetime import timedelta
 
 from homeassistant import config_entries
 from homeassistant.const import (
@@ -10,6 +11,7 @@ from homeassistant.const import (
     CONF_MODE,
     CONF_NAME,
     CONF_MONITORED_CONDITIONS,
+    CONF_SCAN_INTERVAL,
 )
 from homeassistant.core import callback
 import homeassistant.helpers.config_validation as cv
@@ -20,6 +22,7 @@ from .const import (
     DEFAULT_FORECAST_MODE,
     DEFAULT_LANGUAGE,
     DEFAULT_NAME,
+    DEFAULT_SCAN_INTERVAL,
     DOMAIN,
     FORECAST_MODES,
     LANGUAGES,
@@ -66,6 +69,9 @@ class PirateWeatherConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
               vol.Optional(
                   CONF_LONGITUDE, default=self.hass.config.longitude
               ): cv.longitude,
+              vol.Optional(
+                  CONF_SCAN_INTERVAL, default=DEFAULT_SCAN_INTERVAL
+              ): int,              
               vol.Required(PW_PLATFORM, default=[]): cv.multi_select(
                   PW_PLATFORMS
               ),
@@ -97,6 +103,16 @@ class PirateWeatherConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             forecastMode = user_input[CONF_MODE]
             entityNamee = user_input[CONF_NAME]
             
+            # Convert scan interval to timedelta
+            if isinstance(user_input[CONF_SCAN_INTERVAL], str):
+              user_input[CONF_SCAN_INTERVAL] = cv.time_period_str(user_input[CONF_SCAN_INTERVAL])
+              
+              
+            # Convert scan interval to number of seconds
+            if isinstance(user_input[CONF_SCAN_INTERVAL], timedelta):
+              user_input[CONF_SCAN_INTERVAL] = user_input[CONF_SCAN_INTERVAL].total_seconds()                        
+              
+
             # Unique value includes the location and forcastHours/ forecastDays to seperate WeatherEntity/ Sensor            
             await self.async_set_unique_id(f"pw-{latitude}-{longitude}-{forecastDays}-{forecastHours}-{forecastMode}-{entityNamee}")            
             
@@ -142,7 +158,9 @@ class PirateWeatherConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         if PW_PREVPLATFORM not in config:
             config[PW_PREVPLATFORM] = None        
         if PW_ROUND not in config:
-            config[PW_ROUND] = "No"                                        
+            config[PW_ROUND] = "No"                
+        if CONF_SCAN_INTERVAL not in config:
+            config[CONF_SCAN_INTERVAL] =  DEFAULT_SCAN_INTERVAL                                     
         return await self.async_step_user(config)
 
 

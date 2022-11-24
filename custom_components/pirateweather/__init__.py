@@ -7,9 +7,8 @@ from typing import Any
 import voluptuous as vol
 import homeassistant.helpers.config_validation as cv
 
-from pyowm import OWM
+from datetime import timedelta
 import forecastio
-from pyowm.utils.config import get_default_config
 
 from homeassistant.config_entries import SOURCE_IMPORT, ConfigEntry
 
@@ -20,6 +19,7 @@ from homeassistant.const import (
     CONF_MODE,
     CONF_NAME,
     CONF_MONITORED_CONDITIONS,
+    CONF_SCAN_INTERVAL,
 )
 from homeassistant.core import HomeAssistant
 
@@ -68,6 +68,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     forecast_hours = _get_config_value(entry, CONF_HOURLY_FORECAST)
     pw_entity_platform = _get_config_value(entry, PW_PLATFORM)
     pw_entity_rounding = _get_config_value(entry, PW_ROUND)
+    pw_scan_Int = entry.data[CONF_SCAN_INTERVAL]
     
     
     # Extract list of int from forecast days/ hours string if present
@@ -94,16 +95,15 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         forecast_hours = [int(i) for i in forecast_hours]
       
     unique_location = (f"pw-{latitude}-{longitude}")
-    _LOGGER.info("Pirate Weather Init")  
     
     hass.data.setdefault(DOMAIN, {})
     # If coordinator already exists for this API key, we'll use that, otherwise
     # we have to create a new one
     if unique_location in hass.data[DOMAIN]:
       weather_coordinator = hass.data[DOMAIN].get(unique_location)
-      #_LOGGER.warning('Old Coordinator')  
+      _LOGGER.warning('An existing weather coordinator already exists for this location. Using that one instead')  
     else:
-      weather_coordinator = WeatherUpdateCoordinator(api_key, latitude, longitude, hass)
+      weather_coordinator = WeatherUpdateCoordinator(api_key, latitude, longitude, timedelta(seconds=pw_scan_Int), hass)
       hass.data[DOMAIN][unique_location] = weather_coordinator    
       #_LOGGER.warning('New Coordinator') 
 
@@ -121,7 +121,8 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         CONF_FORECAST: forecast_days,
         CONF_HOURLY_FORECAST: forecast_hours,
         PW_PLATFORM: pw_entity_platform,
-        PW_ROUND: pw_entity_rounding
+        PW_ROUND: pw_entity_rounding,
+        CONF_SCAN_INTERVAL: pw_scan_Int,
     }
 
     # If both platforms

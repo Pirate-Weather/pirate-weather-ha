@@ -51,6 +51,7 @@ from homeassistant.const import (
     CONF_LONGITUDE,
     CONF_MODE,
     CONF_NAME,
+    CONF_SCAN_INTERVAL,
     LENGTH_MILLIMETERS,
     PRESSURE_MBAR,
     SPEED_METERS_PER_SECOND,
@@ -68,6 +69,7 @@ from .const import (
     DEFAULT_FORECAST_MODE,
     DEFAULT_LANGUAGE,
     DEFAULT_NAME,
+    DEFAULT_SCAN_INTERVAL,
     DOMAIN,
     FORECAST_MODES,
     LANGUAGES,
@@ -102,6 +104,7 @@ PLATFORM_SCHEMA = PLATFORM_SCHEMA.extend(
         vol.Optional(CONF_MODE, default="hourly"): vol.In(FORECAST_MODES),
         vol.Optional(CONF_UNITS): vol.In(["auto", "si", "us", "ca", "uk", "uk2"]),
         vol.Optional(CONF_NAME, default=DEFAULT_NAME): cv.string,
+        vol.Optional(CONF_SCAN_INTERVAL, default=DEFAULT_SCAN_INTERVAL): cv.time_period,  
     }
 )
 

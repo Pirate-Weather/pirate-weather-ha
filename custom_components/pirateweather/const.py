@@ -1,5 +1,6 @@
 """Consts for the OpenWeatherMap."""
 from __future__ import annotations
+from datetime import timedelta
 
 from homeassistant.components.sensor import (
     SensorDeviceClass,
@@ -44,6 +45,7 @@ DOMAIN = "pirateweather"
 DEFAULT_NAME = "PirateWeather"
 DEFAULT_LANGUAGE = "en"
 DEFAULT_UNITS = "us"
+DEFAULT_SCAN_INTERVAL = 1200
 ATTRIBUTION = "Data provided by Pirate Weather GUI"
 MANUFACTURER = "PirateWeather"
 CONF_LANGUAGE = "language"
