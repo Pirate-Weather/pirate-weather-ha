@@ -6,11 +6,13 @@ from typing import Any
 
 import voluptuous as vol
 import homeassistant.helpers.config_validation as cv
+from homeassistant.helpers.entity_registry import EntityRegistry
 
 from datetime import timedelta
 import forecastio
 
 from homeassistant.config_entries import SOURCE_IMPORT, ConfigEntry
+
 
 from homeassistant.const import (
     CONF_API_KEY,
@@ -145,14 +147,13 @@ async def async_update_options(hass: HomeAssistant, entry: ConfigEntry) -> None:
     """Update options."""
     await hass.config_entries.async_reload(entry.entry_id)
 
+  
 
 async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     """Unload a config entry."""
     
-    #pw_entity_prevplatform = hass.data[DOMAIN][entry.entry_id][PW_PREVPLATFORM]
     pw_entity_prevplatform = hass.data[DOMAIN][entry.entry_id][PW_PLATFORM]
-    #_LOGGER.warning('INIT HASS')
-    #_LOGGER.warning(pw_entity_prevplatform) 
+
     
     # If both
     if (PW_PLATFORMS[0] in pw_entity_prevplatform) and (PW_PLATFORMS[1] in pw_entity_prevplatform):
@@ -164,15 +165,14 @@ async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     elif PW_PLATFORMS[1] in pw_entity_prevplatform:
       unload_ok = await hass.config_entries.async_unload_platforms(entry, [PLATFORMS[1]])
     
+    _LOGGER.info('Unloading Pirate Weather')
+    
     if unload_ok:
         update_listener = hass.data[DOMAIN][entry.entry_id][UPDATE_LISTENER]
         update_listener()
          
         hass.data[DOMAIN].pop(entry.entry_id)
     
-    #_LOGGER.warning('INIT UNLOAD')
-    #_LOGGER.warning(entry.entry_id)
-    #_LOGGER.warning(unload_ok)
     
     return unload_ok
 

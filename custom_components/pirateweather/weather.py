@@ -205,12 +205,12 @@ class PirateWeather(WeatherEntity):
     ) -> None:
         """Initialize the sensor."""
         self._attr_name = name
-        self._attr_device_info = DeviceInfo(
-            entry_type=DeviceEntryType.SERVICE,
-            identifiers={(DOMAIN, unique_id)},
-            manufacturer=MANUFACTURER,
-            name=DEFAULT_NAME,
-        )
+        #self._attr_device_info = DeviceInfo(
+        #    entry_type=DeviceEntryType.SERVICE,
+        #    identifiers={(DOMAIN, unique_id)},
+        #    manufacturer=MANUFACTURER,
+        #    name=DEFAULT_NAME,
+        #)
         self._weather_coordinator = weather_coordinator
         self._name = name
         self._mode = forecast_mode

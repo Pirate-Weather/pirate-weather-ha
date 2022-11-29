@@ -601,6 +601,8 @@ async def async_setup_entry(
             domain_data[CONF_UNITS], 1
         )
         
+        
+        
         # Save units for conversion later
         requestUnits = domain_data[CONF_UNITS]
         
@@ -637,7 +639,7 @@ async def async_setup_entry(
                         weather_coordinator, condition, name, unique_id, forecast_day=None, forecast_hour=int(forecast_h), description=sensorDescription, requestUnits=requestUnits, outputRound=outputRound
                     )
                 )
-
+        
     async_add_entities(sensors)
 
 
@@ -671,12 +673,12 @@ class PirateWeatherSensor(SensorEntity):
         self._attr_unique_id = unique_id
         self._attr_name = name
         
-        self._attr_device_info = DeviceInfo(
-            entry_type=DeviceEntryType.SERVICE,
-            identifiers={(DOMAIN, unique_id)},
-            manufacturer=MANUFACTURER,
-            name=DEFAULT_NAME,
-        )
+        #self._attr_device_info = DeviceInfo(
+        #    entry_type=DeviceEntryType.SERVICE,
+        #    identifiers={(DOMAIN, unique_id)},
+        #    manufacturer=MANUFACTURER,
+        #    name=DEFAULT_NAME,
+        #)
         
         self.forecast_day = forecast_day
         self.forecast_hour = forecast_hour

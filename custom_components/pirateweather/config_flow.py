@@ -101,7 +101,9 @@ class PirateWeatherConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             forecastDays = user_input[CONF_FORECAST]
             forecastHours = user_input[CONF_HOURLY_FORECAST]
             forecastMode = user_input[CONF_MODE]
+            forecastPlatform = user_input[PW_PLATFORM]
             entityNamee = user_input[CONF_NAME]
+            
             
             # Convert scan interval to timedelta
             if isinstance(user_input[CONF_SCAN_INTERVAL], str):
@@ -114,8 +116,9 @@ class PirateWeatherConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
               
 
             # Unique value includes the location and forcastHours/ forecastDays to seperate WeatherEntity/ Sensor            
-            await self.async_set_unique_id(f"pw-{latitude}-{longitude}-{forecastDays}-{forecastHours}-{forecastMode}-{entityNamee}")            
-            
+#            await self.async_set_unique_id(f"pw-{latitude}-{longitude}-{forecastDays}-{forecastHours}-{forecastMode}-{entityNamee}")            
+            await self.async_set_unique_id(f"pw-{latitude}-{longitude}-{forecastPlatform}-{forecastMode}-{entityNamee}")      
+                        
             self._abort_if_unique_id_configured()
 
               

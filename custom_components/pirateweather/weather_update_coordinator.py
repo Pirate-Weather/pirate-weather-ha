@@ -61,7 +61,10 @@ class WeatherUpdateCoordinator(DataUpdateCoordinator):
         return data
 
     async def _get_pw_weather(self):
-        """Poll weather data from PW."""        
+        """Poll weather data from PW."""   
+        
+        #_LOGGER.info('PW_Update')
+             
         forecastString = "https://api.pirateweather.net/forecast/" +  self._api_key + "/" + str(self.latitude) + "," + str(self.longitude) + "?units=" + self.requested_units
         
         async with aiohttp.ClientSession(raise_for_status=True) as session:
