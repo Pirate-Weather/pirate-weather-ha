@@ -6,6 +6,8 @@ import forecastio
 from requests.exceptions import ConnectionError as ConnectError, HTTPError, Timeout
 import voluptuous as vol
 import homeassistant.helpers.config_validation as cv
+import homeassistant.helpers.template as template_helper
+
 
 from homeassistant.components.sensor import (
     SensorDeviceClass,
@@ -666,8 +668,7 @@ class PirateWeatherSensor(SensorEntity):
                 
         description=description
         self.entity_description = description
-        
-        
+    
         self._weather_coordinator = weather_coordinator
         
         self._attr_unique_id = unique_id
@@ -687,7 +688,9 @@ class PirateWeatherSensor(SensorEntity):
         self.type = condition
         self._icon = None
         self._name = SENSOR_TYPES[condition][0]
-
+        self._alerts = None
+        
+        
         self.description=description
         
     @property
@@ -720,6 +723,7 @@ class PirateWeatherSensor(SensorEntity):
     def unit_system(self):
         """Return the unit system of this entity."""
         return self._weather_coordinator.data.json.get("flags").get("units")
+
 
     @property
     def entity_picture(self):
@@ -761,7 +765,14 @@ class PirateWeatherSensor(SensorEntity):
     @property
     def extra_state_attributes(self):
         """Return the state attributes."""
-        return {ATTR_ATTRIBUTION: ATTRIBUTION}
+        if self.type == "alerts":
+          extraATTR = self._alerts
+          extraATTR[ATTR_ATTRIBUTION] = ATTRIBUTION
+         
+          return extraATTR
+        else:
+          return {ATTR_ATTRIBUTION: ATTRIBUTION}
+          
 
     @property
     def native_value(self) -> StateType:
@@ -784,9 +795,18 @@ class PirateWeatherSensor(SensorEntity):
                         dkey = f"{attr}_{i!s}"
                     else:
                         dkey = attr
-                    alerts[dkey] = getattr(alert, attr)
+                    alertsAttr = getattr(alert, attr)
+                    
+                    # Convert time to string
+                    if isinstance(alertsAttr, int):
+                      alertsAttr = template_helper.timestamp_local(alertsAttr)
+                    
+                    alerts[dkey] = alertsAttr
+                    
+                    
             self._alerts = alerts
             native_val =  len(data)
+            
             
         elif self.type == "minutely_summary":
             native_val = getattr(self._weather_coordinator.data.minutely(),"summary", "")
