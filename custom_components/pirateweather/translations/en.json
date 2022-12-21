@@ -24,8 +24,7 @@
                     "pw_round": "Round values to the nearest integer. Ensure that the selected units match the system units.",
                     "scan_interval": "Seconds to wait between updates. Reducing this below 900 seconds (15 minutes) is not recomended."                                         
                 },
-                "description": "Set up Pirate Weather integration. To generate API key go to https://pirateweather.net",
-                "title": "Pirate Weather"
+                "description": "Set up Pirate Weather integration. To generate API key go to https://pirateweather.net"
             }
         }
     },
@@ -46,8 +45,7 @@
                     "pw_platform": "Weather Entity and/or Sensor Entity. Sensor will create entities for each condition at each time. If unsure, only select Weather!",
                     "pw_round": "Round values to the nearest integer. Ensure that the selected units match the system units."
                 },
-                "description": "Set up Pirate Weather integration. To generate API key go to https://pirateweather.net",
-                "title": "Pirate Weather"
+                "description": "Set up Pirate Weather integration. To generate API key go to https://pirateweather.net"
             }
         }
     }
