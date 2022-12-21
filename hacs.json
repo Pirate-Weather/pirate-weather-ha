@@ -1,9 +1,6 @@
 {
-    "name": "Pirate Weather",
-    "domains": [
-        "weather",
-        "sensor"
-    ],
-	"render_readme": true,
+    "name": "Pirate Weather", 
+    "render_readme": true,
+    "homeassistant": "2021.1.0b0",	
     "iot_class": "Cloud Polling"
 }
