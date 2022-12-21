@@ -163,7 +163,7 @@ SENSOR_TYPES = {
     "precip_intensity": [
         "Precip Intensity",
         PRECIPITATION_MILLIMETERS_PER_HOUR,
-        "in",
+        "in/h",
         PRECIPITATION_MILLIMETERS_PER_HOUR,
         PRECIPITATION_MILLIMETERS_PER_HOUR,
         PRECIPITATION_MILLIMETERS_PER_HOUR,
