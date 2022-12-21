@@ -54,6 +54,7 @@ The use to integration, click on the "Add Integration" button on the Integration
 - The *API key* can be received from the [Pirate Weather Site](https://pirateweather.net/), and is only used to track usage and keep my AWS bills reasonable
 - The *Integration Name* is what this weather source will be called. If you want to track the weather at multiple locations, change this. 
 - The *Latitude* and *Longitude* for the forecast.
+- The update interval the forecast (in seconds). Anything below 15 minutes will likely lead to running out of quota.
 - Select if a *Weather Entity* and/or *Sensor Entity* is required. A Weather Entity creates the dashboard standard weather card, and can either provide a daily or hourly forecast. Selecting Sensor Entity will create separate sensors for each condition and forecast time. For example, a sensor for the temperature on day 0 (today), day 1, and day 2, for a total of three sensors. If unsure, start with leaving only the Weather Entity selected.
 
 ![Integration_Setup_B](Integration_Setup_B.png)
