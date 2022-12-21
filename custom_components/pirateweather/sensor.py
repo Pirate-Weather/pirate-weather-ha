@@ -5,12 +5,32 @@ import logging
 import forecastio
 from requests.exceptions import ConnectionError as ConnectError, HTTPError, Timeout
 import voluptuous as vol
+import homeassistant.helpers.config_validation as cv
+import homeassistant.helpers.template as template_helper
+
+
+from homeassistant.components.sensor import (
+    SensorDeviceClass,
+    SensorEntity,
+    SensorEntityDescription,
+    SensorStateClass
+)
+from homeassistant.config_entries import SOURCE_IMPORT, ConfigEntry
+from homeassistant.core import HomeAssistant
+from homeassistant.helpers.device_registry import DeviceEntryType
+from homeassistant.helpers.entity import DeviceInfo
+from homeassistant.helpers.entity_platform import AddEntitiesCallback
+from homeassistant.helpers.typing import StateType
+from homeassistant.helpers.update_coordinator import DataUpdateCoordinator
+from homeassistant.helpers.typing import DiscoveryInfoType
+from homeassistant.util import dt as dt_util
 
 from homeassistant.components.sensor import (
     DEVICE_CLASS_TEMPERATURE,
     PLATFORM_SCHEMA,
     SensorEntity,
 )
+
 from homeassistant.const import (
     ATTR_ATTRIBUTION,
     CONF_API_KEY,
@@ -32,8 +52,37 @@ from homeassistant.const import (
     TEMP_FAHRENHEIT,
     UV_INDEX,
 )
-import homeassistant.helpers.config_validation as cv
+
+from .const import (
+    CONF_LANGUAGE,
+    CONFIG_FLOW_VERSION,
+    DEFAULT_FORECAST_MODE,
+    DEFAULT_LANGUAGE,
+    DEFAULT_NAME,
+    DEFAULT_SCAN_INTERVAL,
+    DOMAIN,
+    FORECAST_MODES,
+    LANGUAGES,
+    CONF_UNITS,
+    DEFAULT_UNITS,
+    ENTRY_NAME,
+    ENTRY_WEATHER_COORDINATOR,
+    FORECAST_MODES,
+    PLATFORMS,
+    UPDATE_LISTENER,   
+    MANUFACTURER,    
+    FORECASTS_HOURLY,
+    FORECASTS_DAILY,
+    ALL_CONDITIONS,
+    PW_PLATFORMS,
+    PW_PLATFORM,
+    PW_PREVPLATFORM,
+    PW_ROUND,
+)
+
 from homeassistant.util import Throttle
+
+from .weather_update_coordinator import WeatherUpdateCoordinator
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -46,7 +95,6 @@ CONF_UNITS = "units"
 
 DEFAULT_LANGUAGE = "en"
 DEFAULT_NAME = "PirateWeather"
-SCAN_INTERVAL = timedelta(seconds=900)
 
 DEPRECATED_SENSOR_TYPES = {
     "apparent_temperature_max",
@@ -54,6 +102,7 @@ DEPRECATED_SENSOR_TYPES = {
     "temperature_max",
     "temperature_min",
 }
+
 
 # Sensor types are defined like so:
 # Name, si unit, us unit, ca unit, uk unit, uk2 unit
@@ -462,108 +511,188 @@ LANGUAGE_CODES = [
 ALLOWED_UNITS = ["auto", "si", "us", "ca", "uk", "uk2"]
 
 ALERTS_ATTRS = ["time", "description", "expires", "severity", "uri", "regions", "title"]
-
+   
+HOURS = [i for i in range(49)]
+DAYS = [i for i in range(7)]     
+ 
 PLATFORM_SCHEMA = PLATFORM_SCHEMA.extend(
     {
-        vol.Required(CONF_MONITORED_CONDITIONS): vol.All(
-            cv.ensure_list, [vol.In(SENSOR_TYPES)]
-        ),
         vol.Required(CONF_API_KEY): cv.string,
         vol.Optional(CONF_NAME, default=DEFAULT_NAME): cv.string,
         vol.Optional(CONF_UNITS): vol.In(ALLOWED_UNITS),
         vol.Optional(CONF_LANGUAGE, default=DEFAULT_LANGUAGE): vol.In(LANGUAGE_CODES),
+        vol.Optional(CONF_SCAN_INTERVAL, default=DEFAULT_SCAN_INTERVAL): cv.time_period,           
         vol.Inclusive(
             CONF_LATITUDE, "coordinates", "Latitude and longitude must exist together"
         ): cv.latitude,
         vol.Inclusive(
             CONF_LONGITUDE, "coordinates", "Latitude and longitude must exist together"
         ): cv.longitude,
-        vol.Optional(CONF_FORECAST): vol.All(cv.ensure_list, [vol.Range(min=0, max=7)]),
-        vol.Optional(CONF_HOURLY_FORECAST): vol.All(
-            cv.ensure_list, [vol.Range(min=0, max=48)]
-        ),
+        vol.Optional(PW_PLATFORM): cv.multi_select(
+                  PW_PLATFORMS
+              ),
+        vol.Optional(PW_PREVPLATFORM): cv.string,
+        vol.Optional(CONF_FORECAST): cv.multi_select(DAYS),
+        vol.Optional(CONF_HOURLY_FORECAST): cv.multi_select(HOURS),
+        vol.Optional(CONF_MONITORED_CONDITIONS, default=None): cv.multi_select(
+            ALL_CONDITIONS
+        ),          
     }
 )
 
 
-def setup_platform(hass, config, add_entities, discovery_info=None):
-    """Set up the PirateWeather sensor."""
-    latitude = config.get(CONF_LATITUDE, hass.config.latitude)
-    longitude = config.get(CONF_LONGITUDE, hass.config.longitude)
-    language = config.get(CONF_LANGUAGE)
-    interval = config.get(CONF_SCAN_INTERVAL, SCAN_INTERVAL)
 
-    if CONF_UNITS in config:
-        units = config[CONF_UNITS]
-    elif hass.config.units.is_metric:
-        units = "si"
-    else:
-        units = "us"
-
-    forecast_data = DarkSkyData(
-        api_key=config.get(CONF_API_KEY),
-        latitude=latitude,
-        longitude=longitude,
-        units=units,
-        language=language,
-        interval=interval,
+async def async_setup_platform(
+    hass: HomeAssistant,
+    config_entry: ConfigEntry,
+    async_add_entities: AddEntitiesCallback,
+    discovery_info: DiscoveryInfoType | None = None,
+) -> None:
+    """Import the platform into a config entry."""
+    _LOGGER.warning(
+        "Configuration of Pirate Weather sensor in YAML is deprecated "
+        "Your existing configuration has been imported into the UI automatically "
+        "and can be safely removed from your configuration.yaml file"
     )
-    forecast_data.update()
-    forecast_data.update_currently()
 
-    # If connection failed don't setup platform.
-    if forecast_data.data is None:
-        return
+    # Define as a sensor platform
+    config_entry[PW_PLATFORM] = [PW_PLATFORMS[0]]
+    # Previous platform tracks what needs to be unloaded after options flow
+    #config_entry[PW_PREVPLATFORM] = [PW_PLATFORMS[0]]
+    
+    # Set as no rounding for compatability
+    config_entry[PW_ROUND] = "No"    
+    
+    hass.async_create_task(
+      hass.config_entries.flow.async_init(
+        DOMAIN, context={"source": SOURCE_IMPORT}, data = config_entry
+      )
+    )
 
-    name = config.get(CONF_NAME)
 
-    forecast = config.get(CONF_FORECAST)
-    forecast_hour = config.get(CONF_HOURLY_FORECAST)
-    sensors = []
-    for variable in config[CONF_MONITORED_CONDITIONS]:
-        if variable in DEPRECATED_SENSOR_TYPES:
-            _LOGGER.warning("Monitored condition %s is deprecated", variable)
-        if not SENSOR_TYPES[variable][7] or "currently" in SENSOR_TYPES[variable][7]:
-            if variable == "alerts":
-                sensors.append(DarkSkyAlertSensor(forecast_data, variable, name))
-            else:
-                sensors.append(DarkSkySensor(forecast_data, variable, name))
-
-        if forecast is not None and "daily" in SENSOR_TYPES[variable][7]:
-            for forecast_day in forecast:
+async def async_setup_entry(
+    hass: HomeAssistant, 
+    config_entry: ConfigEntry,
+    async_add_entities: AddEntitiesCallback
+) -> None:
+    """Set up Pirate Weather sensor entities based on a config entry."""
+    
+    
+    domain_data = hass.data[DOMAIN][config_entry.entry_id]
+    
+    name = domain_data[CONF_NAME]
+    api_key = domain_data[CONF_API_KEY] 
+    weather_coordinator = domain_data[ENTRY_WEATHER_COORDINATOR]
+    conditions = domain_data[CONF_MONITORED_CONDITIONS]
+    latitude = domain_data[CONF_LATITUDE]
+    longitude = domain_data[CONF_LONGITUDE]
+    units = domain_data[CONF_UNITS]    
+    forecast_days = domain_data[CONF_FORECAST]
+    forecast_hours = domain_data[CONF_HOURLY_FORECAST]
+    
+    # Round Output
+    outputRound = domain_data[PW_ROUND]    
+    
+    sensors: list[PirateWeatherSensor] = []
+    
+    
+    
+    for condition in conditions:
+        
+        unit_index = {"si": 1, "us": 2, "ca": 3, "uk": 4, "uk2": 5}.get(
+            domain_data[CONF_UNITS], 1
+        )
+        
+        
+        
+        # Save units for conversion later
+        requestUnits = domain_data[CONF_UNITS]
+        
+        sensorDescription = SensorEntityDescription(
+          key=condition,
+          name=SENSOR_TYPES[condition][0],
+          native_unit_of_measurement=SENSOR_TYPES[condition][unit_index],
+          state_class=SensorStateClass.MEASUREMENT
+        )
+        
+        if condition in DEPRECATED_SENSOR_TYPES:
+            _LOGGER.warning("Monitored condition %s is deprecated", condition)
+            
+        if not SENSOR_TYPES[condition][7] or "currently" in SENSOR_TYPES[condition][7]:
+            unique_id = f"{config_entry.unique_id}-sensor-{condition}"
+            sensors.append(PirateWeatherSensor(weather_coordinator, condition, name,  unique_id, forecast_day=None, forecast_hour=None, description=sensorDescription, requestUnits=requestUnits, outputRound=outputRound))
+        
+      
+        if forecast_days is not None and "daily" in SENSOR_TYPES[condition][7]:
+            #for forecast_day in range(0, forecast_days):
+            for forecast_day in forecast_days:
+                unique_id = f"{config_entry.unique_id}-sensor-{condition}-daily-{forecast_day}"
                 sensors.append(
-                    DarkSkySensor(
-                        forecast_data, variable, name, forecast_day=forecast_day
+                    PirateWeatherSensor(
+                        weather_coordinator, condition, name, unique_id, forecast_day=int(forecast_day), forecast_hour=None, description=sensorDescription, requestUnits=requestUnits, outputRound=outputRound
                     )
                 )
-        if forecast_hour is not None and "hourly" in SENSOR_TYPES[variable][7]:
-            for forecast_h in forecast_hour:
+        if forecast_hours is not None and "hourly" in SENSOR_TYPES[condition][7]:
+            #for forecast_h in range(0, forecast_hours):
+            for forecast_h in forecast_hours:
+                unique_id = f"{config_entry.unique_id}-sensor-{condition}-hourly-{forecast_h}"
                 sensors.append(
-                    DarkSkySensor(
-                        forecast_data, variable, name, forecast_hour=forecast_h
+                    PirateWeatherSensor(
+                        weather_coordinator, condition, name, unique_id, forecast_day=None, forecast_hour=int(forecast_h), description=sensorDescription, requestUnits=requestUnits, outputRound=outputRound
                     )
                 )
+        
+    async_add_entities(sensors)
 
-    add_entities(sensors, True)
 
+class PirateWeatherSensor(SensorEntity):
+    """Class for an PirateWeather sensor."""
 
-class DarkSkySensor(SensorEntity):
-    """Implementation of a PirateWeather sensor."""
-
+    #_attr_should_poll = False
+    _attr_attribution = ATTRIBUTION
+    
     def __init__(
-        self, forecast_data, sensor_type, name, forecast_day=None, forecast_hour=None
-    ):
+        self,
+        weather_coordinator: WeatherUpdateCoordinator,
+        condition: str,
+        name: str,
+        unique_id,
+        forecast_day: int,
+        forecast_hour: int,
+        description:  SensorEntityDescription,
+        requestUnits: str,
+        outputRound: str
+    ) -> None:
         """Initialize the sensor."""
         self.client_name = name
-        self._name = SENSOR_TYPES[sensor_type][0]
-        self.forecast_data = forecast_data
-        self.type = sensor_type
+                
+        description=description
+        self.entity_description = description
+    
+        self._weather_coordinator = weather_coordinator
+        
+        self._attr_unique_id = unique_id
+        self._attr_name = name
+        
+        #self._attr_device_info = DeviceInfo(
+        #    entry_type=DeviceEntryType.SERVICE,
+        #    identifiers={(DOMAIN, unique_id)},
+        #    manufacturer=MANUFACTURER,
+        #    name=DEFAULT_NAME,
+        #)
+        
         self.forecast_day = forecast_day
         self.forecast_hour = forecast_hour
-        self._state = None
+        self.requestUnits = requestUnits
+        self.outputRound = outputRound
+        self.type = condition
         self._icon = None
-        self._unit_of_measurement = None
-
+        self._name = SENSOR_TYPES[condition][0]
+        self._alerts = None
+        
+        
+        self.description=description
+        
     @property
     def name(self):
         """Return the name of the sensor."""
@@ -572,21 +701,29 @@ class DarkSkySensor(SensorEntity):
         if self.forecast_hour is not None:
             return f"{self.client_name} {self._name} {self.forecast_hour}h"
         return f"{self.client_name} {self._name}"
+        
+        
+    @property
+    def available(self) -> bool:
+        """Return if weather data is available from PirateWeather."""
+        return self._weather_coordinator.data is not None
 
     @property
-    def state(self):
-        """Return the state of the sensor."""
-        return self._state
+    def attribution(self):
+        """Return the attribution."""
+        return ATTRIBUTION
+
 
     @property
-    def unit_of_measurement(self):
+    def native_unit_of_measurement(self):
         """Return the unit of measurement of this entity, if any."""
-        return self._unit_of_measurement
+        return self.entity_description.native_unit_of_measurement
 
     @property
     def unit_system(self):
         """Return the unit system of this entity."""
-        return self.forecast_data.unit_system
+        return self._weather_coordinator.data.json.get("flags").get("units")
+
 
     @property
     def entity_picture(self):
@@ -601,9 +738,12 @@ class DarkSkySensor(SensorEntity):
 
     def update_unit_of_measurement(self):
         """Update units based on unit system."""
+        #unit_index = {"si": 1, "us": 2, "ca": 3, "uk": 4, "uk2": 5}.get(
+        #    self.unit_system, 1
+        #)
         unit_index = {"si": 1, "us": 2, "ca": 3, "uk": 4, "uk2": 5}.get(
-            self.unit_system, 1
-        )
+            self.requestUnits, 1)
+        
         self._unit_of_measurement = SENSOR_TYPES[self.type][unit_index]
 
     @property
@@ -625,50 +765,81 @@ class DarkSkySensor(SensorEntity):
     @property
     def extra_state_attributes(self):
         """Return the state attributes."""
-        return {ATTR_ATTRIBUTION: ATTRIBUTION}
-
-    def update(self):
-        """Get the latest data from PirateWeather and updates the states."""
-        # Call the API for new forecast data. Each sensor will re-trigger this
-        # same exact call, but that's fine. We cache results for a short period
-        # of time to prevent hitting API limits. Note that Dark Sky will
-        # charge users for too many calls in 1 day, so take care when updating.
-        self.forecast_data.update()
-        self.update_unit_of_measurement()
-
-        if self.type == "minutely_summary":
-            self.forecast_data.update_minutely()
-            minutely = self.forecast_data.data_minutely
-            self._state = getattr(minutely, "summary", "")
-            self._icon = getattr(minutely, "icon", "")
-        elif self.type == "hourly_summary":
-            self.forecast_data.update_hourly()
-            hourly = self.forecast_data.data_hourly
-            self._state = getattr(hourly, "summary", "")
-            self._icon = getattr(hourly, "icon", "")
-        elif self.forecast_hour is not None:
-            self.forecast_data.update_hourly()
-            hourly = self.forecast_data.data_hourly
-            if hasattr(hourly, "data"):
-                self._state = self.get_state(hourly.data[self.forecast_hour])
-            else:
-                self._state = 0
-        elif self.type == "daily_summary":
-            self.forecast_data.update_daily()
-            daily = self.forecast_data.data_daily
-            self._state = getattr(daily, "summary", "")
-            self._icon = getattr(daily, "icon", "")
-        elif self.forecast_day is not None:
-            self.forecast_data.update_daily()
-            daily = self.forecast_data.data_daily
-            if hasattr(daily, "data"):
-                self._state = self.get_state(daily.data[self.forecast_day])
-            else:
-                self._state = 0
+        if self.type == "alerts":
+          extraATTR = self._alerts
+          extraATTR[ATTR_ATTRIBUTION] = ATTRIBUTION
+         
+          return extraATTR
         else:
-            self.forecast_data.update_currently()
-            currently = self.forecast_data.data_currently
-            self._state = self.get_state(currently)
+          return {ATTR_ATTRIBUTION: ATTRIBUTION}
+          
+
+    @property
+    def native_value(self) -> StateType:
+        """Return the state of the device."""       
+        lookup_type = convert_to_camel(self.type)
+        
+        
+        if  self.type == "alerts":
+            data = self._weather_coordinator.data.alerts()
+            
+            alerts = {}
+            if data is None:
+                self._alerts = alerts
+                return data
+    
+            multiple_alerts = len(data) > 1
+            for i, alert in enumerate(data):
+                for attr in ALERTS_ATTRS:
+                    if multiple_alerts:
+                        dkey = f"{attr}_{i!s}"
+                    else:
+                        dkey = attr
+                    alertsAttr = getattr(alert, attr)
+                    
+                    # Convert time to string
+                    if isinstance(alertsAttr, int):
+                      alertsAttr = template_helper.timestamp_local(alertsAttr)
+                    
+                    alerts[dkey] = alertsAttr
+                    
+                    
+            self._alerts = alerts
+            native_val =  len(data)
+            
+            
+        elif self.type == "minutely_summary":
+            native_val = getattr(self._weather_coordinator.data.minutely(),"summary", "")
+            self._icon = getattr(self._weather_coordinator.data.minutely(),"icon", "")
+        elif self.type == "hourly_summary":
+            native_val = getattr(self._weather_coordinator.data.hourly(),"summary", "")
+            self._icon = getattr(self._weather_coordinator.data.hourly(),"icon", "")
+            
+        elif self.forecast_hour is not None:
+            hourly = self._weather_coordinator.data.hourly()
+            if hasattr(hourly, "data"):
+                native_val = self.get_state(hourly.data[self.forecast_hour].d)
+            else:
+                native_val = 0
+                
+        elif self.type == "daily_summary":
+            native_val = getattr(self._weather_coordinator.data.daily(),"summary", "")
+            self._icon = getattr(self._weather_coordinator.data.daily(),"icon", "")
+            
+        elif self.forecast_day is not None:
+            daily = self._weather_coordinator.data.daily()
+            if hasattr(daily, "data"):
+                native_val = self.get_state(daily.data[self.forecast_day].d)
+            else:
+                native_val = 0
+        else:
+            currently = self._weather_coordinator.data.currently()
+            native_val = self.get_state(currently.d)
+        
+        #self._state = native_val
+
+        return native_val
+
 
     def get_state(self, data):
         """
@@ -677,19 +848,69 @@ class DarkSkySensor(SensorEntity):
         If the sensor type is unknown, the current state is returned.
         """
         lookup_type = convert_to_camel(self.type)
-        state = getattr(data, lookup_type, None)
-
+        state = data.get(lookup_type)
+        
         if state is None:
             return state
 
         if "summary" in self.type:
             self._icon = getattr(data, "icon", "")
 
+        # If output rounding is requested, round to nearest integer
+        if self.outputRound == "Yes":
+          roundingVal = 0
+        else:
+          roundingVal = 1
+
         # Some state data needs to be rounded to whole values or converted to
         # percentages
         if self.type in ["precip_probability", "cloud_cover", "humidity"]:
-            return round(state * 100, 1)
-
+            if roundingVal == 0:
+              state = int(round(state * 100, roundingVal))
+            else:
+              state = round(state * 100, roundingVal)
+        
+        
+        # Logic to convert from SI to requsested units for compatability
+        # Temps in F
+        if self.requestUnits in ["us"]:
+          if self.type in [
+              "dew_point",
+              "temperature",
+              "apparent_temperature",
+              "temperature_high",
+              "temperature_low",
+              "apparent_temperature_high",
+              "apparent_temperature_low",     
+          ]:
+              state = ((state * 9 / 5) + 32)
+              
+        # Km to Miles      
+        if self.requestUnits in ["us", "uk", "uk2"]:
+          if self.type in [
+              "visibility",
+              "nearest_storm_distance",    
+          ]:
+              state = (state * 0.621371)
+                      
+        # Meters/second to Miles/hour      
+        if self.requestUnits in ["us", "uk", "uk2"]:
+          if self.type in [
+              "wind_speed",
+              "wind_gust",    
+          ]:
+              state =  (state * 2.23694)        
+        
+        # Meters/second to Km/ hour      
+        if self.requestUnits in ["ca"]:
+          if self.type in [
+              "wind_speed",
+              "wind_gust",    
+          ]:
+              state = (state * 3.6)           
+   
+   
+        
         if self.type in [
             "dew_point",
             "temperature",
@@ -706,79 +927,31 @@ class DarkSkySensor(SensorEntity):
             "pressure",
             "ozone",
             "uvIndex",
+            "wind_speed",
+            "wind_gust",
         ]:
-            return round(state, 1)
-        return state
+        
+            if roundingVal == 0:
+              outState = int(round(state, roundingVal))
+            else:
+              outState = round(state, roundingVal)
+            
+        else:
+          outState = state
+        
+        return outState
 
-
-class DarkSkyAlertSensor(SensorEntity):
-    """Implementation of a Dark Sky sensor."""
-
-    def __init__(self, forecast_data, sensor_type, name):
-        """Initialize the sensor."""
-        self.client_name = name
-        self._name = SENSOR_TYPES[sensor_type][0]
-        self.forecast_data = forecast_data
-        self.type = sensor_type
-        self._state = None
-        self._icon = None
-        self._alerts = None
-
-    @property
-    def name(self):
-        """Return the name of the sensor."""
-        return f"{self.client_name} {self._name}"
-
-    @property
-    def state(self):
-        """Return the state of the sensor."""
-        return self._state
-
-    @property
-    def icon(self):
-        """Icon to use in the frontend, if any."""
-        if self._state is not None and self._state > 0:
-            return "mdi:alert-circle"
-        return "mdi:alert-circle-outline"
-
-    @property
-    def extra_state_attributes(self):
-        """Return the state attributes."""
-        return self._alerts
-
-    def update(self):
-        """Get the latest data from Dark Sky and updates the states."""
-        # Call the API for new forecast data. Each sensor will re-trigger this
-        # same exact call, but that's fine. We cache results for a short period
-        # of time to prevent hitting API limits. Note that Dark Sky will
-        # charge users for too many calls in 1 day, so take care when updating.
-        self.forecast_data.update()
-        self.forecast_data.update_alerts()
-        alerts = self.forecast_data.data_alerts
-        self._state = self.get_state(alerts)
-
-    def get_state(self, data):
-        """
-        Return a new state based on the type.
-
-        If the sensor type is unknown, the current state is returned.
-        """
-        alerts = {}
-        if data is None:
-            self._alerts = alerts
-            return data
-
-        multiple_alerts = len(data) > 1
-        for i, alert in enumerate(data):
-            for attr in ALERTS_ATTRS:
-                if multiple_alerts:
-                    dkey = f"{attr}_{i!s}"
-                else:
-                    dkey = attr
-                alerts[dkey] = getattr(alert, attr)
-        self._alerts = alerts
-
-        return len(data)
+    async def async_added_to_hass(self) -> None:
+        """Connect to dispatcher listening for entity data notifications."""
+        self.async_on_remove(
+            self._weather_coordinator.async_add_listener(self.async_write_ha_state)
+        )
+            
+        
+    #async def async_update(self) -> None:
+    #    """Get the latest data from PW and updates the states."""
+    #    await self._weather_coordinator.async_request_refresh()   
+        
 
 
 def convert_to_camel(data):
@@ -792,72 +965,3 @@ def convert_to_camel(data):
     return f"{components[0]}{capital_components}"
 
 
-class DarkSkyData:
-    """Get the latest data from Darksky."""
-
-    def __init__(self, api_key, latitude, longitude, units, language, interval):
-        """Initialize the data object."""
-        self._api_key = api_key
-        self.latitude = latitude
-        self.longitude = longitude
-        self.units = units
-        self.language = language
-        self._connect_error = False
-
-        self.data = None
-        self.unit_system = None
-        self.data_currently = None
-        self.data_minutely = None
-        self.data_hourly = None
-        self.data_daily = None
-        self.data_alerts = None
-
-        # Apply throttling to methods using configured interval
-        self.update = Throttle(interval)(self._update)
-        self.update_currently = Throttle(interval)(self._update_currently)
-        self.update_minutely = Throttle(interval)(self._update_minutely)
-        self.update_hourly = Throttle(interval)(self._update_hourly)
-        self.update_daily = Throttle(interval)(self._update_daily)
-        self.update_alerts = Throttle(interval)(self._update_alerts)
-
-    def _update(self):
-        """Get the latest data from Dark Sky."""
-        try:
-            #self.data = forecastio.load_forecast(
-            #    self._api_key,
-            #    self.latitude,
-            #    self.longitude,
-            #    units=self.units,
-            #    lang=self.language,
-            #)
-            forecastString = "https://api.pirateweather.net/forecast/" +  self._api_key + "/" + str(self.latitude) + "," + str(self.longitude) + "?units=" + self.units
-            self.data = forecastio.manual(forecastString)			
-            if self._connect_error:
-                self._connect_error = False
-                _LOGGER.info("Reconnected to PirateWeather")
-        except (ConnectError, HTTPError, Timeout, ValueError) as error:
-            if not self._connect_error:
-                self._connect_error = True
-                _LOGGER.error("Unable to connect to PirateWeather: %s", error)
-            self.data = None
-        self.unit_system = self.data and self.data.json["flags"]["units"]
-
-    def _update_currently(self):
-        """Update currently data."""
-        self.data_currently = self.data and self.data.currently()
-
-    def _update_minutely(self):
-        """Update minutely data."""
-        self.data_minutely = self.data and self.data.minutely()
-
-    def _update_hourly(self):
-        """Update hourly data."""
-        self.data_hourly = self.data and self.data.hourly()
-
-    def _update_daily(self):
-        """Update daily data."""
-        self.data_daily = self.data and self.data.daily()
-
-    def _update_alerts(self):
-        """Update alerts data."""
-        self.data_alerts = self.data and self.data.alerts()

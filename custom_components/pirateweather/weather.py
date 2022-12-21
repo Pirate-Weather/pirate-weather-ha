@@ -1,10 +1,24 @@
-"""Support for retrieving meteorological data from PirateWeather."""
+"""Support for the Pirate Weather (PW) service."""
+from __future__ import annotations
+
 from datetime import timedelta
 import logging
 
 import forecastio
 from requests.exceptions import ConnectionError as ConnectError, HTTPError, Timeout
 import voluptuous as vol
+
+import homeassistant.helpers.config_validation as cv
+from homeassistant.util import Throttle
+from homeassistant.util.dt import utc_from_timestamp
+from homeassistant.helpers.entity_platform import AddEntitiesCallback
+from homeassistant.helpers.entity import DeviceInfo
+from homeassistant.helpers.device_registry import DeviceEntryType
+from homeassistant.helpers.typing import ConfigType
+from homeassistant.config_entries import SOURCE_IMPORT, ConfigEntry
+from homeassistant.core import HomeAssistant
+
+import forecastio
 
 from homeassistant.components.weather import (
     ATTR_CONDITION_CLEAR_NIGHT,
@@ -19,36 +33,80 @@ from homeassistant.components.weather import (
     ATTR_CONDITION_SUNNY,
     ATTR_CONDITION_WINDY,
     ATTR_FORECAST_CONDITION,
+    ATTR_FORECAST_NATIVE_PRECIPITATION,
+    ATTR_FORECAST_NATIVE_TEMP,
+    ATTR_FORECAST_NATIVE_TEMP_LOW,
+    ATTR_FORECAST_NATIVE_WIND_SPEED,    
     ATTR_FORECAST_PRECIPITATION,
-    ATTR_FORECAST_TEMP,
-    ATTR_FORECAST_TEMP_LOW,
     ATTR_FORECAST_TIME,
     ATTR_FORECAST_WIND_BEARING,
-    ATTR_FORECAST_WIND_SPEED,
     PLATFORM_SCHEMA,
     WeatherEntity,
 )
+
+
 from homeassistant.const import (
     CONF_API_KEY,
     CONF_LATITUDE,
     CONF_LONGITUDE,
     CONF_MODE,
     CONF_NAME,
+    CONF_SCAN_INTERVAL,
+    LENGTH_MILLIMETERS,
+    PRESSURE_MBAR,
+    SPEED_METERS_PER_SECOND,
     PRESSURE_HPA,
     PRESSURE_INHG,
+    LENGTH_KILOMETERS,
+    LENGTH_MILLIMETERS,
     TEMP_CELSIUS,
-    TEMP_FAHRENHEIT,
+    TEMP_FAHRENHEIT,        
 )
-import homeassistant.helpers.config_validation as cv
-from homeassistant.util import Throttle
-from homeassistant.util.dt import utc_from_timestamp
-from homeassistant.util.pressure import convert as convert_pressure
+
+from .const import (
+    CONF_LANGUAGE,
+    CONFIG_FLOW_VERSION,
+    DEFAULT_FORECAST_MODE,
+    DEFAULT_LANGUAGE,
+    DEFAULT_NAME,
+    DEFAULT_SCAN_INTERVAL,
+    DOMAIN,
+    FORECAST_MODES,
+    LANGUAGES,
+    CONF_UNITS,
+    DEFAULT_UNITS,
+    ENTRY_NAME,
+    ENTRY_WEATHER_COORDINATOR,
+    FORECAST_MODES,
+    PLATFORMS,
+    UPDATE_LISTENER,   
+    MANUFACTURER,    
+    FORECASTS_HOURLY,
+    FORECASTS_DAILY,
+    PW_PLATFORMS,
+    PW_PLATFORM,
+    PW_PREVPLATFORM,
+    PW_ROUND,
+)
+
 
 _LOGGER = logging.getLogger(__name__)
 
-ATTRIBUTION = "Powered by PirateWeather"
+ATTRIBUTION = "Powered by Pirate Weather GUI"
 
-FORECAST_MODE = ["hourly", "daily"]
+PLATFORM_SCHEMA = PLATFORM_SCHEMA.extend(
+    {
+        vol.Required(CONF_API_KEY): cv.string,
+        vol.Optional(CONF_LATITUDE): cv.latitude,
+        vol.Optional(CONF_LONGITUDE): cv.longitude,
+        vol.Optional(PW_PLATFORM): cv.string,
+        vol.Optional(PW_PREVPLATFORM): cv.string,
+        vol.Optional(CONF_MODE, default="hourly"): vol.In(FORECAST_MODES),
+        vol.Optional(CONF_UNITS): vol.In(["auto", "si", "us", "ca", "uk", "uk2"]),
+        vol.Optional(CONF_NAME, default=DEFAULT_NAME): cv.string,
+        vol.Optional(CONF_SCAN_INTERVAL, default=DEFAULT_SCAN_INTERVAL): cv.time_period,  
+    }
+)
 
 MAP_CONDITION = {
     "clear-day": ATTR_CONDITION_SUNNY,
@@ -68,56 +126,111 @@ MAP_CONDITION = {
 
 CONF_UNITS = "units"
 
-DEFAULT_NAME = "PirateWeather"
+DEFAULT_NAME = "Pirate Weather"
 
-PLATFORM_SCHEMA = PLATFORM_SCHEMA.extend(
-    {
-        vol.Required(CONF_API_KEY): cv.string,
-        vol.Optional(CONF_LATITUDE): cv.latitude,
-        vol.Optional(CONF_LONGITUDE): cv.longitude,
-        vol.Optional(CONF_MODE, default="hourly"): vol.In(FORECAST_MODE),
-        vol.Optional(CONF_UNITS): vol.In(["auto", "si", "us", "ca", "uk", "uk2"]),
-        vol.Optional(CONF_NAME, default=DEFAULT_NAME): cv.string,
-    }
-)
+from .weather_update_coordinator import WeatherUpdateCoordinator
 
-MIN_TIME_BETWEEN_UPDATES = timedelta(minutes=15)
+async def async_setup_platform(
+    hass: HomeAssistant,
+    config_entry: ConfigEntry,
+    async_add_entities: AddEntitiesCallback,
+    discovery_info: DiscoveryInfoType | None = None,
+) -> None:
+    """Import the platform into a config entry."""
+    _LOGGER.warning(
+        "Configuration of Pirate Weather (weather entity) in YAML is deprecated "
+        "Your existing configuration has been imported into the UI automatically "
+        "and can be safely removed from your configuration.yaml file"
+    )
+    
+    
+    # Add source to config
+    config_entry[PW_PLATFORM] = [PW_PLATFORMS[1]]
+
+    # Set as no rounding for compatability
+    config_entry[PW_ROUND] = "No"  
+        
+    hass.async_create_task(
+      hass.config_entries.flow.async_init(
+        DOMAIN, context={"source": SOURCE_IMPORT}, data = config_entry
+      )
+    )
 
 
-def setup_platform(hass, config, add_entities, discovery_info=None):
-    """Set up the PirateWeather weather."""
-    latitude = config.get(CONF_LATITUDE, hass.config.latitude)
-    longitude = config.get(CONF_LONGITUDE, hass.config.longitude)
-    name = config.get(CONF_NAME)
-    mode = config.get(CONF_MODE)
+async def async_setup_entry(
+    hass: HomeAssistant,
+    config_entry: ConfigEntry,
+    async_add_entities: AddEntitiesCallback,
+) -> None:
+    """Set up Pirate Weather entity based on a config entry."""
+    domain_data = hass.data[DOMAIN][config_entry.entry_id]
+    name = domain_data[CONF_NAME]
+    weather_coordinator = domain_data[ENTRY_WEATHER_COORDINATOR]
+    api_key = domain_data[CONF_API_KEY]
+    latitude = domain_data[CONF_LATITUDE]
+    longitude = domain_data[CONF_LONGITUDE]
+    #units = domain_data[CONF_UNITS]
+    units = "si"
+    forecast_mode = domain_data[CONF_MODE]
+    
+    unique_id = f"{config_entry.unique_id}"
+    
+    # Round Output
+    outputRound = domain_data[PW_ROUND]     
+     
+    pw_weather = PirateWeather(name, unique_id, forecast_mode, weather_coordinator, outputRound)
 
-    units = config.get(CONF_UNITS)
-    if not units:
-        units = "si" if hass.config.units.is_metric else "us"
+    async_add_entities([pw_weather], False)
+    #_LOGGER.info(pw_weather.__dict__)
+    
 
-    dark_sky = DarkSkyData(config.get(CONF_API_KEY), latitude, longitude, units)
+class PirateWeather(WeatherEntity):
+    """Implementation of an PirateWeather sensor."""
 
-    add_entities([DarkSkyWeather(name, dark_sky, mode)], True)
-
-
-class DarkSkyWeather(WeatherEntity):
-    """Representation of a weather condition."""
-
-    def __init__(self, name, dark_sky, mode):
-        """Initialize PirateWeather weather via the Dark Sky module."""
+    _attr_attribution = ATTRIBUTION
+    _attr_should_poll = False
+    _attr_native_precipitation_unit = LENGTH_MILLIMETERS
+    _attr_native_pressure_unit = PRESSURE_MBAR
+    _attr_native_temperature_unit = TEMP_CELSIUS
+    _attr_native_visibility_unit = LENGTH_KILOMETERS
+    _attr_native_wind_speed_unit = SPEED_METERS_PER_SECOND
+    
+    def __init__(
+        self,
+        name: str,
+        unique_id,
+        forecast_mode: str,
+        weather_coordinator: WeatherUpdateCoordinator,
+        outputRound: str,
+    ) -> None:
+        """Initialize the sensor."""
+        self._attr_name = name
+        #self._attr_device_info = DeviceInfo(
+        #    entry_type=DeviceEntryType.SERVICE,
+        #    identifiers={(DOMAIN, unique_id)},
+        #    manufacturer=MANUFACTURER,
+        #    name=DEFAULT_NAME,
+        #)
+        self._weather_coordinator = weather_coordinator
         self._name = name
-        self._dark_sky = dark_sky
-        self._mode = mode
+        self._mode = forecast_mode
+        self._unique_id = unique_id 
+        self._ds_data = self._weather_coordinator.data
+        self._ds_currently = self._weather_coordinator.data.currently()
+        self._ds_hourly = self._weather_coordinator.data.hourly()
+        self._ds_daily = self._weather_coordinator.data.daily()
+        
+        self.outputRound = outputRound
 
-        self._ds_data = None
-        self._ds_currently = None
-        self._ds_hourly = None
-        self._ds_daily = None
-
+    @property
+    def unique_id(self):
+        """Return a unique_id for this entity."""
+        return self._unique_id
+        
     @property
     def available(self):
         """Return if weather data is available from PirateWeather."""
-        return self._ds_data is not None
+        return self._weather_coordinator.data is not None
 
     @property
     def attribution(self):
@@ -130,54 +243,77 @@ class DarkSkyWeather(WeatherEntity):
         return self._name
 
     @property
-    def temperature(self):
+    def native_temperature(self):
         """Return the temperature."""
-        return self._ds_currently.get("temperature")
-
-    @property
-    def temperature_unit(self):
-        """Return the unit of measurement."""
-        if self._dark_sky.units is None:
-            return None
-        return TEMP_FAHRENHEIT if "us" in self._dark_sky.units else TEMP_CELSIUS
-
+        temperature = self._weather_coordinator.data.currently().d.get("temperature")
+        
+        if self.outputRound=="Yes":
+          return round(temperature, 0)
+        else:
+          return round(temperature, 2)
+                
     @property
     def humidity(self):
         """Return the humidity."""
-        return round(self._ds_currently.get("humidity") * 100.0, 2)
+        humidity = self._weather_coordinator.data.currently().d.get("humidity") * 100.0
 
+        if self.outputRound=="Yes":
+          return round(humidity, 0)
+        else:
+          return round(humidity, 2)
+          
+          
     @property
-    def wind_speed(self):
+    def native_wind_speed(self):
         """Return the wind speed."""
-        return self._ds_currently.get("windSpeed")
+        windspeed = self._weather_coordinator.data.currently().d.get("windSpeed")
 
+        if self.outputRound=="Yes":
+          return round(windspeed, 0)
+        else:
+          return round(windspeed, 2)
+          
     @property
     def wind_bearing(self):
         """Return the wind bearing."""
-        return self._ds_currently.get("windBearing")
+        return self._weather_coordinator.data.currently().d.get("windBearing")
 
     @property
     def ozone(self):
         """Return the ozone level."""
-        return self._ds_currently.get("ozone")
-
+        ozone = self._weather_coordinator.data.currently().d.get("ozone")
+        
+        if self.outputRound=="Yes":
+          return round(ozone, 0)
+        else:
+          return round(ozone, 2)
+          
     @property
-    def pressure(self):
+    def native_pressure(self):
         """Return the pressure."""
-        pressure = self._ds_currently.get("pressure")
-        if "us" in self._dark_sky.units:
-            return round(convert_pressure(pressure, PRESSURE_HPA, PRESSURE_INHG), 2)
-        return round(pressure, 2)
+        pressure = self._weather_coordinator.data.currently().d.get("pressure")
+        
+        if self.outputRound=="Yes":
+          return round(pressure, 0)
+        else:
+          return round(pressure, 2)
 
+        
     @property
-    def visibility(self):
+    def native_visibility(self):
         """Return the visibility."""
-        return self._ds_currently.get("visibility")
+        visibility = self._weather_coordinator.data.currently().d.get("visibility")
+        
+        if self.outputRound=="Yes":
+          return round(visibility, 0)
+        else:
+          return round(visibility, 2)        
 
     @property
     def condition(self):
         """Return the weather condition."""
-        return MAP_CONDITION.get(self._ds_currently.get("icon"))
+
+        return MAP_CONDITION.get(self._weather_coordinator.data.currently().d.get("icon"))
 
     @property
     def forecast(self):
@@ -199,88 +335,60 @@ class DarkSkyWeather(WeatherEntity):
                     ATTR_FORECAST_TIME: utc_from_timestamp(
                         entry.d.get("time")
                     ).isoformat(),
-                    ATTR_FORECAST_TEMP: entry.d.get("temperatureHigh"),
-                    ATTR_FORECAST_TEMP_LOW: entry.d.get("temperatureLow"),
+                    ATTR_FORECAST_NATIVE_TEMP: entry.d.get("temperatureHigh"),
+                    ATTR_FORECAST_NATIVE_TEMP_LOW: entry.d.get("temperatureLow"),
                     #ATTR_FORECAST_PRECIPITATION: calc_precipitation(
                     #    entry.d.get("precipIntensity"), 24
                     #),
-                    ATTR_FORECAST_PRECIPITATION: calc_precipitation(
+                    ATTR_FORECAST_NATIVE_PRECIPITATION: calc_precipitation(
                         entry.d.get("precipAccumulation"), 1
                     ),                    
-                    ATTR_FORECAST_WIND_SPEED: entry.d.get("windSpeed"),
+                    ATTR_FORECAST_NATIVE_WIND_SPEED: entry.d.get("windSpeed"),
                     ATTR_FORECAST_WIND_BEARING: entry.d.get("windBearing"),
                     ATTR_FORECAST_CONDITION: MAP_CONDITION.get(entry.d.get("icon")),
                 }
-                for entry in self._ds_daily.data
+                for entry in self._weather_coordinator.data.daily().data
             ]
+
         else:
             data = [
                 {
                     ATTR_FORECAST_TIME: utc_from_timestamp(
                         entry.d.get("time")
                     ).isoformat(),
-                    ATTR_FORECAST_TEMP: entry.d.get("temperature"),
-                    ATTR_FORECAST_PRECIPITATION: calc_precipitation(
+                    ATTR_FORECAST_NATIVE_TEMP: entry.d.get("temperature"),
+                    ATTR_FORECAST_NATIVE_PRECIPITATION: calc_precipitation(
                         entry.d.get("precipIntensity"), 1
                     ),
                     ATTR_FORECAST_CONDITION: MAP_CONDITION.get(entry.d.get("icon")),
                 }
-                for entry in self._ds_hourly.data
+                for entry in self._weather_coordinator.data.hourly().data
             ]
 
         return data
+    
+#    async def async_update(self) -> None:
+#        """Get the latest data from OWM and updates the states."""
+#        await self._weather_coordinator.async_request_refresh()   
+         
+#    async def update(self):
+#        """Get the latest data from Dark Sky."""
+#        await self._dark_sky.update()
+#
+#        self._ds_data = self._dark_sky.data
+#        currently = self._dark_sky.currently
+#        self._ds_currently = currently.d if currently else {}
+#        self._ds_hourly = self._dark_sky.hourly
+#        self._ds_daily = self._dark_sky.daily
+        
+    async def async_added_to_hass(self) -> None:
+        """Connect to dispatcher listening for entity data notifications."""
+        self.async_on_remove(
+            self._weather_coordinator.async_add_listener(self.async_write_ha_state)
+        )
 
-    def update(self):
-        """Get the latest data from Dark Sky."""
-        self._dark_sky.update()
+    
+    
 
-        self._ds_data = self._dark_sky.data
-        currently = self._dark_sky.currently
-        self._ds_currently = currently.d if currently else {}
-        self._ds_hourly = self._dark_sky.hourly
-        self._ds_daily = self._dark_sky.daily
-
-
-class DarkSkyData:
-    """Get the latest data from PirateWeather."""
-
-    def __init__(self, api_key, latitude, longitude, units):
-        """Initialize the data object."""
-        self._api_key = api_key
-        self.latitude = latitude
-        self.longitude = longitude
-        self.requested_units = units
-
-        self.data = None
-        self.currently = None
-        self.hourly = None
-        self.daily = None
-        self._connect_error = False
-
-    @Throttle(MIN_TIME_BETWEEN_UPDATES)
-    def update(self):
-        """Get the latest data from PirateWeather."""
-        try:
-            #self.data = forecastio.load_forecast(
-            #    self._api_key, self.latitude, self.longitude, units=self.requested_units
-            #)
-            forecastString = "https://api.pirateweather.net/forecast/" +  self._api_key + "/" + str(self.latitude) + "," + str(self.longitude) + "?units=" + self.requested_units
-            self.data = forecastio.manual(forecastString)
-            self.currently = self.data.currently()
-            self.hourly = self.data.hourly()
-            self.daily = self.data.daily()
-            if self._connect_error:
-                self._connect_error = False
-                _LOGGER.info("Reconnected to PirateWeather")
-        except (ConnectError, HTTPError, Timeout, ValueError) as error:
-            if not self._connect_error:
-                self._connect_error = True
-                _LOGGER.error("Unable to connect to PirateWeather. %s", error)
-            self.data = None
-
-    @property
-    def units(self):
-        """Get the unit system of returned data."""
-        if self.data is None:
-            return None
-        return self.data.json.get("flags").get("units")
+        
+        
