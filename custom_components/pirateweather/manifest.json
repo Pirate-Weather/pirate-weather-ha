@@ -8,5 +8,5 @@
   "requirements": ["python-forecastio==1.4.0"],
   "codeowners": ["@alexander0042"],
   "iot_class": "cloud_polling",
-  "config_flow": "true"
+  "config_flow": true
 }
