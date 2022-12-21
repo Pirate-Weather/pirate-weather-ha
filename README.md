@@ -1,12 +1,17 @@
-﻿# Pirate Weather Integrations
-NOTE: This is a testing branch to create a web based config flow for this integration. It also switches the logic over to asyncio, as well as modernising the entire code base. 
-This branch is not working yet and should not be used. 
-
-This integration is designed to replace the default [Dark Sky](https://www.home-assistant.io/integrations/darksky/) integration in [Home Assistant](https://github.com/home-assistant/core/tree/dev/homeassistant/components/darksky) with a slightly modified, but fully compatible version that relies on the [Pirate Weather API](https://pirateweather.net/) instead! 
+# Pirate Weather Integrations
+This integration is designed to replace the default [Dark Sky](https://www.home-assistant.io/integrations/darksky/) integration in [Home Assistant](https://github.com/home-assistant/core/tree/dev/homeassistant/components/darksky) with a  modified and updated, but fully compatible version that relies on the [Pirate Weather API](https://pirateweather.net/) instead! 
 
 To get a feel for the data returned by this API, check out <https://weather.pirateweather.net>! 
 
 I'm really hoping to keep free access going for this API, but it does take money to run the AWS back-end. If you'd like to support this project, I have a sponsorship link setup on my [profile](https://github.com/sponsors/alexander0042/)! This project (especially the free tier) wouldn't be possibile without the ongoing support from the project sponsors, so they're the [heros](https://github.com/SJV83) [here](https://github.com/matthewj301)! 
+
+
+<a href="https://github.com/sponsors/alexander0042" target="_blank"><img src="https://github.com/sponsors/alexander0042/card" alt="Sponsor Pirate Weather" style="height: 112px !important;width: 300px !important;box-shadow: 0px 3px 2px 0px rgba(190, 190, 190, 0.5) !important;-webkit-box-shadow: 0px 3px 2px 0px rgba(190, 190, 190, 0.5) !important;" ></a>
+
+<a href="https://www.buymeacoffee.com/pirateweather" target="_blank"><img src="https://www.buymeacoffee.com/assets/img/custom_images/orange_img.png" alt="Buy Me A Coffee" style="height: 41px !important;width: 174px !important;box-shadow: 0px 3px 2px 0px rgba(190, 190, 190, 0.5) !important;-webkit-box-shadow: 0px 3px 2px 0px rgba(190, 190, 190, 0.5) !important;" ></a>
+
+While this integration is designed to be compatible with Dark Sky, the underlying code is significantly different. This version is designed to work with more modern versions of Home Assistant, and relies on asyncio, unified data update coordinators, and setup via the UI! A [legacy branch](https://github.com/alexander0042/pirate-weather-ha/tree/Legacy-Dark-Sky) that is a 1:1 replacement for the previous Dark Sky integration is also available, but is not recommended.
+
 
 ## Notices
 While this integration is designed to be a drop in replacement for the Dark Sky integration, it is possible that small differences will occur. The underlying API should return similar results, but specific weather variables may be missing, and additional testing is needed to find and correct these edge cases. Please [document any issues](https://github.com/alexander0042/pirate-weather-ha/issues), and I can either update this integration or the weather API. 
@@ -17,13 +22,6 @@ The two most notable missing pieces at the moment are the language options and t
 Since the Dark Sky API will be shutting down this year, I set out to write an alternative API that would return results with the identical syntax, allowing it to be used as a drop in replacement. This culminated in the [Pirate Weather API](https://pirateweather.net/), which is a series of AWS lambda functions that read, process, and serve NOAA weather forecasts in same style and syntax as the Dark Sky API did. 
 
 This integration allows for any Home Assistant setup that uses Dark Sky to continue operating after it shuts down. While other weather integrations are available, this preserves anything that relies on unique aspects of Dark Sky (such as the minute-by-minute forecast) and let’s existing dashboards keep working. Plus, if you're interested in knowing exactly how your weather forecasts are generated, this is the "show me the numbers" approach, since the data returned is directly from NOAA, and every processing step I do is [documented](https://blog.pirateweather.net). If you're the sort of person who wants a [dense 34-page PowerPoint](http://rapidrefresh.noaa.gov/pdf/Alexander_AMS_NWP_2020.pdf) about why it rained when the forecast said it wouldn't, then this might be for you. 
-
-## What It Does
-This integration adds creates custom `sensor.py` and `weather.py` files to change their data source from Dark Sky to Pirate Weather. Specifically, these functions are built around the [forecast.io python package](https://pypi.org/project/python-forecastio/), and so instead of calling `forecastio.load_forecast`, they call `forecastio.manual`, which allows for a different API URL to be used. 
-
-The only other change is to call the API every 15 minutes instead of every 3. I only just graduated, so trying to keep my AWS bill reasonable here. If you need a more frequent update interval, or would like to support this project, I've set up a donation link!  
-
-<a href="https://www.buymeacoffee.com/pirateweather" target="_blank"><img src="https://www.buymeacoffee.com/assets/img/custom_images/orange_img.png" alt="Buy Me A Coffee" style="height: 41px !important;width: 174px !important;box-shadow: 0px 3px 2px 0px rgba(190, 190, 190, 0.5) !important;-webkit-box-shadow: 0px 3px 2px 0px rgba(190, 190, 190, 0.5) !important;" ></a>
 
 ## Documentation
 Since this integration returns the same type of data as the default Dark Sky integration, the parameter documentation is the same as described at <https://www.home-assistant.io/integrations/weather.darksky> for the weather card and here: <https://www.home-assistant.io/integrations/darksky/> for the sensor.
@@ -36,7 +34,7 @@ There are two methods to install this installation:
 2. Restart Home Assistant
 3. Register for a Pirate Weather API Key here: <https://pirateweather.net/>
 4. Log into the Pirate Weather API interface (<https://pirateweather.net/apis>), select `PirateForecast Beta`, and **click Subscribe**!
-5. Edit to your `configuration.yaml` file following the instructions below.
+5. Add the Pirate Weather on the Integrations page of your Home Assistant Installation following the steps below.
 
 ## Manual Installation 
 1. Using the tool of choice open the directory (folder) for your HA configuration (where you find `configuration.yaml`).
@@ -47,11 +45,33 @@ There are two methods to install this installation:
 6. Restart Home Assistant
 7. Register for a Pirate Weather API Key here: <https://pirateweather.net/>
 8. Log into the Pirate Weather API interface (<https://pirateweather.net/apis>), select `PirateForecast Beta`, and **click Subscribe**!
-9. Edit to your `configuration.yaml` file following the instructions below.
+9. Add the Pirate Weather on the Integrations page of your Home Assistant Installation following the steps below.
 
 ## Configuration
+The use to integration, click on the "Add Integration" button on the Integrations page in the Home Assistant Settings and search for Pirate Weather. This will open the add integration UI, shown below.
 
-Either add or edit to your `configuration.yaml` file with this block, using the new API key:
+![Integration_Setup_A](Integration_Setup_A.png)
+
+- The *API key* can be received from the [Pirate Weather Site](https://pirateweather.net/), and is only used to track usage and keep my AWS bills reasonable
+- The *Integration Name* is what this weather source will be called. If you want to track the weather at multiple locations, change this. 
+- The *Latitude* and *Longitude* for the forecast.
+- Select if a *Weather Entity* and/or *Sensor Entity* is required. A Weather Entity creates the dashboard standard weather card, and can either provide a daily or hourly forecast. Selecting Sensor Entity will create separate sensors for each condition and forecast time. For example, a sensor for the temperature on day 0 (today), day 1, and day 2, for a total of three sensors. If unsure, start with leaving only the Weather Entity selected.
+
+![Integration_Setup_B](Integration_Setup_B.png)
+
+- The *Forecast Mode* for the Weather Entity, either forecasts every hour or every day.
+- The language. At the moment, only English is supported.
+- The days forecast sensors should be created for, in a csv list.
+- The hours forecast sensors should be created for, in a csv list.
+- The monitored conditions forecast sensors should be created for.
+- If values should be rounded to the nearest integer.
+- And which units the forecast sensors should be in. This integration works with the built-in Home Assistant units; however, this option allows rounding to be used.
+
+### YAML Configuration
+YAML configuration is still supported, but is depreciated and may be removed at some point in the future. If the integration detects an existing YAML integration, it will import and save it, allowing the yaml to be safely removed.
+
+To use the integration via this approach, either add or edit to your `configuration.yaml` file with this block, using the new API key:
+
 ```yaml
 weather:
   - platform: pirateweather
@@ -78,5 +98,3 @@ sensor:
       - precip_intensity
       - wind_speed
 ```
-
-If you'd rather keep the integration as close to the build in Dark Sky Integration as possibile for compatability considerations, then follow the steps above, except name the directory in the `custom_component` folder `darksky`, and use `darksky` instead of `pirateweather` in the `configuration.yaml` file. This overrides the built in Dark Sky Integration with PirateWeather, but keeps the naming the same. 
