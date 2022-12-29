@@ -92,7 +92,7 @@ from .const import (
 
 _LOGGER = logging.getLogger(__name__)
 
-ATTRIBUTION = "Powered by Pirate Weather GUI"
+ATTRIBUTION = "Powered by Pirate Weather"
 
 PLATFORM_SCHEMA = PLATFORM_SCHEMA.extend(
     {
