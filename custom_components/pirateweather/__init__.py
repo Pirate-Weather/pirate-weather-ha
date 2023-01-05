@@ -109,7 +109,9 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
       hass.data[DOMAIN][unique_location] = weather_coordinator    
       #_LOGGER.warning('New Coordinator') 
 
-    await weather_coordinator.async_refresh()
+    #await weather_coordinator.async_refresh()
+    await weather_coordinator.async_config_entry_first_refresh()
+    
     
     hass.data[DOMAIN][entry.entry_id] = {
         ENTRY_NAME: name,
