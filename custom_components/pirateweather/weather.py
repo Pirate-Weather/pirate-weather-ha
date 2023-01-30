@@ -38,6 +38,7 @@ from homeassistant.components.weather import (
     ATTR_FORECAST_NATIVE_TEMP_LOW,
     ATTR_FORECAST_NATIVE_WIND_SPEED,    
     ATTR_FORECAST_PRECIPITATION,
+    ATTR_FORECAST_PRECIPITATION_PROBABILITY,
     ATTR_FORECAST_TIME,
     ATTR_FORECAST_WIND_BEARING,
     PLATFORM_SCHEMA,
@@ -248,7 +249,7 @@ class PirateWeather(WeatherEntity):
         temperature = self._weather_coordinator.data.currently().d.get("temperature")
         
         if self.outputRound=="Yes":
-          return round(temperature, 0)
+          return round(temperature, 0)+0
         else:
           return round(temperature, 2)
                 
@@ -258,7 +259,7 @@ class PirateWeather(WeatherEntity):
         humidity = self._weather_coordinator.data.currently().d.get("humidity") * 100.0
 
         if self.outputRound=="Yes":
-          return round(humidity, 0)
+          return round(humidity, 0)+0
         else:
           return round(humidity, 2)
           
@@ -269,7 +270,7 @@ class PirateWeather(WeatherEntity):
         windspeed = self._weather_coordinator.data.currently().d.get("windSpeed")
 
         if self.outputRound=="Yes":
-          return round(windspeed, 0)
+          return round(windspeed, 0)+0
         else:
           return round(windspeed, 2)
           
@@ -284,7 +285,7 @@ class PirateWeather(WeatherEntity):
         ozone = self._weather_coordinator.data.currently().d.get("ozone")
         
         if self.outputRound=="Yes":
-          return round(ozone, 0)
+          return round(ozone, 0)+0
         else:
           return round(ozone, 2)
           
@@ -294,7 +295,7 @@ class PirateWeather(WeatherEntity):
         pressure = self._weather_coordinator.data.currently().d.get("pressure")
         
         if self.outputRound=="Yes":
-          return round(pressure, 0)
+          return round(pressure, 0)+0
         else:
           return round(pressure, 2)
 
@@ -305,7 +306,7 @@ class PirateWeather(WeatherEntity):
         visibility = self._weather_coordinator.data.currently().d.get("visibility")
         
         if self.outputRound=="Yes":
-          return round(visibility, 0)
+          return round(visibility, 0)+0
         else:
           return round(visibility, 2)        
 
@@ -325,7 +326,7 @@ class PirateWeather(WeatherEntity):
             amount = None
             if intensity is not None:
                 amount = round((intensity * hours), 1)
-            return amount if amount > 0 else None
+            return amount if amount > 0 else 0
 
         data = None
 
@@ -342,7 +343,8 @@ class PirateWeather(WeatherEntity):
                     #),
                     ATTR_FORECAST_NATIVE_PRECIPITATION: calc_precipitation(
                         entry.d.get("precipAccumulation"), 1
-                    ),                    
+                    ),
+                    ATTR_FORECAST_PRECIPITATION_PROBABILITY: entry.d.get("precipProbability")*100,                
                     ATTR_FORECAST_NATIVE_WIND_SPEED: entry.d.get("windSpeed"),
                     ATTR_FORECAST_WIND_BEARING: entry.d.get("windBearing"),
                     ATTR_FORECAST_CONDITION: MAP_CONDITION.get(entry.d.get("icon")),
@@ -360,6 +362,7 @@ class PirateWeather(WeatherEntity):
                     ATTR_FORECAST_NATIVE_PRECIPITATION: calc_precipitation(
                         entry.d.get("precipIntensity"), 1
                     ),
+                    ATTR_FORECAST_PRECIPITATION_PROBABILITY: entry.d.get("precipProbability")*100,
                     ATTR_FORECAST_CONDITION: MAP_CONDITION.get(entry.d.get("icon")),
                 }
                 for entry in self._weather_coordinator.data.hourly().data

@@ -3,7 +3,6 @@ from datetime import timedelta
 import logging
 
 import async_timeout
-from pyowm.commons.exceptions import APIRequestError, UnauthorizedError
 import forecastio
 from forecastio.models import Forecast
 import json
@@ -56,7 +55,7 @@ class WeatherUpdateCoordinator(DataUpdateCoordinator):
         async with async_timeout.timeout(30):
             try:
                 data = await self._get_pw_weather()
-            except (APIRequestError, UnauthorizedError) as error:
+            except Exception as error:
                 raise UpdateFailed(error) from error
         return data
 
