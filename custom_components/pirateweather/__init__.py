@@ -74,7 +74,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     
     
     # Extract list of int from forecast days/ hours string if present
-    _LOGGER.warning('forecast_days_type: ' + str(type(forecast_days)))
+    #_LOGGER.warning('forecast_days_type: ' + str(type(forecast_days)))
     
     #_LOGGER.warning(forecast_days)
     if type(forecast_days) == str:
