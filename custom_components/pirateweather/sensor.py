@@ -963,6 +963,21 @@ class PirateWeatherSensor(SensorEntity):
               "apparent_temperature_low",     
           ]:
               state = ((state * 9 / 5) + 32)
+
+        # Precipitation Accumilation (cm in SI) to inches 
+        if self.requestUnits in ["us"]:
+          if self.type in [
+              "precip_accumulation", 
+          ]:
+              state = (state * 0.393701)
+              
+        # Precipitation Intensity (mm/h in SI) to inches 
+        if self.requestUnits in ["us"]:
+          if self.type in [
+              "precip_intensity", 
+          ]:
+              state = (state * 0.0393701)              
+              
               
         # Km to Miles      
         if self.requestUnits in ["us", "uk", "uk2"]:
