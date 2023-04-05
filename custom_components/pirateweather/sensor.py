@@ -262,6 +262,7 @@ SENSOR_TYPES: dict[str, PirateWeatherSensorEntityDescription] = {
     "wind_speed": PirateWeatherSensorEntityDescription(
         key="wind_speed",
         name="Wind Speed",
+        device_class=SensorDeviceClass.WIND_SPEED,
         si_unit=SPEED_METERS_PER_SECOND,
         us_unit=SPEED_MILES_PER_HOUR,
         ca_unit=SPEED_KILOMETERS_PER_HOUR,
