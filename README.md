@@ -31,8 +31,8 @@ There are two methods to install this installation:
 ## HACS Installation (easiest)
 1. Add `https://github.com/alexander0042/pirate-weather-ha` as a custom repository
 2. Restart Home Assistant
-3. Register for a Pirate Weather API Key here: <https://pirateweather.net/>
-4. Log into the Pirate Weather API interface (<https://pirateweather.net/apis>), select `PirateForecast Beta`, and **click Subscribe**!
+3. Register for a Pirate Weather API Key here: <https://pirate-weather.apiable.io>
+4. Log into the Pirate Weather API interface (<https://pirate-weather.apiable.io>) and subscribe to the API!
 5. Add the Pirate Weather on the Integrations page of your Home Assistant Installation following the steps below.
 
 ## Manual Installation 
@@ -42,8 +42,8 @@ There are two methods to install this installation:
 4. Download _all_ the files from the `custom_components/pirateweather/` directory (folder) in this repository.
 5. Place the files you downloaded in the new directory (folder) you created.
 6. Restart Home Assistant
-7. Register for a Pirate Weather API Key here: <https://pirateweather.net/>
-8. Log into the Pirate Weather API interface (<https://pirateweather.net/apis>), select `PirateForecast Beta`, and **click Subscribe**!
+7. Register for a Pirate Weather API Key here: <https://pirate-weather.apiable.io>
+8. Log into the Pirate Weather API interface (<https://pirate-weather.apiable.io>), and subscribe to the API!
 9. Add the Pirate Weather on the Integrations page of your Home Assistant Installation following the steps below.
 
 ## Configuration
