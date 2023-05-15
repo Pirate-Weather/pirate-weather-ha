@@ -1,5 +1,5 @@
 {
     "name": "Pirate Weather", 
     "render_readme": true,
-    "homeassistant": "2021.1.0b0"
+    "homeassistant": "2022.10.0"
 }
