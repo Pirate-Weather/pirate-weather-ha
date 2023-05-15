@@ -343,7 +343,7 @@ SENSOR_TYPES: dict[str, PirateWeatherSensorEntityDescription] = {
     "ozone": PirateWeatherSensorEntityDescription(
         key="ozone",
         name="Ozone",
-        device_class=SensorDeviceClass.OZONE,
+        state_class=SensorStateClass.MEASUREMENT,
         si_unit="DU",
         us_unit="DU",
         ca_unit="DU",
