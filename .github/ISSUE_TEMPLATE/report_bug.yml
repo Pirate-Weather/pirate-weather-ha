@@ -1,0 +1,77 @@
+name: Bug Report
+description: Create a report to help us improve
+labels: [Bug]
+body:
+
+  - type: textarea
+    id: describe-the-bug
+    attributes:
+      label: Describe the bug
+      description: A clear and concise description of what the bug is.
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected-behavior
+    attributes:
+      label: Expected behavior
+      description: A clear and concise description of what you expected to happen.
+    validations:
+      required: true
+
+  - type: textarea
+    id: actual-behavior
+    attributes:
+      label: Actual behavior
+      description: Explain what actually happens.
+      placeholder: |
+        Example:
+          "This happened instead..."
+    validations:
+      required: true
+
+  - type: input
+    id: ha-version
+    attributes:
+      label: Home Assistant version
+      description: You can find your Home Assistant version in **Settings > About.**.
+      placeholder: |
+        Example: "2023.2.5"
+    validations:
+      required: true
+
+  - type: input
+    id: integration-version
+    attributes:
+      label: Integration version
+      description: This is displayed somewhere.
+      placeholder: |
+        Example: "1.2"
+    validations:
+      required: true
+
+  - type: textarea
+    id: other-details
+    attributes:
+      label: Other details
+      placeholder: |
+        Additional details and attachments.
+
+  - type: checkboxes
+    id: acknowledgements
+    attributes:
+      label: Troubleshooting steps
+      description: Before reporting an issue follow these troubleshooting steps to see if it solves the issue.
+      options:
+        - label: I have updated my Home Assistant installation to the latest version.
+          required: true
+        - label: I have updated the PirateWeather Integration to the latest version.
+          required: true
+        - label: I have gone through the [documentation](https://pirateweather.net/en/latest/ha/), [parameter documentation](https://web.archive.org/web/20230128172320/https://www.home-assistant.io/integrations/weather.darksky/) and [sensor documentation](https://web.archive.org/web/20230326100953/https://www.home-assistant.io/integrations/darksky).
+          required: true
+        - label: I have searched the [Home Assistant Repository](https://github.com/alexander0042/pirateweather) and [PirateWeather Repository](https://github.com/alexander0042/pirate-weather-ha) issues to see if the issue has already been reported.
+          required: true
+        - label: I have restarted my Home Assistant installation.
+          required: true
+        - label: I have called the API directly to confirm the issue is not an API issue.
+          required: true
