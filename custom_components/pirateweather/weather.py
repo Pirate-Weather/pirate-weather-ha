@@ -351,12 +351,12 @@ class PirateWeather(WeatherEntity):
                     #),
                     # Since accumuilation is alwasys in cm, multiply it by 10 to get mm
                     ATTR_FORECAST_NATIVE_PRECIPITATION: entry.d.get("precipAccumulation")*10,
-                    ATTR_FORECAST_PRECIPITATION_PROBABILITY: entry.d.get("precipProbability")*100,                
+                    ATTR_FORECAST_PRECIPITATION_PROBABILITY: round(entry.d.get("precipProbability")*100, 0),                
                     ATTR_FORECAST_NATIVE_WIND_SPEED: entry.d.get("windSpeed"),
                     ATTR_FORECAST_WIND_BEARING: entry.d.get("windBearing"),
                     ATTR_FORECAST_CONDITION: MAP_CONDITION.get(entry.d.get("icon")),
                     ATTR_API_FORECAST_HUMIDITY: entry.d.get("humidity")*100,
-                    ATTR_API_FORECAST_CLOUD: entry.d.get("cloudCover")*100,
+                    ATTR_API_FORECAST_CLOUD: round(entry.d.get("cloudCover")*100, 0),
                 }
                 for entry in self._weather_coordinator.data.daily().data
             ]
@@ -369,10 +369,10 @@ class PirateWeather(WeatherEntity):
                     ).isoformat(),
                     ATTR_FORECAST_NATIVE_TEMP: entry.d.get("temperature"),
                     ATTR_FORECAST_NATIVE_PRECIPITATION: entry.d.get("precipIntensity"),
-                    ATTR_FORECAST_PRECIPITATION_PROBABILITY: entry.d.get("precipProbability")*100,
+                    ATTR_FORECAST_PRECIPITATION_PROBABILITY: round(entry.d.get("precipProbability")*100, 0),
                     ATTR_FORECAST_CONDITION: MAP_CONDITION.get(entry.d.get("icon")),
                     ATTR_API_FORECAST_HUMIDITY: entry.d.get("humidity")*100,
-                    ATTR_API_FORECAST_CLOUD: entry.d.get("cloudCover")*100,                    
+                    ATTR_API_FORECAST_CLOUD: round(entry.d.get("cloudCover")*100, 0),                 
                 }
                 for entry in self._weather_coordinator.data.hourly().data
             ]
