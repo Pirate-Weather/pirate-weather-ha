@@ -78,6 +78,9 @@ PW_PLATFORM = "pw_platform"
 PW_PREVPLATFORM = "pw_prevplatform"
 PW_ROUND = "pw_round" 
 
+ATTR_API_FORECAST_CLOUD = "cloud_cover"
+ATTR_API_FORECAST_HUMIDITY = "humidity"
+
 FORECAST_MODE_HOURLY = "hourly"
 FORECAST_MODE_DAILY = "daily"
 

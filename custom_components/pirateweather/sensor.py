@@ -597,7 +597,7 @@ ALLOWED_UNITS = ["auto", "si", "us", "ca", "uk", "uk2"]
 
 ALERTS_ATTRS = ["time", "description", "expires", "severity", "uri", "regions", "title"]
    
-HOURS = [i for i in range(49)]
+HOURS = [i for i in range(168)]
 DAYS = [i for i in range(7)]     
  
 PLATFORM_SCHEMA = PLATFORM_SCHEMA.extend(

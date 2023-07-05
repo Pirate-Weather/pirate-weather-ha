@@ -61,7 +61,12 @@ from homeassistant.const import (
     LENGTH_KILOMETERS,
     LENGTH_MILLIMETERS,
     TEMP_CELSIUS,
-    TEMP_FAHRENHEIT,        
+    TEMP_FAHRENHEIT,    
+    UnitOfPrecipitationDepth,
+    UnitOfPressure,
+    UnitOfSpeed,
+    UnitOfTemperature,
+    UnitOfLength,
 )
 
 from .const import (
@@ -88,6 +93,8 @@ from .const import (
     PW_PLATFORM,
     PW_PREVPLATFORM,
     PW_ROUND,
+    ATTR_API_FORECAST_CLOUD,
+    ATTR_API_FORECAST_HUMIDITY,
 )
 
 
@@ -190,11 +197,12 @@ class PirateWeather(WeatherEntity):
 
     _attr_attribution = ATTRIBUTION
     _attr_should_poll = False
-    _attr_native_precipitation_unit = LENGTH_MILLIMETERS
-    _attr_native_pressure_unit = PRESSURE_MBAR
-    _attr_native_temperature_unit = TEMP_CELSIUS
-    _attr_native_visibility_unit = LENGTH_KILOMETERS
-    _attr_native_wind_speed_unit = SPEED_METERS_PER_SECOND
+    
+    _attr_native_precipitation_unit = UnitOfPrecipitationDepth.MILLIMETERS
+    _attr_native_pressure_unit = UnitOfPressure.MBAR
+    _attr_native_temperature_unit = UnitOfTemperature.CELSIUS
+    _attr_native_visibility_unit = UnitOfLength.KILOMETERS
+    _attr_native_wind_speed_unit = UnitOfSpeed.METERS_PER_SECOND
     
     def __init__(
         self,
@@ -341,13 +349,14 @@ class PirateWeather(WeatherEntity):
                     #ATTR_FORECAST_PRECIPITATION: calc_precipitation(
                     #    entry.d.get("precipIntensity"), 24
                     #),
-                    ATTR_FORECAST_NATIVE_PRECIPITATION: calc_precipitation(
-                        entry.d.get("precipAccumulation"), 1
-                    ),
+                    # Since accumuilation is alwasys in cm, multiply it by 10 to get mm
+                    ATTR_FORECAST_NATIVE_PRECIPITATION: entry.d.get("precipAccumulation")*10,
                     ATTR_FORECAST_PRECIPITATION_PROBABILITY: entry.d.get("precipProbability")*100,                
                     ATTR_FORECAST_NATIVE_WIND_SPEED: entry.d.get("windSpeed"),
                     ATTR_FORECAST_WIND_BEARING: entry.d.get("windBearing"),
                     ATTR_FORECAST_CONDITION: MAP_CONDITION.get(entry.d.get("icon")),
+                    ATTR_API_FORECAST_HUMIDITY: entry.d.get("humidity")*100,
+                    ATTR_API_FORECAST_CLOUD: entry.d.get("cloudCover")*100,
                 }
                 for entry in self._weather_coordinator.data.daily().data
             ]
@@ -359,13 +368,11 @@ class PirateWeather(WeatherEntity):
                         entry.d.get("time")
                     ).isoformat(),
                     ATTR_FORECAST_NATIVE_TEMP: entry.d.get("temperature"),
-                    ATTR_FORECAST_NATIVE_PRECIPITATION: calc_precipitation(
-                        entry.d.get("precipIntensity"), 1
-                    ),
+                    ATTR_FORECAST_NATIVE_PRECIPITATION: entry.d.get("precipIntensity"),
                     ATTR_FORECAST_PRECIPITATION_PROBABILITY: entry.d.get("precipProbability")*100,
-                    ATTR_FORECAST_NATIVE_WIND_SPEED: entry.d.get("windSpeed"),
-                    ATTR_FORECAST_WIND_BEARING: entry.d.get("windBearing"),
                     ATTR_FORECAST_CONDITION: MAP_CONDITION.get(entry.d.get("icon")),
+                    ATTR_API_FORECAST_HUMIDITY: entry.d.get("humidity")*100,
+                    ATTR_API_FORECAST_CLOUD: entry.d.get("cloudCover")*100,                    
                 }
                 for entry in self._weather_coordinator.data.hourly().data
             ]

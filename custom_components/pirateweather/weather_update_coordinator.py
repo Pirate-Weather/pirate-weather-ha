@@ -64,7 +64,7 @@ class WeatherUpdateCoordinator(DataUpdateCoordinator):
         """Poll weather data from PW."""   
         
              
-        forecastString = "https://api.pirateweather.net/forecast/" +  self._api_key + "/" + str(self.latitude) + "," + str(self.longitude) + "?units=" + self.requested_units
+        forecastString = "https://api.pirateweather.net/forecast/" +  self._api_key + "/" + str(self.latitude) + "," + str(self.longitude) + "?units=" + self.requested_units + "&extend=hourly"
         
         async with aiohttp.ClientSession(raise_for_status=True) as session:
           async with session.get(forecastString) as resp:
