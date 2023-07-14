@@ -1,0 +1,61 @@
+{
+    "config": {
+        "abort": {
+            "already_configured": "Locatie is al ingesteld"
+        },
+        "error": {
+            "cannot_connect": "Verbinding Mislukt",
+            "invalid_api_key": "Foutieve API-sleutel"
+        },
+        "step": {
+            "user": {
+                "data": {
+                    "api_key": "API-sleutel",
+                    "language": "Taal",
+                    "latitude": "Breedtegraad",
+                    "longitude": "Lengtegraad",
+                    "mode": "Voorspellingsmodus voor de Weer entiteit",
+                    "name": "Integratie Naam",
+                    "units": "Eenheden voor sensoren. Wordt alleen gebruikt als sensoren worden aangeroepen.",
+                    "forecast": "Dagelijkse prognoses sensoren in csv-vorm van 0-7 (bijv. '0,1,3'). Wordt alleen gebruikt als sensoren worden aangeroepen.",
+                    "hourly_forecast":  "Uurlijkse prognoses sensoren in csv-vorm van 0-168 (bijv. '0,1,10'). Wordt alleen gebruikt als sensoren worden aangeroepen.",
+                    "monitored_conditions": "Gecontroleerde omstandigheden om sensoren voor te creëren. Wordt alleen gebruikt als sensoren worden aangeroepen.",
+                    "pw_platform": "Weer Entiteit en/of Sensor Entiteit. Sensor maakt op elk moment entiteiten voor elke voorwaarde. Als u het niet zeker weet, selecteert u alleen Weer!",
+                    "pw_round": "Rond waarden af ​​op het dichtstbijzijnde gehele getal. Zorg ervoor dat de geselecteerde eenheden overeenkomen met de systeemeenheden.",
+                    "scan_interval": "Seconden wachten tussen updates. Het wordt niet aanbevolen om dit onder de 900 seconden (15 minuten) te zetten."                                         
+                },
+                "description": "Stel Pirate Weather-integratie in. Ga naar  https://pirateweather.net om een ​​API-sleutel te genereren.",
+                "data_description": {
+                  "forecast": "bijv. '0,1,4' (zonder aanhalingstekens)",
+                  "hourly_forecast": "bijv. '0,1,4' (zonder aanhalingstekens)"
+                }                
+            }
+        }
+    },
+    "options": {
+        "step": {
+            "init": {
+                "data": {
+                    "api_key": "API-sleutel",
+                    "language": "Taal",
+                    "latitude": "Breedtegraad",
+                    "longitude": "Lengtegraad",
+                    "mode": "Voorspellingsmodus voor de Weer entiteit",
+                    "name": "Integratie Naam",
+                    "units": "Eenheden voor sensoren. Wordt alleen gebruikt als sensoren worden aangeroepen.",
+                    "forecast": "Dagelijkse prognoses sensoren in csv-vorm van 0-7 (bijv. '0,1,3'). Wordt alleen gebruikt als sensoren worden aangeroepen.",
+                    "hourly_forecast":  "Uurlijkse prognoses sensoren in csv-vorm van 0-168 (bijv. '0,1,10'). Wordt alleen gebruikt als sensoren worden aangeroepen.",
+                    "monitored_conditions": "Gecontroleerde omstandigheden om sensoren voor te creëren. Wordt alleen gebruikt als sensoren worden aangeroepen.",
+                    "pw_platform": "Weer Entiteit en/of Sensor Entiteit. Sensor maakt op elk moment entiteiten voor elke voorwaarde. Als u het niet zeker weet, selecteert u alleen Weer!",
+                    "pw_round": "Rond waarden af ​​op het dichtstbijzijnde gehele getal. Zorg ervoor dat de geselecteerde eenheden overeenkomen met de systeemeenheden.",
+                    "scan_interval": "Seconden wachten tussen updates. Het wordt niet aanbevolen om dit onder de 900 seconden (15 minuten) te zetten."                                         
+                },
+                "description": "Stel Pirate Weather-integratie in. Ga naar  https://pirateweather.net om een ​​API-sleutel te genereren.",
+                "data_description": {
+                  "forecast": "bijv. '0,1,4' (zonder aanhalingstekens)",
+                  "hourly_forecast": "bijv. '0,1,4.\n om bestaande sensoren te verwijderen, type 'None' (zonder aanhalingstekens)"
+                }         
+            }
+        }
+    }
+}
