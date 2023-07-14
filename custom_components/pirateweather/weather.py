@@ -34,6 +34,7 @@ from homeassistant.components.weather import (
     ATTR_CONDITION_WINDY,
     ATTR_FORECAST_CONDITION,
     ATTR_FORECAST_NATIVE_PRECIPITATION,
+    ATTR_FORECAST_NATIVE_PRESSURE,
     ATTR_FORECAST_NATIVE_TEMP,
     ATTR_FORECAST_NATIVE_TEMP_LOW,
     ATTR_FORECAST_NATIVE_WIND_SPEED,    
@@ -93,8 +94,9 @@ from .const import (
     PW_PLATFORM,
     PW_PREVPLATFORM,
     PW_ROUND,
-    ATTR_API_FORECAST_CLOUD,
-    ATTR_API_FORECAST_HUMIDITY,
+    ATTR_FORECAST_CLOUD_COVERAGE,
+    ATTR_FORECAST_HUMIDITY,
+    ATTR_FORECAST_NATIVE_VISIBILITY,
 )
 
 
@@ -352,11 +354,11 @@ class PirateWeather(WeatherEntity):
                     # Since accumuilation is alwasys in cm, multiply it by 10 to get mm
                     ATTR_FORECAST_NATIVE_PRECIPITATION: entry.d.get("precipAccumulation")*10,
                     ATTR_FORECAST_PRECIPITATION_PROBABILITY: round(entry.d.get("precipProbability")*100, 0),                
-                    ATTR_FORECAST_NATIVE_WIND_SPEED: entry.d.get("windSpeed"),
-                    ATTR_FORECAST_WIND_BEARING: entry.d.get("windBearing"),
+                    ATTR_FORECAST_NATIVE_WIND_SPEED: round(entry.d.get("windSpeed"), 2),
+                    ATTR_FORECAST_WIND_BEARING: round(entry.d.get("windBearing"), 0),
                     ATTR_FORECAST_CONDITION: MAP_CONDITION.get(entry.d.get("icon")),
-                    ATTR_API_FORECAST_HUMIDITY: entry.d.get("humidity")*100,
-                    ATTR_API_FORECAST_CLOUD: round(entry.d.get("cloudCover")*100, 0),
+                    ATTR_FORECAST_HUMIDITY: round(entry.d.get("humidity")*100, 2),
+                    ATTR_FORECAST_CLOUD_COVERAGE: round(entry.d.get("cloudCover")*100, 0)
                 }
                 for entry in self._weather_coordinator.data.daily().data
             ]
@@ -368,20 +370,24 @@ class PirateWeather(WeatherEntity):
                         entry.d.get("time")
                     ).isoformat(),
                     ATTR_FORECAST_NATIVE_TEMP: entry.d.get("temperature"),
-                    ATTR_FORECAST_NATIVE_PRECIPITATION: entry.d.get("precipIntensity"),
+                    ATTR_FORECAST_NATIVE_PRECIPITATION: round(entry.d.get("precipIntensity"), 2),
                     ATTR_FORECAST_PRECIPITATION_PROBABILITY: round(entry.d.get("precipProbability")*100, 0),
                     ATTR_FORECAST_CONDITION: MAP_CONDITION.get(entry.d.get("icon")),
-                    ATTR_API_FORECAST_HUMIDITY: entry.d.get("humidity")*100,
-                    ATTR_API_FORECAST_CLOUD: round(entry.d.get("cloudCover")*100, 0),                 
+                    ATTR_FORECAST_HUMIDITY: round(entry.d.get("humidity")*100, 2),
+                    ATTR_FORECAST_CLOUD_COVERAGE: round(entry.d.get("cloudCover")*100, 0), 
+                    ATTR_FORECAST_NATIVE_PRESSURE: round(entry.d.get("temperature"), 2),
+                    ATTR_FORECAST_NATIVE_VISIBILITY: round(entry.d.get("visibility"), 2),
+                    ATTR_FORECAST_NATIVE_WIND_SPEED: round(entry.d.get("windSpeed"), 2),
+                    ATTR_FORECAST_WIND_BEARING: round(entry.d.get("windBearing"), 0),                
                 }
                 for entry in self._weather_coordinator.data.hourly().data
             ]
 
         return data
     
-#    async def async_update(self) -> None:
-#        """Get the latest data from OWM and updates the states."""
-#        await self._weather_coordinator.async_request_refresh()   
+    async def async_update(self) -> None:
+        """Get the latest data from PW and updates the states."""
+        await self._weather_coordinator.async_request_refresh()   
          
 #    async def update(self):
 #        """Get the latest data from Dark Sky."""
