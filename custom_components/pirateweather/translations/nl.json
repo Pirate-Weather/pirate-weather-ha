@@ -1,11 +1,11 @@
 {
     "config": {
         "abort": {
-            "already_configured": "Location is already configured"
+            "already_configured": "Locatie is al ingesteld"
         },
         "error": {
-            "cannot_connect": "Failed to connect",
-            "invalid_api_key": "Invalid API key"
+            "cannot_connect": "Verbinding Mislukt",
+            "invalid_api_key": "Foutieve API-sleutel"
         },
         "step": {
             "user": {
@@ -36,7 +36,7 @@
         "step": {
             "init": {
                 "data": {
-                                        "api_key": "API-sleutel",
+                    "api_key": "API-sleutel",
                     "language": "Taal",
                     "latitude": "Breedtegraad",
                     "longitude": "Lengtegraad",
