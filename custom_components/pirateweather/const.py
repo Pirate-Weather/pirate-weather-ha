@@ -78,9 +78,9 @@ PW_PLATFORM = "pw_platform"
 PW_PREVPLATFORM = "pw_prevplatform"
 PW_ROUND = "pw_round" 
 
-ATTR_FORECAST_CLOUD_COVERAGE = "cloud_cover"
+ATTR_FORECAST_CLOUD_COVERAGE = "cloud_coverage"
 ATTR_FORECAST_HUMIDITY = "humidity"
-ATTR_FORECAST_NATIVE_VISIBILITY = "visibility"
+ATTR_FORECAST_NATIVE_VISIBILITY = "native_visibility"
 
 FORECAST_MODE_HOURLY = "hourly"
 FORECAST_MODE_DAILY = "daily"
