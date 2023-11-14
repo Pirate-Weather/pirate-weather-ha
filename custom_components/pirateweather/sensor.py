@@ -485,6 +485,12 @@ SENSOR_TYPES: dict[str, PirateWeatherSensorEntityDescription] = {
         icon="mdi:alert-circle-outline",
         forecast_mode=[],
     ),
+    "time": PirateWeatherSensorEntityDescription(
+        key="time",
+        name="Time",
+        icon="mdi:clock-time-three-outline",
+        forecast_mode=["currently", "hourly", "daily"],
+    ),
 }
 
 class ConditionPicture(NamedTuple):
@@ -905,6 +911,7 @@ class PirateWeatherSensor(SensorEntity):
         elif self.type == "daily_summary":
             native_val = getattr(self._weather_coordinator.data.daily(),"summary", "")
             self._icon = getattr(self._weather_coordinator.data.daily(),"icon", "")
+            
             
         elif self.forecast_day is not None:
             daily = self._weather_coordinator.data.daily()
