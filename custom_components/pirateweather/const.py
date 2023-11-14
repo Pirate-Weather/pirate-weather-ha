@@ -127,7 +127,8 @@ ALL_CONDITIONS = {'summary': 'Summary',
                    'sunset_time': 'Sunset Time',
                    'nearest_storm_distance': 'Nearest Storm Distance',         
                    'nearest_storm_bearing': 'Nearest Storm Bearing',
-                   'alerts': 'Alerts'                   
+                   'alerts': 'Alerts',
+                   'time':'Time'
                 }
 
 LANGUAGES = [
