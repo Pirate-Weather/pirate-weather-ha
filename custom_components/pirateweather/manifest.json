@@ -1,12 +1,12 @@
 {
-  "domain": "pirateweather",
-  "name": "Pirate Weather",
-  "codeowners": ["@alexander0042"],
-  "config_flow": true,
-  "dependencies": [],  
+  "domain": "pirateapple",
+  "name": "Pirate Apple",
   "documentation": "https://github.com/alexander0042/pirate-weather-ha",
+  "issue_tracker": "https://github.com/alexander0042/pirate-weather-ha/issues",
+  "dependencies": [],
+  "version": "1.1.0",  
+  "requirements": ["pirate-weather-python==0.0.9"],
+  "codeowners": ["@alexander0042"],
   "iot_class": "cloud_polling",
-  "issue_tracker": "https://github.com/alexander0042/pirate-weather-ha/issues",  
-  "requirements": ["python-forecastio==1.4.0"],
-  "version": "1.3.1"
+  "config_flow": true
 }

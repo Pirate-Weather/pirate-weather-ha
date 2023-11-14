@@ -1,70 +1,86 @@
-"""Config flow for Pirate Weather."""
+"""Adds config flow for WeatherKit."""
+from __future__ import annotations
+
+from collections.abc import Mapping
+from typing import Any
+
+from homeassistant.core import callback
+
 import voluptuous as vol
-import logging
 from datetime import timedelta
 
-import forecastio
-from forecastio.models import Forecast
 import json
-import aiohttp
 
-from homeassistant import config_entries
-from homeassistant.const import (
-    CONF_API_KEY,
-    CONF_LATITUDE,
-    CONF_LONGITUDE,
-    CONF_MODE,
-    CONF_NAME,
-    CONF_MONITORED_CONDITIONS,
-    CONF_SCAN_INTERVAL,
-)
-from homeassistant.core import callback
+from homeassistant import config_entries, data_entry_flow
+from homeassistant.helpers.aiohttp_client import async_get_clientsession
 import homeassistant.helpers.config_validation as cv
 
 from .const import (
+    DOMAIN,
+    LOGGER, 
     CONF_LANGUAGE,
     CONFIG_FLOW_VERSION,
     DEFAULT_FORECAST_MODE,
     DEFAULT_LANGUAGE,
     DEFAULT_NAME,
     DEFAULT_SCAN_INTERVAL,
-    DOMAIN,
     FORECAST_MODES,
     LANGUAGES,
     CONF_UNITS,
+    CONF_FORECAST,
+    CONF_HOURLY_FORECAST,
     DEFAULT_UNITS,
-    FORECASTS_DAILY,
+    ENTRY_NAME,
+    ENTRY_WEATHER_COORDINATOR,
+    FORECAST_MODES,
+    PLATFORMS, 
+    MANUFACTURER,    
     FORECASTS_HOURLY,
-    ALL_CONDITIONS,
+    FORECASTS_DAILY,
     PW_PLATFORMS,
     PW_PLATFORM,
-    PW_PREVPLATFORM,
     PW_ROUND,
+    ALL_CONDITIONS,
 )
 
-ATTRIBUTION = "Powered by Pirate Weather"
-_LOGGER = logging.getLogger(__name__)
+from homeassistant.const import (
+    CONF_API_KEY,
+    CONF_LATITUDE,
+    CONF_LONGITUDE,
+    CONF_MODE,
+    CONF_NAME,
+    CONF_SCAN_INTERVAL,
+    CONF_MONITORED_CONDITIONS,
+)
 
-CONF_FORECAST = "forecast"
-CONF_HOURLY_FORECAST = "hourly_forecast"
 
+from pirate_weather.api import PirateWeatherAsync
+from homeassistant.helpers.aiohttp_client import async_get_clientsession
 
-class PirateWeatherConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
-    """Config flow for PirateWeather."""
+class PirateWeatherKitFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
+    """Config flow for Pirate Weather."""
 
     VERSION = CONFIG_FLOW_VERSION
 
+
     @staticmethod
     @callback
-    def async_get_options_flow(config_entry):
+    def async_get_options_flow(
+        config_entry: config_entries.ConfigEntry,
+    ) -> PirateWeatherOptionsFlow:
         """Get the options flow for this handler."""
         return PirateWeatherOptionsFlow(config_entry)
 
-    async def async_step_user(self, user_input=None):
+    async def async_step_user(
+        self,
+        user_input: dict[str, Any] | None = None,
+    ) -> data_entry_flow.FlowResult:
         """Handle a flow initialized by the user."""
         errors = {}
-
-        schema = vol.Schema(
+        
+        
+        # Define data schema with defaults
+        DATA_SCHEMA = vol.Schema(
           {
               vol.Required(CONF_API_KEY): str,
               vol.Optional(CONF_NAME, default=DEFAULT_NAME): str,
@@ -98,17 +114,16 @@ class PirateWeatherConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
           }
         ) 
         
-    
-        if user_input is not None:
+        if user_input is not None:           
+
             latitude = user_input[CONF_LATITUDE]
             longitude = user_input[CONF_LONGITUDE]
             forecastDays = user_input[CONF_FORECAST]
             forecastHours = user_input[CONF_HOURLY_FORECAST]
             forecastMode = user_input[CONF_MODE]
             forecastPlatform = user_input[PW_PLATFORM]
-            entityNamee = user_input[CONF_NAME]
-            
-            
+            entityName = user_input[CONF_NAME]
+
             # Convert scan interval to timedelta
             if isinstance(user_input[CONF_SCAN_INTERVAL], str):
               user_input[CONF_SCAN_INTERVAL] = cv.time_period_str(user_input[CONF_SCAN_INTERVAL])
@@ -117,37 +132,28 @@ class PirateWeatherConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             # Convert scan interval to number of seconds
             if isinstance(user_input[CONF_SCAN_INTERVAL], timedelta):
               user_input[CONF_SCAN_INTERVAL] = user_input[CONF_SCAN_INTERVAL].total_seconds()                        
-              
 
-            # Unique value includes the location and forcastHours/ forecastDays to seperate WeatherEntity/ Sensor            
-#            await self.async_set_unique_id(f"pw-{latitude}-{longitude}-{forecastDays}-{forecastHours}-{forecastMode}-{entityNamee}")            
-            await self.async_set_unique_id(f"pw-{latitude}-{longitude}-{forecastPlatform}-{forecastMode}-{entityNamee}")      
-                        
-            self._abort_if_unique_id_configured()
 
+            # Check if API call works
+            api_status = await self._is_pw_api_online(str(user_input[CONF_API_KEY]), latitude, longitude)
             
-            try:
-              api_status = await _is_pw_api_online(
-                self.hass, user_input[CONF_API_KEY], latitude, longitude
-              )
-              
-              if api_status == 403:
-                _LOGGER.warning("Pirate Weather Setup Error: Invalid API Key, Ensure that the subscribe button is clicked for this endpoint: https://pirateweather.net/apis/hv9nrw1tjg/Beta")
-                errors["base"] = "Invalid API Key, Ensure that the subscribe button is clicked for this endpoint: https://pirateweather.net/apis/hv9nrw1tjg/Beta"
-                
-            except:
-              _LOGGER.warning("Pirate Weather Setup Error: HTTP Error: " + api_status)
-              errors["base"] = "API Error: " + api_status
-              
-            if not errors:
-                return self.async_create_entry(
-                    title=user_input[CONF_NAME], data=user_input
-                )
+            if api_status==True:
+            
+              return self.async_create_entry(
+                title=entityName,
+                data=user_input,
+              )   
+
             else:
-                _LOGGER.warning(errors)
-                     
-        
-        return self.async_show_form(step_id="user", data_schema=schema, errors=errors)
+              LOGGER.warning(api_status.args[1])
+              errors["base"] = api_status.args[1]['message']
+              
+              
+        return self.async_show_form(
+            step_id="user",
+            data_schema=DATA_SCHEMA,
+            errors=errors,
+        )
 
 
     async def async_step_import(self, import_input=None):
@@ -175,9 +181,7 @@ class PirateWeatherConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         if CONF_API_KEY not in config:
             config[CONF_API_KEY] = None   
         if PW_PLATFORM not in config:
-            config[PW_PLATFORM] = None     
-        if PW_PREVPLATFORM not in config:
-            config[PW_PREVPLATFORM] = None        
+            config[PW_PLATFORM] = None         
         if PW_ROUND not in config:
             config[PW_ROUND] = "No"                
         if CONF_SCAN_INTERVAL not in config:
@@ -185,25 +189,41 @@ class PirateWeatherConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         return await self.async_step_user(config)
 
 
+    async def _is_pw_api_online(self, key, lat, lon) -> None:
+      try:
+        client = PirateWeatherAsync(str(key))
+        
+        forecast = await client.get_forecast(
+            lat,
+            lon,
+            extend=True,  # default `False`
+            lang='en',  # default `ENGLISH`
+            values_units='si',  # default `auto`
+            exclude=[],  # default `[]`,
+            timezone='UTC',  # default None - will be set by Pirate Weather API automatically
+             client_session= async_get_clientsession(self.hass)  # default aiohttp.ClientSession()
+            )
+            
+        return True
+      except Exception as err:
+        return err
+
+
+    
+    
 class PirateWeatherOptionsFlow(config_entries.OptionsFlow):
     """Handle options."""
-
-    def __init__(self, config_entry):
+    
+    def __init__(self, config_entry: config_entries.ConfigEntry) -> None:
         """Initialize options flow."""
         self.config_entry = config_entry
+
 
     async def async_step_init(self, user_input=None):
         """Manage the options."""
         if user_input is not None:
             entry = self.config_entry
             
-            #if self.config_entry.options:
-            #  user_input[PW_PREVPLATFORM] = self.config_entry.options[PW_PLATFORM]
-            #else:
-            #user_input[PW_PREVPLATFORM] = self.hass.data[DOMAIN][entry.entry_id][PW_PLATFORM]
-            #self.hass.data[DOMAIN][entry.entry_id][PW_PREVPLATFORM] = self.hass.data[DOMAIN][entry.entry_id][PW_PLATFORM]
-            #user_input[PW_PREVPLATFORM] = self.hass.data[DOMAIN][entry.entry_id][PW_PLATFORM]
-            #_LOGGER.warning('async_step_init_Options')
             return self.async_create_entry(title=user_input[CONF_NAME], data=user_input)
             
         return self.async_show_form(
@@ -291,14 +311,3 @@ class PirateWeatherOptionsFlow(config_entries.OptionsFlow):
             ),
         )
 
-async def _is_pw_api_online(hass, api_key, lat, lon):
-      forecastString = "https://api.pirateweather.net/forecast/" +  api_key + "/" + str(lat) + "," + str(lon)
-  
-      async with aiohttp.ClientSession(raise_for_status=False) as session:
-        async with session.get(forecastString) as resp:
-          resptext = await resp.text()
-          jsonText = json.loads(resptext)
-          headers = resp.headers
-          status = resp.status
-      
-      return status
