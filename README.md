@@ -1,14 +1,4 @@
-# Pirate Weather Integrations- Future Branch
-For the past 2 years, my focus with this integration has been maintaining compatibility with Dark Sky while switching the data source over to Pirate Weather. However, anything that cannot go on forever, will stop, and alas, the nuance of the old Dark Sky integration is one of those things. There have been a ton of changes in HA since this was released, and I'm running into more and more issues trying to make the old Dark Sky integration fit in the new setup. While the existing integration isnt going anywhere, this branch is the start of what will be the new approach to try to get Pirate Weather added as a default HA provider. The key differences will be:
-1. No YAML config.
-2. A modern, [Pirate Weather specific Python API](https://github.com/bakobako/pirate-weather-pythonc)
-3. Comply with the latest HA standards.
-
-This branch is based off the current Apple Weather integration, modified extensively to work with Pirate Weather. Hoping for a release in mid 2024. 
-
-NOTE: The code in this repo is currently broken; and PRs are (always!) welcome.
-
-
+# Pirate Weather Integrations
 This integration is designed to replace the defunct Dark Sky integration in Home Assistant with a modified and updated, but fully compatible version that relies on the [Pirate Weather API](https://pirateweather.net/en/latest/) instead! 
 
 To get a feel for the data returned by this API, check out <https://merrysky.net>! To view the current API status check out the [status page](https://stats.uptimerobot.com/DRKqBCok2N).
