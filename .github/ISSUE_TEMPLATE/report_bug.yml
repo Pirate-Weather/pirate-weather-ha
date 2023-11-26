@@ -37,7 +37,7 @@ body:
     id: ha-version
     attributes:
       label: Home Assistant version
-      description: You can find your Home Assistant version in **Settings > About.**.
+      description: You can find your Home Assistant version in **Settings > About**.
       placeholder: |
         Example: "2023.2.5"
     validations:
