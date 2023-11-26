@@ -102,15 +102,9 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     unique_location = (f"pw-{latitude}-{longitude}")
     
     hass.data.setdefault(DOMAIN, {})
-    # If coordinator already exists for this API key, we'll use that, otherwise
-    # we have to create a new one
-    if unique_location in hass.data[DOMAIN]:
-      weather_coordinator = hass.data[DOMAIN].get(unique_location)
-      _LOGGER.info('An existing weather coordinator already exists for this location. Using that one instead')  
-    else:
-      weather_coordinator = WeatherUpdateCoordinator(api_key, latitude, longitude, timedelta(seconds=pw_scan_Int), hass)
-      hass.data[DOMAIN][unique_location] = weather_coordinator    
-      #_LOGGER.warning('New Coordinator') 
+    # Create and link weather WeatherUpdateCoordinator
+    weather_coordinator = WeatherUpdateCoordinator(api_key, latitude, longitude, timedelta(seconds=pw_scan_Int), hass)
+    hass.data[DOMAIN][unique_location] = weather_coordinator    
 
     #await weather_coordinator.async_refresh()
     await weather_coordinator.async_config_entry_first_refresh()

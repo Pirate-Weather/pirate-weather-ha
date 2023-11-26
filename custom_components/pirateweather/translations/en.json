@@ -18,7 +18,7 @@
                     "name": "Integration Name",
                     "units": "Units for sensors. Only used for if sensors are requested.",
                     "forecast": "Daily forecasts sensors in csv form from 0-7 (ex. '0,1,3'). Only used if sensors are requested.",
-                    "hourly_forecast":  "Hourly forecast sensors in csv form from 0-47 (ex. '0,1,10'). Only used if sensors are requested.",
+                    "hourly_forecast":  "Hourly forecast sensors in csv form from 0-168 (ex. '0,1,10'). Only used if sensors are requested.",
                     "monitored_conditions": "Monitored conditions to create sensors for. Only used if sensors are requested.",
                     "pw_platform": "Weather Entity and/or Sensor Entity. Sensor will create entities for each condition at each time. If unsure, only select Weather!",
                     "pw_round": "Round values to the nearest integer. Ensure that the selected units match the system units.",
@@ -44,7 +44,7 @@
                     "name": "Integration Name",
                     "units": "Units for sensors. Only used for if sensors are requested.",
                     "forecast": "Daily forecasts sensors in csv form from 0-7 (ex. '0,1,3'). Only used if sensors are requested.\n NOTE: Removing sensors will produce orphaned entities that need to be deleted.",
-                    "hourly_forecast":  "Hourly forecast sensors in csv form from 0-47 (ex. '0,1,10'). Only used if sensors are requested.\n NOTE: Removing sensors will produce orphaned entities that need to be deleted.",
+                    "hourly_forecast":  "Hourly forecast sensors in csv form from 0-168 (ex. '0,1,10'). Only used if sensors are requested.\n NOTE: Removing sensors will produce orphaned entities that need to be deleted.",
                     "monitored_conditions": "Monitored conditions to create sensors for. Only used if sensors are requested.\n NOTE: Removing sensors will produce orphaned entities that need to be deleted.",
                     "pw_platform": "Weather Entity and/or Sensor Entity. Sensor will create entities for each condition at each time. If unsure, only select Weather!",
                     "pw_round": "Round values to the nearest integer. Ensure that the selected units match the system units."

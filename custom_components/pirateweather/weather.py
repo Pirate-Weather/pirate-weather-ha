@@ -4,7 +4,6 @@ from __future__ import annotations
 from datetime import timedelta
 import logging
 
-import forecastio
 from requests.exceptions import ConnectionError as ConnectError, HTTPError, Timeout
 import voluptuous as vol
 
@@ -16,9 +15,8 @@ from homeassistant.helpers.entity import DeviceInfo
 from homeassistant.helpers.device_registry import DeviceEntryType
 from homeassistant.helpers.typing import ConfigType
 from homeassistant.config_entries import SOURCE_IMPORT, ConfigEntry
-from homeassistant.core import HomeAssistant
+from homeassistant.core import HomeAssistant, callback
 
-import forecastio
 
 from homeassistant.components.weather import (
     ATTR_CONDITION_CLEAR_NIGHT,
@@ -34,6 +32,7 @@ from homeassistant.components.weather import (
     ATTR_CONDITION_WINDY,
     ATTR_FORECAST_CONDITION,
     ATTR_FORECAST_NATIVE_PRECIPITATION,
+    ATTR_FORECAST_NATIVE_PRESSURE,
     ATTR_FORECAST_NATIVE_TEMP,
     ATTR_FORECAST_NATIVE_TEMP_LOW,
     ATTR_FORECAST_NATIVE_WIND_SPEED,    
@@ -43,6 +42,9 @@ from homeassistant.components.weather import (
     ATTR_FORECAST_WIND_BEARING,
     PLATFORM_SCHEMA,
     WeatherEntity,
+    Forecast,
+    WeatherEntityFeature,
+    SingleCoordinatorWeatherEntity,
 )
 
 
@@ -61,7 +63,12 @@ from homeassistant.const import (
     LENGTH_KILOMETERS,
     LENGTH_MILLIMETERS,
     TEMP_CELSIUS,
-    TEMP_FAHRENHEIT,        
+    TEMP_FAHRENHEIT,    
+    UnitOfPrecipitationDepth,
+    UnitOfPressure,
+    UnitOfSpeed,
+    UnitOfTemperature,
+    UnitOfLength,
 )
 
 from .const import (
@@ -88,6 +95,9 @@ from .const import (
     PW_PLATFORM,
     PW_PREVPLATFORM,
     PW_ROUND,
+    ATTR_FORECAST_CLOUD_COVERAGE,
+    ATTR_FORECAST_HUMIDITY,
+    ATTR_FORECAST_NATIVE_VISIBILITY,
 )
 
 
@@ -158,6 +168,38 @@ async def async_setup_platform(
     )
 
 
+def _map_daily_forecast(forecast) -> Forecast:
+    return {
+        "datetime": utc_from_timestamp(forecast.d.get("time")).isoformat(),
+        "condition": MAP_CONDITION.get(forecast.d.get("icon")),
+        "native_temperature": forecast.d.get("temperatureHigh"),
+        "native_templow": forecast.d.get("temperatureLow"),
+        "native_precipitation": forecast.d.get("precipAccumulation")*10*10,
+        "precipitation_probability":  round(forecast.d.get("precipProbability")*100, 0),
+        "humidity": round(forecast.d.get("humidity")*100, 2),
+        "cloud_coverage":  round(forecast.d.get("cloudCover")*100, 0),
+        "native_wind_speed": round(forecast.d.get("windSpeed"), 2),
+        "wind_bearing": round(forecast.d.get("windBearing"), 0),
+    }
+
+                    
+def _map_hourly_forecast(forecast: dict[str, Any]) -> Forecast:
+    return {
+        "datetime":  utc_from_timestamp(forecast.d.get("time")).isoformat(),
+        "condition":  MAP_CONDITION.get(forecast.d.get("icon")),
+        "native_temperature": forecast.d.get("temperature"),
+        "native_apparent_temperature": forecast.d.get("apparentTemperature"),
+        "native_dew_point": forecast.d.get("dewPoint"),
+        "native_pressure": forecast.d.get("pressure"),
+        "native_wind_speed":round(forecast.d.get("windSpeed"), 2),
+        "wind_bearing": round(forecast.d.get("windBearing"), 0),   
+        "humidity": round(forecast.d.get("humidity")*100, 2),
+        "native_precipitation": round(forecast.d.get("precipIntensity"), 2),
+        "precipitation_probability":round(forecast.d.get("precipProbability")*100, 0),
+        "cloud_coverage":  round(forecast.d.get("cloudCover")*100, 0), 
+        "uv_index":  round(forecast.d.get("uvIndex")*100, 0), 
+    }             
+
 async def async_setup_entry(
     hass: HomeAssistant,
     config_entry: ConfigEntry,
@@ -185,16 +227,17 @@ async def async_setup_entry(
     #_LOGGER.info(pw_weather.__dict__)
     
 
-class PirateWeather(WeatherEntity):
+class PirateWeather(SingleCoordinatorWeatherEntity[WeatherUpdateCoordinator]):
     """Implementation of an PirateWeather sensor."""
 
     _attr_attribution = ATTRIBUTION
     _attr_should_poll = False
-    _attr_native_precipitation_unit = LENGTH_MILLIMETERS
-    _attr_native_pressure_unit = PRESSURE_MBAR
-    _attr_native_temperature_unit = TEMP_CELSIUS
-    _attr_native_visibility_unit = LENGTH_KILOMETERS
-    _attr_native_wind_speed_unit = SPEED_METERS_PER_SECOND
+    
+    _attr_native_precipitation_unit = UnitOfPrecipitationDepth.MILLIMETERS
+    _attr_native_pressure_unit = UnitOfPressure.MBAR
+    _attr_native_temperature_unit = UnitOfTemperature.CELSIUS
+    _attr_native_visibility_unit = UnitOfLength.KILOMETERS
+    _attr_native_wind_speed_unit = UnitOfSpeed.METERS_PER_SECOND
     
     def __init__(
         self,
@@ -205,6 +248,7 @@ class PirateWeather(WeatherEntity):
         outputRound: str,
     ) -> None:
         """Initialize the sensor."""
+        super().__init__(weather_coordinator)
         self._attr_name = name
         #self._attr_device_info = DeviceInfo(
         #    entry_type=DeviceEntryType.SERVICE,
@@ -227,6 +271,15 @@ class PirateWeather(WeatherEntity):
     def unique_id(self):
         """Return a unique_id for this entity."""
         return self._unique_id
+        
+    @property
+    def supported_features(self) -> WeatherEntityFeature:
+        """Determine supported features based on available data sets reported by WeatherKit."""
+        features = WeatherEntityFeature(0)
+
+        features |= WeatherEntityFeature.FORECAST_DAILY
+        features |= WeatherEntityFeature.FORECAST_HOURLY
+        return features        
         
     @property
     def available(self):
@@ -316,65 +369,30 @@ class PirateWeather(WeatherEntity):
 
         return MAP_CONDITION.get(self._weather_coordinator.data.currently().d.get("icon"))
 
-    @property
-    def forecast(self):
-        """Return the forecast array."""
-        # Per conversation with Joshua Reyes of Dark Sky, to get the total
-        # forecasted precipitation, you have to multiple the intensity by
-        # the hours for the forecast interval
-        def calc_precipitation(intensity, hours):
-            amount = None
-            if intensity is not None:
-                amount = round((intensity * hours), 1)
-            return amount if amount > 0 else 0
 
-        data = None
+    @callback
+    def _async_forecast_daily(self) -> list[Forecast] | None:
+        """Return the daily forecast."""        
+        daily_forecast = self._weather_coordinator.data.daily().data
+        if not daily_forecast:
+            return None
 
-        if self._mode == "daily":
-            data = [
-                {
-                    ATTR_FORECAST_TIME: utc_from_timestamp(
-                        entry.d.get("time")
-                    ).isoformat(),
-                    ATTR_FORECAST_NATIVE_TEMP: entry.d.get("temperatureHigh"),
-                    ATTR_FORECAST_NATIVE_TEMP_LOW: entry.d.get("temperatureLow"),
-                    #ATTR_FORECAST_PRECIPITATION: calc_precipitation(
-                    #    entry.d.get("precipIntensity"), 24
-                    #),
-                    ATTR_FORECAST_NATIVE_PRECIPITATION: calc_precipitation(
-                        entry.d.get("precipAccumulation"), 1
-                    ),
-                    ATTR_FORECAST_PRECIPITATION_PROBABILITY: entry.d.get("precipProbability")*100,                
-                    ATTR_FORECAST_NATIVE_WIND_SPEED: entry.d.get("windSpeed"),
-                    ATTR_FORECAST_WIND_BEARING: entry.d.get("windBearing"),
-                    ATTR_FORECAST_CONDITION: MAP_CONDITION.get(entry.d.get("icon")),
-                }
-                for entry in self._weather_coordinator.data.daily().data
-            ]
+        return [_map_daily_forecast(f) for f in daily_forecast]
 
-        else:
-            data = [
-                {
-                    ATTR_FORECAST_TIME: utc_from_timestamp(
-                        entry.d.get("time")
-                    ).isoformat(),
-                    ATTR_FORECAST_NATIVE_TEMP: entry.d.get("temperature"),
-                    ATTR_FORECAST_NATIVE_PRECIPITATION: calc_precipitation(
-                        entry.d.get("precipIntensity"), 1
-                    ),
-                    ATTR_FORECAST_PRECIPITATION_PROBABILITY: entry.d.get("precipProbability")*100,
-                    ATTR_FORECAST_NATIVE_WIND_SPEED: entry.d.get("windSpeed"),
-                    ATTR_FORECAST_WIND_BEARING: entry.d.get("windBearing"),
-                    ATTR_FORECAST_CONDITION: MAP_CONDITION.get(entry.d.get("icon")),
-                }
-                for entry in self._weather_coordinator.data.hourly().data
-            ]
+    @callback
+    def _async_forecast_hourly(self) -> list[Forecast] | None:
+        """Return the hourly forecast."""       
+        hourly_forecast = self._weather_coordinator.data.hourly().data
+        
+        if not hourly_forecast:
+            return None
 
-        return data
+        return [_map_hourly_forecast(f) for f in hourly_forecast]
+        
     
-#    async def async_update(self) -> None:
-#        """Get the latest data from OWM and updates the states."""
-#        await self._weather_coordinator.async_request_refresh()   
+    async def async_update(self) -> None:
+        """Get the latest data from PW and updates the states."""
+        await self._weather_coordinator.async_request_refresh()   
          
 #    async def update(self):
 #        """Get the latest data from Dark Sky."""
@@ -391,9 +409,3 @@ class PirateWeather(WeatherEntity):
         self.async_on_remove(
             self._weather_coordinator.async_add_listener(self.async_write_ha_state)
         )
-
-    
-    
-
-        
-        

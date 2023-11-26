@@ -2,7 +2,7 @@ name: Mark stale issues and pull requests
 
 on:
   schedule:
-  - cron: "0 0 * * *"
+  - cron: "0 0/6 * * *"
 
 jobs:
   stale:
@@ -12,23 +12,25 @@ jobs:
     steps:
     - uses: actions/stale@v8
       with:
-        exempt-issue-assignees: 'cloneofghosts'
-        exempt-pr-assignees: 'cloneofghosts'
+        exempt-issue-assignees: 'alexander0042'
+        exempt-pr-assignees: 'alexander0042'
+        exempt-issue-labels: 'keep,Needs Review'
+        exempt-pr-labels: 'keep'
         repo-token: ${{ secrets.GITHUB_TOKEN }}
-        stale-issue-message: 'There has been no activity on this issue for six months and unless you comment on the issue it will automatically close in seven days.'
-        stale-pr-message: 'There has been no activity on this pull request for six months and unless you comment on the pull request it will automatically close in seven days.'
-        close-issue-message: 'This issue was closed because it has been stalled for 7 days with no activity.'
-        close-pr-message: 'This pull request was closed because it has been stalled for 7 days with no activity.'
+        stale-issue-message: 'There has been no activity on this issue in the last ninety days and will automatically close in seven days. Leave a comment on this issue to prevent it from closing automatically.'
+        stale-pr-message: 'There has not been any activity on this pull request in the last ninety days and will automatically close in seven days. Leave a comment on this pull request to prevent it from closing automatically.'
+        close-issue-message: 'This issue has been automatically closed since there has been no further activity after seven days and will be automatically locked in sixty days. Feel free to re-open this issue or you can create a follow-up issue'
+        close-pr-message: 'This pull request has been automatically closed since there has been no further activity after seven days. Feel free to re-open the pull request or you can create a new follow-up pull request.'
         stale-issue-label: 'stale'
         stale-pr-label: 'stale'
-        days-before-stale: 183
+        days-before-stale: 90
         days-before-close: 7
         enable-statistics: 'true'
   lock:
     runs-on: ubuntu-latest
     steps:
-      - uses: dessant/lock-threads@v4
+      - uses: dessant/lock-threads@v5
         with:
-          issue-inactive-days: '30'
-          pr-inactive-days: '30'
+          issue-inactive-days: '60'
+          pr-inactive-days: '60'
           issue-lock-reason: ''

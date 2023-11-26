@@ -78,6 +78,10 @@ PW_PLATFORM = "pw_platform"
 PW_PREVPLATFORM = "pw_prevplatform"
 PW_ROUND = "pw_round" 
 
+ATTR_FORECAST_CLOUD_COVERAGE = "cloud_coverage"
+ATTR_FORECAST_HUMIDITY = "humidity"
+ATTR_FORECAST_NATIVE_VISIBILITY = "native_visibility"
+
 FORECAST_MODE_HOURLY = "hourly"
 FORECAST_MODE_DAILY = "daily"
 
@@ -123,7 +127,8 @@ ALL_CONDITIONS = {'summary': 'Summary',
                    'sunset_time': 'Sunset Time',
                    'nearest_storm_distance': 'Nearest Storm Distance',         
                    'nearest_storm_bearing': 'Nearest Storm Bearing',
-                   'alerts': 'Alerts'                   
+                   'alerts': 'Alerts',
+                   'time':'Time'
                 }
 
 LANGUAGES = [
