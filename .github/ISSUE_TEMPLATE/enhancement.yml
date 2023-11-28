@@ -1,0 +1,39 @@
+name: Feature Request
+description: Request a feature to be added to the Pirate Weather Integration
+labels: ["enhancement", "Needs Review"]
+body:
+
+  - type: textarea
+    id: describe-the-feature
+    attributes:
+      label: Describe the feature
+    validations:
+      required: true
+
+  - type: input
+    id: ha-version
+    attributes:
+      label: Home Assistant version
+      description: You can find your Home Assistant version in **Settings > About.**.
+      placeholder: |
+        Example: "2023.2.5"
+
+  - type: input
+    id: integration-version
+    attributes:
+      label: Integration version
+      description: You can find this by going to **HACS > Pirate Weather.** The number beside the box is the version of the integration you are running.
+      placeholder: |
+        Example: "1.2"
+
+  - type: checkboxes
+    id: acknowledgements
+    attributes:
+      label: Acknowledgements
+      options:
+        - label: I have searched this repository and [API Repository](https://github.com/Pirate-Weather/pirateweather/) to see if the feature has already been requested.
+          required: true
+        - label: This featre request is sepecific to the HA Integration.
+          required: true
+        - label: I have written an informative title.
+          required: true
