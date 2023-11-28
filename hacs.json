@@ -1,5 +1,5 @@
 {
     "name": "Pirate Weather", 
     "render_readme": true,
-    "homeassistant": "2023.11.3"
+    "homeassistant": "2023.10.0"
 }
