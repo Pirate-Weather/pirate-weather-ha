@@ -197,7 +197,7 @@ def _map_hourly_forecast(forecast: dict[str, Any]) -> Forecast:
         "native_precipitation": round(forecast.d.get("precipIntensity"), 2),
         "precipitation_probability":round(forecast.d.get("precipProbability")*100, 0),
         "cloud_coverage":  round(forecast.d.get("cloudCover")*100, 0), 
-        "uv_index":  round(forecast.d.get("uvIndex")*100, 0), 
+        "uv_index":  round(forecast.d.get("uvIndex"), 2), 
     }             
 
 async def async_setup_entry(
