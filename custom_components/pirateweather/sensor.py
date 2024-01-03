@@ -972,12 +972,12 @@ class PirateWeatherSensor(SensorEntity):
           ]:
               state = ((state * 9 / 5) + 32)
 
-        # Precipitation Accumilation (cm in SI) to inches 
+        # Precipitation Accumilation (mm in SI) to inches 
         if self.requestUnits in ["us"]:
           if self.type in [
               "precip_accumulation", 
           ]:
-              state = (state * 0.393701)
+              state = (state * 0.0393701)
               
         # Precipitation Intensity (mm/h in SI) to inches 
         if self.requestUnits in ["us"]:
