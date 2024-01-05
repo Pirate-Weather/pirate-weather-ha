@@ -174,7 +174,7 @@ def _map_daily_forecast(forecast) -> Forecast:
         "condition": MAP_CONDITION.get(forecast.d.get("icon")),
         "native_temperature": forecast.d.get("temperatureHigh"),
         "native_templow": forecast.d.get("temperatureLow"),
-        "native_precipitation": forecast.d.get("precipAccumulation")*10*10,
+        "native_precipitation": forecast.d.get("precipAccumulation")*10,
         "precipitation_probability":  round(forecast.d.get("precipProbability")*100, 0),
         "humidity": round(forecast.d.get("humidity")*100, 2),
         "cloud_coverage":  round(forecast.d.get("cloudCover")*100, 0),
