@@ -72,7 +72,7 @@ from .const import (
     ENTRY_NAME,
     ENTRY_WEATHER_COORDINATOR,
     PLATFORMS,
-    UPDATE_LISTENER,   
+    UPDATE_LISTENER,
     MANUFACTURER,
     FORECASTS_HOURLY,
     FORECASTS_DAILY,
@@ -716,7 +716,7 @@ async def async_setup_entry(
                         weather_coordinator, condition, name, unique_id, forecast_day=None, forecast_hour=int(forecast_h), description=sensorDescription, requestUnits=requestUnits, outputRound=outputRound
                     )
                 )
-        
+
     async_add_entities(sensors)
 
 
@@ -1046,7 +1046,7 @@ class PirateWeatherSensor(SensorEntity):
 
     #async def async_update(self) -> None:
     #    """Get the latest data from PW and updates the states."""
-    #    await self._weather_coordinator.async_request_refresh()   
+    #    await self._weather_coordinator.async_request_refresh()
 
 
 
