@@ -25,7 +25,7 @@ _LOGGER = logging.getLogger(__name__)
 
 ATTRIBUTION = "Powered by Pirate Weather"
 
-        
+
 class WeatherUpdateCoordinator(DataUpdateCoordinator):
     """Weather data update coordinator."""
 
@@ -36,7 +36,7 @@ class WeatherUpdateCoordinator(DataUpdateCoordinator):
         self.longitude = longitude
         self.pw_scan_Int = pw_scan_Int
         self.requested_units = "si"
-        
+
         self.data = None
         self.currently = None
         self.hourly = None
@@ -46,9 +46,9 @@ class WeatherUpdateCoordinator(DataUpdateCoordinator):
         super().__init__(
             hass, _LOGGER, name=DOMAIN, update_interval=pw_scan_Int
         )
-               
-                 
-                        
+
+
+
     async def _async_update_data(self):
         """Update the data."""
         data = {}
@@ -57,24 +57,24 @@ class WeatherUpdateCoordinator(DataUpdateCoordinator):
                 data = await self._get_pw_weather()
                 _LOGGER.info('Pirate Weather data update for ' + str(self.latitude) + ',' + str(self.longitude))
             except Exception as err:
-                raise UpdateFailed(f"Error communicating with API: {err}")                
+                raise UpdateFailed(f"Error communicating with API: {err}")
         return data
 
 
     async def _get_pw_weather(self):
-        """Poll weather data from PW."""   
+        """Poll weather data from PW."""
 
-             
+
         forecastString = "https://api.pirateweather.net/forecast/" +  self._api_key + "/" + str(self.latitude) + "," + str(self.longitude) + "?units=" + self.requested_units + "&extend=hourly"
-        
+
         async with aiohttp.ClientSession(raise_for_status=True) as session:
           async with session.get(forecastString) as resp:
-          
+
             resptext = await resp.text()
             jsonText = json.loads(resptext)
             headers = resp.headers
             status = resp.raise_for_status()
-            
+
             data = Forecast(jsonText, status, headers)
         return data
 

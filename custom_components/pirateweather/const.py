@@ -76,7 +76,7 @@ PLATFORMS = [Platform.SENSOR, Platform.WEATHER]
 PW_PLATFORMS = ["Sensor", "Weather"]
 PW_PLATFORM = "pw_platform"
 PW_PREVPLATFORM = "pw_prevplatform"
-PW_ROUND = "pw_round" 
+PW_ROUND = "pw_round"
 
 ATTR_FORECAST_CLOUD_COVERAGE = "cloud_coverage"
 ATTR_FORECAST_HUMIDITY = "humidity"
@@ -87,10 +87,10 @@ FORECAST_MODE_DAILY = "daily"
 
 FORECAST_MODES = [
     FORECAST_MODE_HOURLY,
-    FORECAST_MODE_DAILY,    
-    ]
-    
-    
+    FORECAST_MODE_DAILY,
+]
+
+
 DEFAULT_FORECAST_MODE = FORECAST_MODE_DAILY
 
 FORECASTS_HOURLY = "forecasts_hourly"
@@ -125,7 +125,7 @@ ALL_CONDITIONS = {'summary': 'Summary',
                    'moon_phase': 'Moon Phase',
                    'sunrise_time': 'Sunrise Time',
                    'sunset_time': 'Sunset Time',
-                   'nearest_storm_distance': 'Nearest Storm Distance',         
+                   'nearest_storm_distance': 'Nearest Storm Distance',
                    'nearest_storm_bearing': 'Nearest Storm Bearing',
                    'alerts': 'Alerts',
                    'time':'Time'
