@@ -22,7 +22,7 @@ jobs:
           run: python3 -m pip install -r requirements.txt
 
         - name: "Format"
-          run: python3 -m ruff format .
+          run: python3 -m ruff format . --fix
           
         - name: "Check"
           run: python3 -m ruff check .
