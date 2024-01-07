@@ -19,7 +19,7 @@ Pull requests are the best way to propose changes to the codebase.
 4. Test you contribution.
 5. Issue that pull request!
 
-## Any contributions you make will be under the MIT Software License
+## Any contributions you make will be under the Apache-2.0 License
 
 In short, when you submit code changes, your submissions are understood to be under the same [Apache-2.0](https://github.com/Pirate-Weather/pirate-weather-ha?tab=Apache-2.0-1-ov-file#readme) that covers the project. Feel free to contact the maintainers if that's a concern.
 

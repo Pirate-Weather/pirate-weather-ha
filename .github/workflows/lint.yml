@@ -21,5 +21,13 @@ jobs:
         - name: "Install requirements"
           run: python3 -m pip install -r requirements.txt
 
-        - name: "Run"
+        - name: "Format"
+          run: python3 -m ruff format .
+          
+        - name: "Check"
           run: python3 -m ruff check .
+          
+        - name: "Auto Commit"
+          uses: stefanzweifel/git-auto-commit-action@v5.0.0
+          with:
+            commit_message: 'style fixes by ruff'
