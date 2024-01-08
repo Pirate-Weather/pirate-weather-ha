@@ -1,11 +1,8 @@
 """Support for PirateWeather (Dark Sky Compatable weather service."""
-from datetime import timedelta
 import logging
 
 from dataclasses import dataclass, field
 
-import forecastio
-from requests.exceptions import ConnectionError as ConnectError, HTTPError, Timeout
 import voluptuous as vol
 import homeassistant.helpers.config_validation as cv
 import homeassistant.helpers.template as template_helper
@@ -16,20 +13,15 @@ from homeassistant.components.sensor import (
     SensorDeviceClass,
     SensorEntity,
     SensorEntityDescription,
-    SensorStateClass
+    SensorStateClass,
 )
 from typing import Literal, NamedTuple
 
 from homeassistant.config_entries import SOURCE_IMPORT, ConfigEntry
 from homeassistant.core import HomeAssistant
-from homeassistant.helpers.device_registry import DeviceEntryType
-from homeassistant.helpers.entity import DeviceInfo
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.helpers.typing import StateType
-from homeassistant.helpers.update_coordinator import DataUpdateCoordinator
 from homeassistant.helpers.typing import DiscoveryInfoType
-from homeassistant.util import dt as dt_util
-from homeassistant.util.unit_system import METRIC_SYSTEM
 
 from homeassistant.const import (
     ATTR_ATTRIBUTION,
@@ -40,42 +32,19 @@ from homeassistant.const import (
     CONF_NAME,
     CONF_SCAN_INTERVAL,
     DEGREE,
-    LENGTH_CENTIMETERS,
-    LENGTH_INCHES,
-    LENGTH_KILOMETERS,
-    LENGTH_MILES,
-    LENGTH_MILLIMETERS,
-    PERCENTAGE,
-    PRECIPITATION_INCHES,
-    PRECIPITATION_MILLIMETERS_PER_HOUR,
-    PRESSURE_MBAR,
-    SPEED_KILOMETERS_PER_HOUR,
-    SPEED_METERS_PER_SECOND,
-    SPEED_MILES_PER_HOUR,
-    TEMP_CELSIUS,
-    TEMP_FAHRENHEIT,
+    UnitOfPressure,
+    UnitOfSpeed,
+    UnitOfTemperature,
+    UnitOfLength,
+    UnitOfVolumetricFlux,
+    UnitOfPrecipitationDepth,
     UV_INDEX,
 )
 
 from .const import (
-    CONF_LANGUAGE,
-    CONFIG_FLOW_VERSION,
-    DEFAULT_FORECAST_MODE,
-    DEFAULT_LANGUAGE,
-    DEFAULT_NAME,
     DEFAULT_SCAN_INTERVAL,
     DOMAIN,
-    FORECAST_MODES,
-    LANGUAGES,
-    CONF_UNITS,
-    DEFAULT_UNITS,
-    ENTRY_NAME,
     ENTRY_WEATHER_COORDINATOR,
-    PLATFORMS,
-    UPDATE_LISTENER,
-    MANUFACTURER,
-    FORECASTS_HOURLY,
-    FORECASTS_DAILY,
     ALL_CONDITIONS,
     PW_PLATFORMS,
     PW_PLATFORM,
@@ -83,7 +52,6 @@ from .const import (
     PW_ROUND,
 )
 
-from homeassistant.util import Throttle
 
 from .weather_update_coordinator import WeatherUpdateCoordinator
 
@@ -116,6 +84,7 @@ MAP_UNIT_SYSTEM: dict[
     "uk": "uk_unit",
     "uk2": "uk2_unit",
 }
+
 
 @dataclass
 class PirateWeatherSensorEntityDescription(SensorEntityDescription):
@@ -159,10 +128,10 @@ SENSOR_TYPES: dict[str, PirateWeatherSensorEntityDescription] = {
     "nearest_storm_distance": PirateWeatherSensorEntityDescription(
         key="nearest_storm_distance",
         name="Nearest Storm Distance",
-        si_unit=LENGTH_KILOMETERS,
-        us_unit=LENGTH_MILES,
-        ca_unit=LENGTH_KILOMETERS,
-        uk_unit=LENGTH_KILOMETERS,
+        si_unit=UnitOfLength.KILOMETERS,
+        us_unit=UnitOfLength.MILES,
+        ca_unit=UnitOfLength.KILOMETERS,
+        uk_unit=UnitOfLength.KILOMETERS,
         uk2_unit=LENGTH_MILES,
         icon="mdi:weather-lightning",
         forecast_mode=["currently"],
@@ -187,11 +156,11 @@ SENSOR_TYPES: dict[str, PirateWeatherSensorEntityDescription] = {
     "precip_intensity": PirateWeatherSensorEntityDescription(
         key="precip_intensity",
         name="Precip Intensity",
-        si_unit=PRECIPITATION_MILLIMETERS_PER_HOUR,
-        us_unit=PRECIPITATION_INCHES,
-        ca_unit=PRECIPITATION_MILLIMETERS_PER_HOUR,
-        uk_unit=PRECIPITATION_MILLIMETERS_PER_HOUR,
-        uk2_unit=PRECIPITATION_MILLIMETERS_PER_HOUR,
+        si_unit=UnitOfVolumetricFlux.MILLIMETERS_PER_HOUR,
+        us_unit=UnitOfPrecipitationDepth.INCHES,
+        ca_unit=UnitOfVolumetricFlux.MILLIMETERS_PER_HOUR,
+        uk_unit=UnitOfVolumetricFlux.MILLIMETERS_PER_HOUR,
+        uk2_unit=UnitOfVolumetricFlux.MILLIMETERS_PER_HOUR,
         icon="mdi:weather-rainy",
         forecast_mode=["currently", "minutely", "hourly", "daily"],
     ),
@@ -210,11 +179,11 @@ SENSOR_TYPES: dict[str, PirateWeatherSensorEntityDescription] = {
         key="precip_accumulation",
         name="Precip Accumulation",
         device_class=SensorDeviceClass.PRECIPITATION,
-        si_unit=LENGTH_CENTIMETERS,
-        us_unit=LENGTH_INCHES,
-        ca_unit=LENGTH_CENTIMETERS,
-        uk_unit=LENGTH_CENTIMETERS,
-        uk2_unit=LENGTH_CENTIMETERS,
+        si_unit=UnitOfLength.CENTIMETERS,
+        us_unit=UnitOfLength.INCHES,
+        ca_unit=UnitOfLength.CENTIMETERS,
+        uk_unit=UnitOfLength.CENTIMETERS,
+        uk2_unit=UnitOfLength.CENTIMETERS,
         icon="mdi:weather-snowy",
         forecast_mode=["hourly", "daily"],
     ),
@@ -223,11 +192,11 @@ SENSOR_TYPES: dict[str, PirateWeatherSensorEntityDescription] = {
         name="Temperature",
         device_class=SensorDeviceClass.TEMPERATURE,
         state_class=SensorStateClass.MEASUREMENT,
-        si_unit=TEMP_CELSIUS,
-        us_unit=TEMP_FAHRENHEIT,
-        ca_unit=TEMP_CELSIUS,
-        uk_unit=TEMP_CELSIUS,
-        uk2_unit=TEMP_CELSIUS,
+        si_unit=UnitOfTemperature.CELSIUS,
+        us_unit=UnitOfTemperature.FAHRENHEIT,
+        ca_unit=UnitOfTemperature.CELSIUS,
+        uk_unit=UnitOfTemperature.CELSIUS,
+        uk2_unit=UnitOfTemperature.CELSIUS,
         forecast_mode=["currently", "hourly"],
     ),
     "apparent_temperature": PirateWeatherSensorEntityDescription(
@@ -235,11 +204,11 @@ SENSOR_TYPES: dict[str, PirateWeatherSensorEntityDescription] = {
         name="Apparent Temperature",
         device_class=SensorDeviceClass.TEMPERATURE,
         state_class=SensorStateClass.MEASUREMENT,
-        si_unit=TEMP_CELSIUS,
-        us_unit=TEMP_FAHRENHEIT,
-        ca_unit=TEMP_CELSIUS,
-        uk_unit=TEMP_CELSIUS,
-        uk2_unit=TEMP_CELSIUS,
+        si_unit=UnitOfTemperature.CELSIUS,
+        us_unit=UnitOfTemperature.FAHRENHEIT,
+        ca_unit=UnitOfTemperature.CELSIUS,
+        uk_unit=UnitOfTemperature.CELSIUS,
+        uk2_unit=UnitOfTemperature.CELSIUS,
         forecast_mode=["currently", "hourly"],
     ),
     "dew_point": PirateWeatherSensorEntityDescription(
@@ -247,22 +216,22 @@ SENSOR_TYPES: dict[str, PirateWeatherSensorEntityDescription] = {
         name="Dew Point",
         device_class=SensorDeviceClass.TEMPERATURE,
         state_class=SensorStateClass.MEASUREMENT,
-        si_unit=TEMP_CELSIUS,
-        us_unit=TEMP_FAHRENHEIT,
-        ca_unit=TEMP_CELSIUS,
-        uk_unit=TEMP_CELSIUS,
-        uk2_unit=TEMP_CELSIUS,
+        si_unit=UnitOfTemperature.CELSIUS,
+        us_unit=UnitOfTemperature.FAHRENHEIT,
+        ca_unit=UnitOfTemperature.CELSIUS,
+        uk_unit=UnitOfTemperature.CELSIUS,
+        uk2_unit=UnitOfTemperature.CELSIUS,
         forecast_mode=["currently", "hourly", "daily"],
     ),
     "wind_speed": PirateWeatherSensorEntityDescription(
         key="wind_speed",
         name="Wind Speed",
         device_class=SensorDeviceClass.WIND_SPEED,
-        si_unit=SPEED_METERS_PER_SECOND,
-        us_unit=SPEED_MILES_PER_HOUR,
-        ca_unit=SPEED_KILOMETERS_PER_HOUR,
-        uk_unit=SPEED_MILES_PER_HOUR,
-        uk2_unit=SPEED_MILES_PER_HOUR,
+        si_unit=UnitOfSpeed.METERS_PER_SECOND,
+        us_unit=UnitOfSpeed.MILES_PER_HOUR,
+        ca_unit=UnitOfSpeed.KILOMETERS_PER_HOUR,
+        uk_unit=UnitOfSpeed.MILES_PER_HOUR,
+        uk2_unit=UnitOfSpeed.MILES_PER_HOUR,
         icon="mdi:weather-windy",
         forecast_mode=["currently", "hourly", "daily"],
     ),
@@ -281,11 +250,11 @@ SENSOR_TYPES: dict[str, PirateWeatherSensorEntityDescription] = {
         key="wind_gust",
         name="Wind Gust",
         device_class=SensorDeviceClass.WIND_SPEED,
-        si_unit=SPEED_METERS_PER_SECOND,
-        us_unit=SPEED_MILES_PER_HOUR,
-        ca_unit=SPEED_KILOMETERS_PER_HOUR,
-        uk_unit=SPEED_MILES_PER_HOUR,
-        uk2_unit=SPEED_MILES_PER_HOUR,
+        si_unit=UnitOfSpeed.METERS_PER_SECOND,
+        us_unit=UnitOfSpeed.MILES_PER_HOUR,
+        ca_unit=UnitOfSpeed.KILOMETERS_PER_HOUR,
+        uk_unit=UnitOfSpeed.MILES_PER_HOUR,
+        uk2_unit=UnitOfSpeed.MILES_PER_HOUR,
         icon="mdi:weather-windy-variant",
         forecast_mode=["currently", "hourly", "daily"],
     ),
@@ -317,21 +286,21 @@ SENSOR_TYPES: dict[str, PirateWeatherSensorEntityDescription] = {
         name="Pressure",
         device_class=SensorDeviceClass.PRESSURE,
         state_class=SensorStateClass.MEASUREMENT,
-        si_unit=PRESSURE_MBAR,
-        us_unit=PRESSURE_MBAR,
-        ca_unit=PRESSURE_MBAR,
-        uk_unit=PRESSURE_MBAR,
-        uk2_unit=PRESSURE_MBAR,
+        si_unit=UnitOfPressure.MBAR,
+        us_unit=UnitOfPressure.MBAR,
+        ca_unit=UnitOfPressure.MBAR,
+        uk_unit=UnitOfPressure.MBAR,
+        uk2_unit=UnitOfPressure.MBAR,
         forecast_mode=["currently", "hourly", "daily"],
     ),
     "visibility": PirateWeatherSensorEntityDescription(
         key="visibility",
         name="Visibility",
-        si_unit=LENGTH_KILOMETERS,
-        us_unit=LENGTH_MILES,
-        ca_unit=LENGTH_KILOMETERS,
-        uk_unit=LENGTH_KILOMETERS,
-        uk2_unit=LENGTH_MILES,
+        si_unit=UnitOfLength.KILOMETERS,
+        us_unit=UnitOfLength.MILES,
+        ca_unit=UnitOfLength.KILOMETERS,
+        uk_unit=UnitOfLength.KILOMETERS,
+        uk2_unit=UnitOfLength.MILES,
         icon="mdi:eye",
         forecast_mode=["currently", "hourly", "daily"],
     ),
@@ -350,98 +319,98 @@ SENSOR_TYPES: dict[str, PirateWeatherSensorEntityDescription] = {
         key="apparent_temperature_max",
         name="Daily High Apparent Temperature",
         device_class=SensorDeviceClass.TEMPERATURE,
-        si_unit=TEMP_CELSIUS,
-        us_unit=TEMP_FAHRENHEIT,
-        ca_unit=TEMP_CELSIUS,
-        uk_unit=TEMP_CELSIUS,
-        uk2_unit=TEMP_CELSIUS,
+        si_unit=UnitOfTemperature.CELSIUS,
+        us_unit=UnitOfTemperature.FAHRENHEIT,
+        ca_unit=UnitOfTemperature.CELSIUS,
+        uk_unit=UnitOfTemperature.CELSIUS,
+        uk2_unit=UnitOfTemperature.CELSIUS,
         forecast_mode=["daily"],
     ),
     "apparent_temperature_high": PirateWeatherSensorEntityDescription(
         key="apparent_temperature_high",
         name="Daytime High Apparent Temperature",
         device_class=SensorDeviceClass.TEMPERATURE,
-        si_unit=TEMP_CELSIUS,
-        us_unit=TEMP_FAHRENHEIT,
-        ca_unit=TEMP_CELSIUS,
-        uk_unit=TEMP_CELSIUS,
-        uk2_unit=TEMP_CELSIUS,
+        si_unit=UnitOfTemperature.CELSIUS,
+        us_unit=UnitOfTemperature.FAHRENHEIT,
+        ca_unit=UnitOfTemperature.CELSIUS,
+        uk_unit=UnitOfTemperature.CELSIUS,
+        uk2_unit=UnitOfTemperature.CELSIUS,
         forecast_mode=["daily"],
     ),
     "apparent_temperature_min": PirateWeatherSensorEntityDescription(
         key="apparent_temperature_min",
         name="Daily Low Apparent Temperature",
         device_class=SensorDeviceClass.TEMPERATURE,
-        si_unit=TEMP_CELSIUS,
-        us_unit=TEMP_FAHRENHEIT,
-        ca_unit=TEMP_CELSIUS,
-        uk_unit=TEMP_CELSIUS,
-        uk2_unit=TEMP_CELSIUS,
+        si_unit=UnitOfTemperature.CELSIUS,
+        us_unit=UnitOfTemperature.FAHRENHEIT,
+        ca_unit=UnitOfTemperature.CELSIUS,
+        uk_unit=UnitOfTemperature.CELSIUS,
+        uk2_unit=UnitOfTemperature.CELSIUS,
         forecast_mode=["daily"],
     ),
     "apparent_temperature_low": PirateWeatherSensorEntityDescription(
         key="apparent_temperature_low",
         name="Overnight Low Apparent Temperature",
         device_class=SensorDeviceClass.TEMPERATURE,
-        si_unit=TEMP_CELSIUS,
-        us_unit=TEMP_FAHRENHEIT,
-        ca_unit=TEMP_CELSIUS,
-        uk_unit=TEMP_CELSIUS,
-        uk2_unit=TEMP_CELSIUS,
+        si_unit=UnitOfTemperature.CELSIUS,
+        us_unit=UnitOfTemperature.FAHRENHEIT,
+        ca_unit=UnitOfTemperature.CELSIUS,
+        uk_unit=UnitOfTemperature.CELSIUS,
+        uk2_unit=UnitOfTemperature.CELSIUS,
         forecast_mode=["daily"],
     ),
     "temperature_max": PirateWeatherSensorEntityDescription(
         key="temperature_max",
         name="Daily High Temperature",
         device_class=SensorDeviceClass.TEMPERATURE,
-        si_unit=TEMP_CELSIUS,
-        us_unit=TEMP_FAHRENHEIT,
-        ca_unit=TEMP_CELSIUS,
-        uk_unit=TEMP_CELSIUS,
-        uk2_unit=TEMP_CELSIUS,
+        si_unit=UnitOfTemperature.CELSIUS,
+        us_unit=UnitOfTemperature.FAHRENHEIT,
+        ca_unit=UnitOfTemperature.CELSIUS,
+        uk_unit=UnitOfTemperature.CELSIUS,
+        uk2_unit=UnitOfTemperature.CELSIUS,
         forecast_mode=["daily"],
     ),
     "temperature_high": PirateWeatherSensorEntityDescription(
         key="temperature_high",
         name="Daytime High Temperature",
         device_class=SensorDeviceClass.TEMPERATURE,
-        si_unit=TEMP_CELSIUS,
-        us_unit=TEMP_FAHRENHEIT,
-        ca_unit=TEMP_CELSIUS,
-        uk_unit=TEMP_CELSIUS,
-        uk2_unit=TEMP_CELSIUS,
+        si_unit=UnitOfTemperature.CELSIUS,
+        us_unit=UnitOfTemperature.FAHRENHEIT,
+        ca_unit=UnitOfTemperature.CELSIUS,
+        uk_unit=UnitOfTemperature.CELSIUS,
+        uk2_unit=UnitOfTemperature.CELSIUS,
         forecast_mode=["daily"],
     ),
     "temperature_min": PirateWeatherSensorEntityDescription(
         key="temperature_min",
         name="Daily Low Temperature",
         device_class=SensorDeviceClass.TEMPERATURE,
-        si_unit=TEMP_CELSIUS,
-        us_unit=TEMP_FAHRENHEIT,
-        ca_unit=TEMP_CELSIUS,
-        uk_unit=TEMP_CELSIUS,
-        uk2_unit=TEMP_CELSIUS,
+        si_unit=UnitOfTemperature.CELSIUS,
+        us_unit=UnitOfTemperature.FAHRENHEIT,
+        ca_unit=UnitOfTemperature.CELSIUS,
+        uk_unit=UnitOfTemperature.CELSIUS,
+        uk2_unit=UnitOfTemperature.CELSIUS,
         forecast_mode=["daily"],
     ),
     "temperature_low": PirateWeatherSensorEntityDescription(
         key="temperature_low",
         name="Overnight Low Temperature",
         device_class=SensorDeviceClass.TEMPERATURE,
-        si_unit=TEMP_CELSIUS,
-        us_unit=TEMP_FAHRENHEIT,
-        ca_unit=TEMP_CELSIUS,
-        uk_unit=TEMP_CELSIUS,
-        uk2_unit=TEMP_CELSIUS,
+        si_unit=UnitOfTemperature.CELSIUS,
+        us_unit=UnitOfTemperature.FAHRENHEIT,
+        ca_unit=UnitOfTemperature.CELSIUS,
+        uk_unit=UnitOfTemperature.CELSIUS,
+        uk2_unit=UnitOfTemperature.CELSIUS,
         forecast_mode=["daily"],
     ),
     "precip_intensity_max": PirateWeatherSensorEntityDescription(
         key="precip_intensity_max",
         name="Daily Max Precip Intensity",
-        si_unit=PRECIPITATION_MILLIMETERS_PER_HOUR,
-        us_unit=PRECIPITATION_INCHES,
-        ca_unit=PRECIPITATION_MILLIMETERS_PER_HOUR,
-        uk_unit=PRECIPITATION_MILLIMETERS_PER_HOUR,
-        uk2_unit=PRECIPITATION_MILLIMETERS_PER_HOUR,
+        si_unit=UnitOfVolumetricFlux.MILLIMETERS_PER_HOUR,
+        us_unit=UnitOfPrecipitationDepth.INCHES,
+        ca_unit=UnitOfVolumetricFlux.MILLIMETERS_PER_HOUR,
+        uk_unit=UnitOfVolumetricFlux.MILLIMETERS_PER_HOUR,
+        uk2_unit=UnitOfVolumetricFlux.MILLIMETERS_PER_HOUR,
         icon="mdi:thermometer",
         forecast_mode=["daily"],
     ),
@@ -488,11 +457,13 @@ SENSOR_TYPES: dict[str, PirateWeatherSensorEntityDescription] = {
     ),
 }
 
+
 class ConditionPicture(NamedTuple):
     """Entity picture and icon for condition."""
 
     entity_picture: str
     icon: str
+
 
 CONDITION_PICTURES: dict[str, ConditionPicture] = {
     "clear-day": ConditionPicture(
@@ -598,8 +569,8 @@ ALLOWED_UNITS = ["auto", "si", "us", "ca", "uk", "uk2"]
 
 ALERTS_ATTRS = ["time", "description", "expires", "severity", "uri", "regions", "title"]
 
-HOURS = [i for i in range(168)]
-DAYS = [i for i in range(7)]
+HOURS = list(range(168))
+DAYS = list(range(7))
 
 PLATFORM_SCHEMA = PLATFORM_SCHEMA.extend(
     {
@@ -614,9 +585,7 @@ PLATFORM_SCHEMA = PLATFORM_SCHEMA.extend(
         vol.Inclusive(
             CONF_LONGITUDE, "coordinates", "Latitude and longitude must exist together"
         ): cv.longitude,
-        vol.Optional(PW_PLATFORM): cv.multi_select(
-                  PW_PLATFORMS
-              ),
+        vol.Optional(PW_PLATFORM): cv.multi_select(PW_PLATFORMS),
         vol.Optional(PW_PREVPLATFORM): cv.string,
         vol.Optional(CONF_FORECAST): cv.multi_select(DAYS),
         vol.Optional(CONF_HOURLY_FORECAST): cv.multi_select(HOURS),
@@ -625,7 +594,6 @@ PLATFORM_SCHEMA = PLATFORM_SCHEMA.extend(
         ),
     }
 )
-
 
 
 async def async_setup_platform(
@@ -648,29 +616,24 @@ async def async_setup_platform(
     config_entry[PW_ROUND] = "No"
 
     hass.async_create_task(
-      hass.config_entries.flow.async_init(
-        DOMAIN, context={"source": SOURCE_IMPORT}, data = config_entry
-      )
+        hass.config_entries.flow.async_init(
+            DOMAIN, context={"source": SOURCE_IMPORT}, data=config_entry
+        )
     )
 
 
 async def async_setup_entry(
     hass: HomeAssistant,
     config_entry: ConfigEntry,
-    async_add_entities: AddEntitiesCallback
+    async_add_entities: AddEntitiesCallback,
 ) -> None:
     """Set up Pirate Weather sensor entities based on a config entry."""
-
 
     domain_data = hass.data[DOMAIN][config_entry.entry_id]
 
     name = domain_data[CONF_NAME]
-    api_key = domain_data[CONF_API_KEY]
     weather_coordinator = domain_data[ENTRY_WEATHER_COORDINATOR]
     conditions = domain_data[CONF_MONITORED_CONDITIONS]
-    latitude = domain_data[CONF_LATITUDE]
-    longitude = domain_data[CONF_LONGITUDE]
-    units = domain_data[CONF_UNITS]
     forecast_days = domain_data[CONF_FORECAST]
     forecast_hours = domain_data[CONF_HOURLY_FORECAST]
 
@@ -679,12 +642,7 @@ async def async_setup_entry(
 
     sensors: list[PirateWeatherSensor] = []
 
-
     for condition in conditions:
-
-        unit_index = {"si": 1, "us": 2, "ca": 3, "uk": 4, "uk2": 5}.get(
-            domain_data[CONF_UNITS], 1
-        )
 
         # Save units for conversion later
         requestUnits = domain_data[CONF_UNITS]
@@ -694,26 +652,60 @@ async def async_setup_entry(
         if condition in DEPRECATED_SENSOR_TYPES:
             _LOGGER.warning("Monitored condition %s is deprecated", condition)
 
-        if not sensorDescription.forecast_mode or "currently" in sensorDescription.forecast_mode:
+        if (
+            not sensorDescription.forecast_mode
+            or "currently" in sensorDescription.forecast_mode
+        ):
             unique_id = f"{config_entry.unique_id}-sensor-{condition}"
-            sensors.append(PirateWeatherSensor(weather_coordinator, condition, name,  unique_id, forecast_day=None, forecast_hour=None, description=sensorDescription, requestUnits=requestUnits, outputRound=outputRound))
-
+            sensors.append(
+                PirateWeatherSensor(
+                    weather_coordinator,
+                    condition,
+                    name,
+                    unique_id,
+                    forecast_day=None,
+                    forecast_hour=None,
+                    description=sensorDescription,
+                    requestUnits=requestUnits,
+                    outputRound=outputRound,
+                )
+            )
 
         if forecast_days is not None and "daily" in sensorDescription.forecast_mode:
             for forecast_day in forecast_days:
-                unique_id = f"{config_entry.unique_id}-sensor-{condition}-daily-{forecast_day}"
+                unique_id = (
+                    f"{config_entry.unique_id}-sensor-{condition}-daily-{forecast_day}"
+                )
                 sensors.append(
                     PirateWeatherSensor(
-                        weather_coordinator, condition, name, unique_id, forecast_day=int(forecast_day), forecast_hour=None, description=sensorDescription, requestUnits=requestUnits, outputRound=outputRound
+                        weather_coordinator,
+                        condition,
+                        name,
+                        unique_id,
+                        forecast_day=int(forecast_day),
+                        forecast_hour=None,
+                        description=sensorDescription,
+                        requestUnits=requestUnits,
+                        outputRound=outputRound,
                     )
                 )
 
         if forecast_hours is not None and "hourly" in sensorDescription.forecast_mode:
             for forecast_h in forecast_hours:
-                unique_id = f"{config_entry.unique_id}-sensor-{condition}-hourly-{forecast_h}"
+                unique_id = (
+                    f"{config_entry.unique_id}-sensor-{condition}-hourly-{forecast_h}"
+                )
                 sensors.append(
                     PirateWeatherSensor(
-                        weather_coordinator, condition, name, unique_id, forecast_day=None, forecast_hour=int(forecast_h), description=sensorDescription, requestUnits=requestUnits, outputRound=outputRound
+                        weather_coordinator,
+                        condition,
+                        name,
+                        unique_id,
+                        forecast_day=None,
+                        forecast_hour=int(forecast_h),
+                        description=sensorDescription,
+                        requestUnits=requestUnits,
+                        outputRound=outputRound,
                     )
                 )
 
@@ -723,7 +715,7 @@ async def async_setup_entry(
 class PirateWeatherSensor(SensorEntity):
     """Class for an PirateWeather sensor."""
 
-    #_attr_should_poll = False
+    # _attr_should_poll = False
     _attr_attribution = ATTRIBUTION
     entity_description: PirateWeatherSensorEntityDescription
 
@@ -735,28 +727,28 @@ class PirateWeatherSensor(SensorEntity):
         unique_id,
         forecast_day: int,
         forecast_hour: int,
-        description:  PirateWeatherSensorEntityDescription,
+        description: PirateWeatherSensorEntityDescription,
         requestUnits: str,
-        outputRound: str
+        outputRound: str,
     ) -> None:
         """Initialize the sensor."""
         self.client_name = name
 
-        description=description
+        description = description
         self.entity_description = description
-        self.description=description
+        self.description = description
 
         self._weather_coordinator = weather_coordinator
 
         self._attr_unique_id = unique_id
         self._attr_name = name
 
-        #self._attr_device_info = DeviceInfo(
+        # self._attr_device_info = DeviceInfo(
         #    entry_type=DeviceEntryType.SERVICE,
         #    identifiers={(DOMAIN, unique_id)},
         #    manufacturer=MANUFACTURER,
         #    name=DEFAULT_NAME,
-        #)
+        # )
 
         self.forecast_day = forecast_day
         self.forecast_hour = forecast_hour
@@ -765,8 +757,6 @@ class PirateWeatherSensor(SensorEntity):
         self.type = condition
         self._icon = None
         self._alerts = None
-
-
 
         self._name = description.name
 
@@ -778,7 +768,6 @@ class PirateWeatherSensor(SensorEntity):
         if self.forecast_hour is not None:
             return f"{self.client_name} {self._name} {self.forecast_hour}h"
         return f"{self.client_name} {self._name}"
-
 
     @property
     def available(self) -> bool:
@@ -822,7 +811,6 @@ class PirateWeatherSensor(SensorEntity):
             self.entity_description, unit_key
         )
 
-
     @property
     def icon(self):
         """Icon to use in the frontend, if any."""
@@ -846,22 +834,20 @@ class PirateWeatherSensor(SensorEntity):
     def extra_state_attributes(self):
         """Return the state attributes."""
         if self.type == "alerts":
-          extraATTR = self._alerts
-          extraATTR[ATTR_ATTRIBUTION] = ATTRIBUTION
+            extraATTR = self._alerts
+            extraATTR[ATTR_ATTRIBUTION] = ATTRIBUTION
 
-          return extraATTR
+            return extraATTR
         else:
-          return {ATTR_ATTRIBUTION: ATTRIBUTION}
-
+            return {ATTR_ATTRIBUTION: ATTRIBUTION}
 
     @property
     def native_value(self) -> StateType:
         """Return the state of the device."""
-        lookup_type = convert_to_camel(self.type)
 
         self.update_unit_of_measurement()
 
-        if  self.type == "alerts":
+        if self.type == "alerts":
             data = self._weather_coordinator.data.alerts()
 
             alerts = {}
@@ -880,21 +866,21 @@ class PirateWeatherSensor(SensorEntity):
 
                     # Convert time to string
                     if isinstance(alertsAttr, int):
-                      alertsAttr = template_helper.timestamp_local(alertsAttr)
+                        alertsAttr = template_helper.timestamp_local(alertsAttr)
 
                     alerts[dkey] = alertsAttr
 
-
             self._alerts = alerts
-            native_val =  len(data)
-
+            native_val = len(data)
 
         elif self.type == "minutely_summary":
-            native_val = getattr(self._weather_coordinator.data.minutely(),"summary", "")
-            self._icon = getattr(self._weather_coordinator.data.minutely(),"icon", "")
+            native_val = getattr(
+                self._weather_coordinator.data.minutely(), "summary", ""
+            )
+            self._icon = getattr(self._weather_coordinator.data.minutely(), "icon", "")
         elif self.type == "hourly_summary":
-            native_val = getattr(self._weather_coordinator.data.hourly(),"summary", "")
-            self._icon = getattr(self._weather_coordinator.data.hourly(),"icon", "")
+            native_val = getattr(self._weather_coordinator.data.hourly(), "summary", "")
+            self._icon = getattr(self._weather_coordinator.data.hourly(), "icon", "")
 
         elif self.forecast_hour is not None:
             hourly = self._weather_coordinator.data.hourly()
@@ -904,9 +890,8 @@ class PirateWeatherSensor(SensorEntity):
                 native_val = 0
 
         elif self.type == "daily_summary":
-            native_val = getattr(self._weather_coordinator.data.daily(),"summary", "")
-            self._icon = getattr(self._weather_coordinator.data.daily(),"icon", "")
-
+            native_val = getattr(self._weather_coordinator.data.daily(), "summary", "")
+            self._icon = getattr(self._weather_coordinator.data.daily(), "icon", "")
 
         elif self.forecast_day is not None:
             daily = self._weather_coordinator.data.daily()
@@ -918,10 +903,9 @@ class PirateWeatherSensor(SensorEntity):
             currently = self._weather_coordinator.data.currently()
             native_val = self.get_state(currently.d)
 
-        #self._state = native_val
+        # self._state = native_val
 
         return native_val
-
 
     def get_state(self, data):
         """Return a new state based on the type.
@@ -939,73 +923,69 @@ class PirateWeatherSensor(SensorEntity):
 
         # If output rounding is requested, round to nearest integer
         if self.outputRound == "Yes":
-          roundingVal = 0
+            roundingVal = 0
         else:
-          roundingVal = 1
+            roundingVal = 1
 
         # Some state data needs to be rounded to whole values or converted to
         # percentages
         if self.type in ["precip_probability", "cloud_cover", "humidity"]:
             if roundingVal == 0:
-              state = int(round(state * 100, roundingVal))
+                state = int(round(state * 100, roundingVal))
             else:
-              state = round(state * 100, roundingVal)
-
+                state = round(state * 100, roundingVal)
 
         # Logic to convert from SI to requsested units for compatability
         # Temps in F
         if self.requestUnits in ["us"]:
-          if self.type in [
-              "dew_point",
-              "temperature",
-              "apparent_temperature",
-              "temperature_high",
-              "temperature_low",
-              "apparent_temperature_high",
-              "apparent_temperature_low",
-          ]:
-              state = ((state * 9 / 5) + 32)
+            if self.type in [
+                "dew_point",
+                "temperature",
+                "apparent_temperature",
+                "temperature_high",
+                "temperature_low",
+                "apparent_temperature_high",
+                "apparent_temperature_low",
+            ]:
+                state = (state * 9 / 5) + 32
 
         # Precipitation Accumilation (mm in SI) to inches
         if self.requestUnits in ["us"]:
-          if self.type in [
-              "precip_accumulation",
-          ]:
-              state = (state * 0.0393701)
+            if self.type in [
+                "precip_accumulation",
+            ]:
+                state = state * 0.0393701
 
         # Precipitation Intensity (mm/h in SI) to inches
         if self.requestUnits in ["us"]:
-          if self.type in [
-              "precip_intensity",
-          ]:
-              state = (state * 0.0393701)
-
+            if self.type in [
+                "precip_intensity",
+            ]:
+                state = state * 0.0393701
 
         # Km to Miles
         if self.requestUnits in ["us", "uk", "uk2"]:
-          if self.type in [
-              "visibility",
-              "nearest_storm_distance",
-          ]:
-              state = (state * 0.621371)
+            if self.type in [
+                "visibility",
+                "nearest_storm_distance",
+            ]:
+                state = state * 0.621371
 
         # Meters/second to Miles/hour
         if self.requestUnits in ["us", "uk", "uk2"]:
-          if self.type in [
-              "wind_speed",
-              "wind_gust",
-          ]:
-              state =  (state * 2.23694)
+            if self.type in [
+                "wind_speed",
+                "wind_gust",
+            ]:
+                state = state * 2.23694
 
         # Meters/second to Km/ hour
         if self.requestUnits in ["ca"]:
-          if self.type in [
-              "wind_speed",
-              "wind_gust",
-          ]:
-              state = (state * 3.6)
-
-
+            if self.type in [
+                "wind_speed",
+                "wind_gust",
+            ]:
+                state = state * 3.6
 
         if self.type in [
             "dew_point",
@@ -1026,14 +1006,13 @@ class PirateWeatherSensor(SensorEntity):
             "wind_speed",
             "wind_gust",
         ]:
-
             if roundingVal == 0:
-              outState = int(round(state, roundingVal))
+                outState = int(round(state, roundingVal))
             else:
-              outState = round(state, roundingVal)
+                outState = round(state, roundingVal)
 
         else:
-          outState = state
+            outState = state
 
         return outState
 
@@ -1043,11 +1022,9 @@ class PirateWeatherSensor(SensorEntity):
             self._weather_coordinator.async_add_listener(self.async_write_ha_state)
         )
 
-
-    #async def async_update(self) -> None:
+    # async def async_update(self) -> None:
     #    """Get the latest data from PW and updates the states."""
     #    await self._weather_coordinator.async_request_refresh()
-
 
 
 def convert_to_camel(data):
@@ -1058,5 +1035,3 @@ def convert_to_camel(data):
     components = data.split("_")
     capital_components = "".join(x.title() for x in components[1:])
     return f"{components[0]}{capital_components}"
-
-
