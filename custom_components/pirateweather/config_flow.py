@@ -3,7 +3,6 @@ import voluptuous as vol
 import logging
 from datetime import timedelta
 
-import json
 import aiohttp
 
 from homeassistant import config_entries
@@ -307,7 +306,6 @@ async def _is_pw_api_online(hass, api_key, lat, lon):
     )
 
     async with aiohttp.ClientSession(raise_for_status=False) as session, session.get(forecastString) as resp:
-        resptext = await resp.text()
         status = resp.status
 
     return status
