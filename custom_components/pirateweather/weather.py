@@ -25,6 +25,7 @@ from homeassistant.components.weather import (
     ATTR_CONDITION_SNOWY_RAINY,
     ATTR_CONDITION_SUNNY,
     ATTR_CONDITION_WINDY,
+    ATTR_CONDITION_EXCEPTIONAL,
     PLATFORM_SCHEMA,
     Forecast,
     WeatherEntityFeature,
@@ -90,7 +91,7 @@ MAP_CONDITION = {
     "partly-cloudy-night": ATTR_CONDITION_PARTLYCLOUDY,
     "hail": ATTR_CONDITION_HAIL,
     "thunderstorm": ATTR_CONDITION_LIGHTNING,
-    "tornado": None,
+    "tornado": ATTR_CONDITION_EXCEPTIONAL,
 }
 
 CONF_UNITS = "units"
