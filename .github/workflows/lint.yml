@@ -1,0 +1,33 @@
+name: "Lint"
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  ruff:
+    name: "Ruff"
+    runs-on: "ubuntu-latest"
+    steps:
+        - name: "Checkout the repository"
+          uses: "actions/checkout@v4.1.1"
+
+        - name: "Set up Python"
+          uses: actions/setup-python@v5.0.0
+          with:
+            python-version: "3.11"
+            cache: "pip"
+
+        - name: "Install requirements"
+          run: python3 -m pip install -r requirements.txt
+
+        - name: "Format"
+          run: python3 -m ruff format .
+          
+        - name: "Check"
+          run: python3 -m ruff check . --fix --exit-zero
+          
+        - name: "Auto Commit"
+          uses: stefanzweifel/git-auto-commit-action@v5.0.0
+          with:
+            commit_message: 'style fixes by ruff'
