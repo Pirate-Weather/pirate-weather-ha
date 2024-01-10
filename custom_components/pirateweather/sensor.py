@@ -644,7 +644,6 @@ async def async_setup_entry(
     sensors: list[PirateWeatherSensor] = []
 
     for condition in conditions:
-
         # Save units for conversion later
         requestUnits = domain_data[CONF_UNITS]
 

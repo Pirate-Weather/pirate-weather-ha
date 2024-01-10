@@ -69,7 +69,9 @@ class WeatherUpdateCoordinator(DataUpdateCoordinator):
             + "&extend=hourly"
         )
 
-        async with aiohttp.ClientSession(raise_for_status=True) as session, session.get(forecastString) as resp:
+        async with aiohttp.ClientSession(raise_for_status=True) as session, session.get(
+            forecastString
+        ) as resp:
             resptext = await resp.text()
             jsonText = json.loads(resptext)
             headers = resp.headers

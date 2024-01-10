@@ -189,7 +189,6 @@ class PirateWeatherOptionsFlow(config_entries.OptionsFlow):
     async def async_step_init(self, user_input=None):
         """Manage the options."""
         if user_input is not None:
-
             # if self.config_entry.options:
             #  user_input[PW_PREVPLATFORM] = self.config_entry.options[PW_PLATFORM]
             # else:
@@ -305,7 +304,9 @@ async def _is_pw_api_online(hass, api_key, lat, lon):
         + str(lon)
     )
 
-    async with aiohttp.ClientSession(raise_for_status=False) as session, session.get(forecastString) as resp:
+    async with aiohttp.ClientSession(raise_for_status=False) as session, session.get(
+        forecastString
+    ) as resp:
         status = resp.status
 
     return status
