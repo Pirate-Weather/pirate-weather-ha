@@ -11,6 +11,7 @@ from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.config_entries import SOURCE_IMPORT, ConfigEntry
 from homeassistant.core import HomeAssistant, callback
 from .weather_update_coordinator import WeatherUpdateCoordinator
+from .typing import DiscoveryInfoType
 
 
 from homeassistant.components.weather import (
@@ -142,7 +143,7 @@ def _map_daily_forecast(forecast) -> Forecast:
     }
 
 
-def _map_hourly_forecast(forecast: dict[str, Any]) -> Forecast:
+def _map_hourly_forecast(forecast) -> Forecast:
     return {
         "datetime": utc_from_timestamp(forecast.d.get("time")).isoformat(),
         "condition": MAP_CONDITION.get(forecast.d.get("icon")),

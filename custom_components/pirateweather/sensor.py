@@ -813,14 +813,6 @@ class PirateWeatherSensor(SensorEntity):
         )
 
     @property
-    def icon(self):
-        """Icon to use in the frontend, if any."""
-        if "summary" in self.type and self._icon in CONDITION_PICTURES:
-            return CONDITION_PICTURES[self._icon][1]
-
-        return SENSOR_TYPES[self.type][6]
-
-    @property
     def icon(self) -> str | None:
         """Icon to use in the frontend, if any."""
         if (
