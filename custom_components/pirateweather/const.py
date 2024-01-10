@@ -32,11 +32,11 @@ from homeassistant.components.weather import (
 )
 from homeassistant.const import (
     DEGREE,
-    LENGTH_MILLIMETERS,
+    UnitOfLength,
     PERCENTAGE,
-    PRESSURE_HPA,
-    SPEED_METERS_PER_SECOND,
-    TEMP_CELSIUS,
+    UnitOfPressure,
+    UnitOfSpeed,
+    UnitOfTemperature,
     UV_INDEX,
     Platform,
 )
@@ -182,35 +182,7 @@ LANGUAGES = [
     "zh_tw",
     "zu",
 ]
-WEATHER_CODE_SUNNY_OR_CLEAR_NIGHT = 800
-CONDITION_CLASSES = {
-    ATTR_CONDITION_CLOUDY: [803, 804],
-    ATTR_CONDITION_FOG: [701, 721, 741],
-    ATTR_CONDITION_HAIL: [906],
-    ATTR_CONDITION_LIGHTNING: [210, 211, 212, 221],
-    ATTR_CONDITION_LIGHTNING_RAINY: [200, 201, 202, 230, 231, 232],
-    ATTR_CONDITION_PARTLYCLOUDY: [801, 802],
-    ATTR_CONDITION_POURING: [504, 314, 502, 503, 522],
-    ATTR_CONDITION_RAINY: [300, 301, 302, 310, 311, 312, 313, 500, 501, 520, 521],
-    ATTR_CONDITION_SNOWY: [600, 601, 602, 611, 612, 620, 621, 622],
-    ATTR_CONDITION_SNOWY_RAINY: [511, 615, 616],
-    ATTR_CONDITION_SUNNY: [WEATHER_CODE_SUNNY_OR_CLEAR_NIGHT],
-    ATTR_CONDITION_WINDY: [905, 951, 952, 953, 954, 955, 956, 957],
-    ATTR_CONDITION_WINDY_VARIANT: [958, 959, 960, 961],
-    ATTR_CONDITION_EXCEPTIONAL: [
-        711,
-        731,
-        751,
-        761,
-        762,
-        771,
-        900,
-        901,
-        962,
-        903,
-        904,
-    ],
-}
+
 WEATHER_SENSOR_TYPES: tuple[SensorEntityDescription, ...] = (
     SensorEntityDescription(
         key=ATTR_API_WEATHER,
@@ -219,28 +191,28 @@ WEATHER_SENSOR_TYPES: tuple[SensorEntityDescription, ...] = (
     SensorEntityDescription(
         key=ATTR_API_DEW_POINT,
         name="Dew Point",
-        native_unit_of_measurement=TEMP_CELSIUS,
+        native_unit_of_measurement=UnitOfTemperature.CELSIUS,
         device_class=SensorDeviceClass.TEMPERATURE,
         state_class=SensorStateClass.MEASUREMENT,
     ),
     SensorEntityDescription(
         key=ATTR_API_TEMPERATURE,
         name="Temperature",
-        native_unit_of_measurement=TEMP_CELSIUS,
+        native_unit_of_measurement=UnitOfTemperature.CELSIUS,
         device_class=SensorDeviceClass.TEMPERATURE,
         state_class=SensorStateClass.MEASUREMENT,
     ),
     SensorEntityDescription(
         key=ATTR_API_FEELS_LIKE_TEMPERATURE,
         name="Feels like temperature",
-        native_unit_of_measurement=TEMP_CELSIUS,
+        native_unit_of_measurement=UnitOfTemperature.CELSIUS,
         device_class=SensorDeviceClass.TEMPERATURE,
         state_class=SensorStateClass.MEASUREMENT,
     ),
     SensorEntityDescription(
         key=ATTR_API_WIND_SPEED,
         name="Wind speed",
-        native_unit_of_measurement=SPEED_METERS_PER_SECOND,
+        native_unit_of_measurement=UnitOfSpeed.METERS_PER_SECOND,
         state_class=SensorStateClass.MEASUREMENT,
     ),
     SensorEntityDescription(
@@ -259,7 +231,7 @@ WEATHER_SENSOR_TYPES: tuple[SensorEntityDescription, ...] = (
     SensorEntityDescription(
         key=ATTR_API_PRESSURE,
         name="Pressure",
-        native_unit_of_measurement=PRESSURE_HPA,
+        native_unit_of_measurement=UnitOfPressure.HPA,
         device_class=SensorDeviceClass.PRESSURE,
         state_class=SensorStateClass.MEASUREMENT,
     ),
@@ -272,13 +244,13 @@ WEATHER_SENSOR_TYPES: tuple[SensorEntityDescription, ...] = (
     SensorEntityDescription(
         key=ATTR_API_RAIN,
         name="Rain",
-        native_unit_of_measurement=LENGTH_MILLIMETERS,
+        native_unit_of_measurement=UnitOfLength.MILLIMETERS,
         state_class=SensorStateClass.MEASUREMENT,
     ),
     SensorEntityDescription(
         key=ATTR_API_SNOW,
         name="Snow",
-        native_unit_of_measurement=LENGTH_MILLIMETERS,
+        native_unit_of_measurement=UnitOfLength.MILLIMETERS,
         state_class=SensorStateClass.MEASUREMENT,
     ),
     SensorEntityDescription(
@@ -308,7 +280,7 @@ FORECAST_SENSOR_TYPES: tuple[SensorEntityDescription, ...] = (
     SensorEntityDescription(
         key=ATTR_FORECAST_PRECIPITATION,
         name="Precipitation",
-        native_unit_of_measurement=LENGTH_MILLIMETERS,
+        native_unit_of_measurement=UnitOfLength.MILLIMETERS,
     ),
     SensorEntityDescription(
         key=ATTR_FORECAST_PRECIPITATION_PROBABILITY,
@@ -318,19 +290,19 @@ FORECAST_SENSOR_TYPES: tuple[SensorEntityDescription, ...] = (
     SensorEntityDescription(
         key=ATTR_FORECAST_PRESSURE,
         name="Pressure",
-        native_unit_of_measurement=PRESSURE_HPA,
+        native_unit_of_measurement=UnitOfPressure.HPA,
         device_class=SensorDeviceClass.PRESSURE,
     ),
     SensorEntityDescription(
         key=ATTR_FORECAST_TEMP,
         name="Temperature",
-        native_unit_of_measurement=TEMP_CELSIUS,
+        native_unit_of_measurement=UnitOfTemperature.CELSIUS,
         device_class=SensorDeviceClass.TEMPERATURE,
     ),
     SensorEntityDescription(
         key=ATTR_FORECAST_TEMP_LOW,
         name="Temperature Low",
-        native_unit_of_measurement=TEMP_CELSIUS,
+        native_unit_of_measurement=UnitOfTemperature.CELSIUS,
         device_class=SensorDeviceClass.TEMPERATURE,
     ),
     SensorEntityDescription(
@@ -346,7 +318,7 @@ FORECAST_SENSOR_TYPES: tuple[SensorEntityDescription, ...] = (
     SensorEntityDescription(
         key=ATTR_API_WIND_SPEED,
         name="Wind speed",
-        native_unit_of_measurement=SPEED_METERS_PER_SECOND,
+        native_unit_of_measurement=UnitOfSpeed.METERS_PER_SECOND,
     ),
     SensorEntityDescription(
         key=ATTR_API_CLOUDS,
