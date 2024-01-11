@@ -11,7 +11,7 @@ from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.config_entries import SOURCE_IMPORT, ConfigEntry
 from homeassistant.core import HomeAssistant, callback
 from .weather_update_coordinator import WeatherUpdateCoordinator
-from .typing import DiscoveryInfoType
+from homeassistant.helpers.typing import DiscoveryInfoType
 
 
 from homeassistant.components.weather import (
