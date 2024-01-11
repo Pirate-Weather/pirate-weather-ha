@@ -10,6 +10,9 @@ updates:
     schedule:
       interval: "daily"
     open-pull-requests-limit: 100
+    ignore:
+      # Dependabot should not update Home Assistant as that should match the homeassistant key in hacs.json
+      - dependency-name: "homeassistant"
 
   - package-ecosystem: "github-actions"
     directory: "/"
