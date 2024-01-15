@@ -1,0 +1,60 @@
+{
+    "config": {
+        "abort": {
+            "already_configured": "Místo je již nakonfigurováno"
+        },
+        "error": {
+            "cannot_connect": "Nepodařilo se připojit",
+            "invalid_api_key": "Neplatný API klíč"
+        },
+        "step": {
+            "user": {
+                "data": {
+                    "api_key": "API klíč",
+                    "language": "Jazyk",
+                    "latitude": "Zeměpisná šířka",
+                    "longitude": "Zeměpisná délka",
+                    "mode": "Režim předpovědi pro entitu Počasí",
+                    "name": "Název integrace",
+                    "units": "Jednotky pro senzory. Používá se pouze pokud jsou požadovány senzory.",
+                    "forecast": "Denní předpovědi senzorů ve formátu csv od 0 do 7 (např. '0,1,3'). Používá se pouze pokud jsou požadovány senzory.",
+                    "hourly_forecast":  "Hodinové předpovědi senzorů ve formátu csv od 0 do 168 (např. '0,1,10'). Používá se pouze pokud jsou požadovány senzory.",
+                    "monitored_conditions": "Monitorované podmínky pro vytváření senzorů. Používá se pouze pokud jsou požadovány senzory.",
+                    "pw_platform": "Entita počasí a/nebo entita senzoru. Senzor vytvoří entity pro každou podmínku v každém čase. Pokud si nejste jisti, vyberte pouze Počasí!",
+                    "pw_round": "Zaokrouhlit hodnoty na nejbližší celé číslo. Ujistěte se, že vybrané jednotky odpovídají systémovým jednotkám.",
+                    "scan_interval": "Sekundy čekání mezi aktualizacemi. Snížení této hodnoty pod 900 sekund (15 minut) se nedoporučuje."                                         
+                },
+                "description": "Nastavte integraci Pirate Weather. Pro generování API klíče jděte na https://pirateweather.net",
+                "data_description": {
+                  "forecast": "např. '0,1,4' (bez uvozovek)",
+                  "hourly_forecast": "např. '0,1,4' (bez uvozovek)"
+                }                
+            }
+        }
+    },
+    "options": {
+        "step": {
+            "init": {
+                "data": {
+                    "api_key": "API klíč",
+                    "language": "Jazyk",
+                    "latitude": "Zeměpisná šířka",
+                    "longitude": "Zeměpisná délka",
+                    "mode": "Režim předpovědi pro Entitu Počasí",
+                    "name": "Název integrace",
+                    "units": "Jednotky pro senzory. Používá se pouze pokud jsou požadovány senzory.",
+                    "forecast": "Denní předpovědi senzorů ve formátu csv od 0 do 7 (např. '0,1,3'). Používá se pouze pokud jsou požadovány senzory.\n POZNÁMKA: Odebrání senzorů způsobí, že vzniknou nedostupné entity, které je potřeba smazat.",
+                    "hourly_forecast":  "Hodinové předpovědi senzorů ve formátu csv od 0 do 168 (např. '0,1,10'). Používá se pouze pokud jsou požadovány senzory.\n POZNÁMKA: Odebrání senzorů způsobí, že vzniknou nedostupné entity, které je potřeba smazat.",
+                    "monitored_conditions": "Monitorované podmínky pro vytváření senzorů. Používá se pouze pokud jsou požadovány senzory.\n POZNÁMKA: Odebrání senzorů způsobí, že vzniknou nedostupné entity, které je potřeba smazat.",
+                    "pw_platform": "Entita Počasí a/nebo Entita Senzoru. Senzor vytvoří entity pro každou podmínku v každém čase. Pokud si nejste jisti, vyberte pouze Počasí!",
+                    "pw_round": "Zaokrouhlit hodnoty na nejbližší celé číslo. Ujistěte se, že vybrané jednotky odpovídají systémovým jednotkám."
+                },
+                "description": "Nastavte integraci Pirate Weather. Pro vygenerování API klíče jděte na https://pirateweather.net",
+                "data_description": {
+                  "forecast": "např. '0,1,4'.\n Pro odebrání existujících senzorů napište 'None' (bez uvozovek).",
+                  "hourly_forecast": "např. '0,1,4'.\n Pro odebrání existujících senzorů napište 'None' (bez uvozovek)."
+                }         
+            }
+        }
+    }
+}
