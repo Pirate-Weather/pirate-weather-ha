@@ -1,6 +1,5 @@
 """Consts for the OpenWeatherMap."""
 from __future__ import annotations
-from datetime import timedelta
 
 from homeassistant.components.sensor import (
     SensorDeviceClass,
@@ -8,20 +7,6 @@ from homeassistant.components.sensor import (
     SensorStateClass,
 )
 from homeassistant.components.weather import (
-    ATTR_CONDITION_CLOUDY,
-    ATTR_CONDITION_EXCEPTIONAL,
-    ATTR_CONDITION_FOG,
-    ATTR_CONDITION_HAIL,
-    ATTR_CONDITION_LIGHTNING,
-    ATTR_CONDITION_LIGHTNING_RAINY,
-    ATTR_CONDITION_PARTLYCLOUDY,
-    ATTR_CONDITION_POURING,
-    ATTR_CONDITION_RAINY,
-    ATTR_CONDITION_SNOWY,
-    ATTR_CONDITION_SNOWY_RAINY,
-    ATTR_CONDITION_SUNNY,
-    ATTR_CONDITION_WINDY,
-    ATTR_CONDITION_WINDY_VARIANT,
     ATTR_FORECAST_CONDITION,
     ATTR_FORECAST_PRECIPITATION,
     ATTR_FORECAST_PRECIPITATION_PROBABILITY,
@@ -76,7 +61,7 @@ PLATFORMS = [Platform.SENSOR, Platform.WEATHER]
 PW_PLATFORMS = ["Sensor", "Weather"]
 PW_PLATFORM = "pw_platform"
 PW_PREVPLATFORM = "pw_prevplatform"
-PW_ROUND = "pw_round" 
+PW_ROUND = "pw_round"
 
 ATTR_FORECAST_CLOUD_COVERAGE = "cloud_coverage"
 ATTR_FORECAST_HUMIDITY = "humidity"
@@ -87,49 +72,50 @@ FORECAST_MODE_DAILY = "daily"
 
 FORECAST_MODES = [
     FORECAST_MODE_HOURLY,
-    FORECAST_MODE_DAILY,    
-    ]
-    
-    
+    FORECAST_MODE_DAILY,
+]
+
+
 DEFAULT_FORECAST_MODE = FORECAST_MODE_DAILY
 
 FORECASTS_HOURLY = "forecasts_hourly"
 FORECASTS_DAILY = "forecasts_daily"
 
-ALL_CONDITIONS = {'summary': 'Summary',
-                   'icon': 'Icon',
-                   'precip_type': 'Precipitation Type',
-                   'precip_intensity': 'Precipitation Intensity',
-                   'precip_probability': 'Precipitation Probability',
-                   'precip_accumulation': 'Precipitation Accumulation',
-                   'temperature': 'Temperature',
-                   'apparent_temperature': 'Apparent Temperature',
-                   'dew_point': 'Dew Point',
-                   'humidity': 'Humidity',
-                   'wind_speed': 'Wind Speed',
-                   'wind_gust': 'Wind Gust',
-                   'wind_bearing': 'Wind Bearing',
-                   'cloud_cover': 'Cloud Cover',
-                   'pressure': 'Pressure',
-                   'visibility': 'Visibility',
-                   'ozone': 'Ozone',
-                   'minutely_summary': 'Minutely Summary',
-                   'hourly_summary': 'Hourly Summary',
-                   'daily_summary': 'Daily Summary',
-                   'temperature_high': 'Temperature High',
-                   'temperature_low': 'Temperature Low',
-                   'apparent_temperature_high': 'Apparent Temperature High',
-                   'apparent_temperature_low': 'Apparent Temperature Low',
-                   'precip_intensity_max': 'Precip Intensity Max',
-                   'uv_index': 'UV Index',
-                   'moon_phase': 'Moon Phase',
-                   'sunrise_time': 'Sunrise Time',
-                   'sunset_time': 'Sunset Time',
-                   'nearest_storm_distance': 'Nearest Storm Distance',         
-                   'nearest_storm_bearing': 'Nearest Storm Bearing',
-                   'alerts': 'Alerts',
-                   'time':'Time'
-                }
+ALL_CONDITIONS = {
+    "summary": "Summary",
+    "icon": "Icon",
+    "precip_type": "Precipitation Type",
+    "precip_intensity": "Precipitation Intensity",
+    "precip_probability": "Precipitation Probability",
+    "precip_accumulation": "Precipitation Accumulation",
+    "temperature": "Temperature",
+    "apparent_temperature": "Apparent Temperature",
+    "dew_point": "Dew Point",
+    "humidity": "Humidity",
+    "wind_speed": "Wind Speed",
+    "wind_gust": "Wind Gust",
+    "wind_bearing": "Wind Bearing",
+    "cloud_cover": "Cloud Cover",
+    "pressure": "Pressure",
+    "visibility": "Visibility",
+    "ozone": "Ozone",
+    "minutely_summary": "Minutely Summary",
+    "hourly_summary": "Hourly Summary",
+    "daily_summary": "Daily Summary",
+    "temperature_high": "Temperature High",
+    "temperature_low": "Temperature Low",
+    "apparent_temperature_high": "Apparent Temperature High",
+    "apparent_temperature_low": "Apparent Temperature Low",
+    "precip_intensity_max": "Precip Intensity Max",
+    "uv_index": "UV Index",
+    "moon_phase": "Moon Phase",
+    "sunrise_time": "Sunrise Time",
+    "sunset_time": "Sunset Time",
+    "nearest_storm_distance": "Nearest Storm Distance",
+    "nearest_storm_bearing": "Nearest Storm Bearing",
+    "alerts": "Alerts",
+    "time": "Time",
+}
 
 LANGUAGES = [
     "af",
