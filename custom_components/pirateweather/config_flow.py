@@ -125,11 +125,11 @@ class PirateWeatherConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
 
                 if api_status == 403:
                     _LOGGER.warning(
-                        "Pirate Weather Setup Error: Invalid API Key, Ensure that the subscribe button is clicked for this endpoint: https://pirateweather.net/apis/hv9nrw1tjg/Beta"
+                        "Pirate Weather Setup Error: Invalid API Key, Ensure that you've subscribed to API at https://pirate-weather.apiable.io/"
                     )
                     errors[
                         "base"
-                    ] = "Invalid API Key, Ensure that the subscribe button is clicked for this endpoint: https://pirateweather.net/apis/hv9nrw1tjg/Beta"
+                    ] = "Invalid API Key, Ensure that you've subscribed to API at https://pirate-weather.apiable.io/"
 
             except Exception:
                 _LOGGER.warning("Pirate Weather Setup Error: HTTP Error: " + api_status)
