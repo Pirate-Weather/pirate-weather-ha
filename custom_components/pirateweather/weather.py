@@ -291,7 +291,7 @@ class PirateWeather(SingleCoordinatorWeatherEntity[WeatherUpdateCoordinator]):
         """Return the visibility."""
         visibility = self._weather_coordinator.data.currently().d.get("visibility")
 
-        eturn round(visibility, 2)
+        return round(visibility, 2)
 
     @property
     def condition(self):
