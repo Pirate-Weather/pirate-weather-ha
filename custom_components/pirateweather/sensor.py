@@ -982,29 +982,8 @@ class PirateWeatherSensor(SensorEntity):
                 "wind_gust",
             ]:
                 state = state * 3.6
-
-        if self.type in [
-            "dew_point",
-            "temperature",
-            "apparent_temperature",
-            "temperature_low",
-            "apparent_temperature_low",
-            "temperature_min",
-            "apparent_temperature_min",
-            "temperature_high",
-            "apparent_temperature_high",
-            "temperature_max",
-            "apparent_temperature_max",
-            "precip_accumulation",
-            "pressure",
-            "ozone",
-            "uvIndex",
-            "wind_speed",
-            "wind_gust",
-        ]:
-            outState = state
-
-        return outState
+                
+        return state
 
     async def async_added_to_hass(self) -> None:
         """Connect to dispatcher listening for entity data notifications."""
