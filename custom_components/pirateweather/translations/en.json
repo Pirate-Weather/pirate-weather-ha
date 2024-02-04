@@ -21,7 +21,6 @@
                     "hourly_forecast":  "Hourly forecast sensors in csv form from 0-168 (ex. '0,1,10'). Only used if sensors are requested.",
                     "monitored_conditions": "Monitored conditions to create sensors for. Only used if sensors are requested.",
                     "pw_platform": "Weather Entity and/or Sensor Entity. Sensor will create entities for each condition at each time. If unsure, only select Weather!",
-                    "pw_round": "Round values to the nearest integer. Ensure that the selected units match the system units.",
                     "scan_interval": "Seconds to wait between updates. Reducing this below 900 seconds (15 minutes) is not recomended."                                         
                 },
                 "description": "Set up Pirate Weather integration. To generate API key go to https://pirateweather.net",

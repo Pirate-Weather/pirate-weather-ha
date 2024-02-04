@@ -50,7 +50,6 @@ from .const import (
     PW_PLATFORMS,
     PW_PLATFORM,
     PW_PREVPLATFORM,
-    PW_ROUND,
 )
 
 
@@ -162,6 +161,7 @@ SENSOR_TYPES: dict[str, PirateWeatherSensorEntityDescription] = {
         ca_unit=UnitOfVolumetricFlux.MILLIMETERS_PER_HOUR,
         uk_unit=UnitOfVolumetricFlux.MILLIMETERS_PER_HOUR,
         uk2_unit=UnitOfVolumetricFlux.MILLIMETERS_PER_HOUR,
+        suggested_display_precision=4,
         icon="mdi:weather-rainy",
         forecast_mode=["currently", "minutely", "hourly", "daily"],
     ),
@@ -173,6 +173,7 @@ SENSOR_TYPES: dict[str, PirateWeatherSensorEntityDescription] = {
         ca_unit=PERCENTAGE,
         uk_unit=PERCENTAGE,
         uk2_unit=PERCENTAGE,
+        suggested_display_precision=0,
         icon="mdi:water-percent",
         forecast_mode=["currently", "minutely", "hourly", "daily"],
     ),
@@ -185,6 +186,7 @@ SENSOR_TYPES: dict[str, PirateWeatherSensorEntityDescription] = {
         ca_unit=UnitOfLength.CENTIMETERS,
         uk_unit=UnitOfLength.CENTIMETERS,
         uk2_unit=UnitOfLength.CENTIMETERS,
+        suggested_display_precision=4,
         icon="mdi:weather-snowy",
         forecast_mode=["hourly", "daily"],
     ),
@@ -198,6 +200,7 @@ SENSOR_TYPES: dict[str, PirateWeatherSensorEntityDescription] = {
         ca_unit=UnitOfTemperature.CELSIUS,
         uk_unit=UnitOfTemperature.CELSIUS,
         uk2_unit=UnitOfTemperature.CELSIUS,
+        suggested_display_precision=2,
         forecast_mode=["currently", "hourly"],
     ),
     "apparent_temperature": PirateWeatherSensorEntityDescription(
@@ -210,6 +213,7 @@ SENSOR_TYPES: dict[str, PirateWeatherSensorEntityDescription] = {
         ca_unit=UnitOfTemperature.CELSIUS,
         uk_unit=UnitOfTemperature.CELSIUS,
         uk2_unit=UnitOfTemperature.CELSIUS,
+        suggested_display_precision=2,
         forecast_mode=["currently", "hourly"],
     ),
     "dew_point": PirateWeatherSensorEntityDescription(
@@ -222,6 +226,7 @@ SENSOR_TYPES: dict[str, PirateWeatherSensorEntityDescription] = {
         ca_unit=UnitOfTemperature.CELSIUS,
         uk_unit=UnitOfTemperature.CELSIUS,
         uk2_unit=UnitOfTemperature.CELSIUS,
+        suggested_display_precision=2,
         forecast_mode=["currently", "hourly", "daily"],
     ),
     "wind_speed": PirateWeatherSensorEntityDescription(
@@ -233,6 +238,7 @@ SENSOR_TYPES: dict[str, PirateWeatherSensorEntityDescription] = {
         ca_unit=UnitOfSpeed.KILOMETERS_PER_HOUR,
         uk_unit=UnitOfSpeed.MILES_PER_HOUR,
         uk2_unit=UnitOfSpeed.MILES_PER_HOUR,
+        suggested_display_precision=2,
         icon="mdi:weather-windy",
         forecast_mode=["currently", "hourly", "daily"],
     ),
@@ -244,6 +250,7 @@ SENSOR_TYPES: dict[str, PirateWeatherSensorEntityDescription] = {
         ca_unit=DEGREE,
         uk_unit=DEGREE,
         uk2_unit=DEGREE,
+        suggested_display_precision=0,
         icon="mdi:compass",
         forecast_mode=["currently", "hourly", "daily"],
     ),
@@ -256,6 +263,7 @@ SENSOR_TYPES: dict[str, PirateWeatherSensorEntityDescription] = {
         ca_unit=UnitOfSpeed.KILOMETERS_PER_HOUR,
         uk_unit=UnitOfSpeed.MILES_PER_HOUR,
         uk2_unit=UnitOfSpeed.MILES_PER_HOUR,
+        suggested_display_precision=2,
         icon="mdi:weather-windy-variant",
         forecast_mode=["currently", "hourly", "daily"],
     ),
@@ -267,6 +275,7 @@ SENSOR_TYPES: dict[str, PirateWeatherSensorEntityDescription] = {
         ca_unit=PERCENTAGE,
         uk_unit=PERCENTAGE,
         uk2_unit=PERCENTAGE,
+        suggested_display_precision=0,
         icon="mdi:weather-partly-cloudy",
         forecast_mode=["currently", "hourly", "daily"],
     ),
@@ -280,6 +289,7 @@ SENSOR_TYPES: dict[str, PirateWeatherSensorEntityDescription] = {
         ca_unit=PERCENTAGE,
         uk_unit=PERCENTAGE,
         uk2_unit=PERCENTAGE,
+        suggested_display_precision=0,
         forecast_mode=["currently", "hourly", "daily"],
     ),
     "pressure": PirateWeatherSensorEntityDescription(
@@ -292,6 +302,7 @@ SENSOR_TYPES: dict[str, PirateWeatherSensorEntityDescription] = {
         ca_unit=UnitOfPressure.MBAR,
         uk_unit=UnitOfPressure.MBAR,
         uk2_unit=UnitOfPressure.MBAR,
+        suggested_display_precision=2,
         forecast_mode=["currently", "hourly", "daily"],
     ),
     "visibility": PirateWeatherSensorEntityDescription(
@@ -302,6 +313,7 @@ SENSOR_TYPES: dict[str, PirateWeatherSensorEntityDescription] = {
         ca_unit=UnitOfLength.KILOMETERS,
         uk_unit=UnitOfLength.KILOMETERS,
         uk2_unit=UnitOfLength.MILES,
+        suggested_display_precision=2,
         icon="mdi:eye",
         forecast_mode=["currently", "hourly", "daily"],
     ),
@@ -314,6 +326,7 @@ SENSOR_TYPES: dict[str, PirateWeatherSensorEntityDescription] = {
         ca_unit="DU",
         uk_unit="DU",
         uk2_unit="DU",
+        suggested_display_precision=2,
         forecast_mode=["currently", "hourly", "daily"],
     ),
     "apparent_temperature_max": PirateWeatherSensorEntityDescription(
@@ -325,6 +338,7 @@ SENSOR_TYPES: dict[str, PirateWeatherSensorEntityDescription] = {
         ca_unit=UnitOfTemperature.CELSIUS,
         uk_unit=UnitOfTemperature.CELSIUS,
         uk2_unit=UnitOfTemperature.CELSIUS,
+        suggested_display_precision=2,
         forecast_mode=["daily"],
     ),
     "apparent_temperature_high": PirateWeatherSensorEntityDescription(
@@ -336,6 +350,7 @@ SENSOR_TYPES: dict[str, PirateWeatherSensorEntityDescription] = {
         ca_unit=UnitOfTemperature.CELSIUS,
         uk_unit=UnitOfTemperature.CELSIUS,
         uk2_unit=UnitOfTemperature.CELSIUS,
+        suggested_display_precision=2,
         forecast_mode=["daily"],
     ),
     "apparent_temperature_min": PirateWeatherSensorEntityDescription(
@@ -347,6 +362,7 @@ SENSOR_TYPES: dict[str, PirateWeatherSensorEntityDescription] = {
         ca_unit=UnitOfTemperature.CELSIUS,
         uk_unit=UnitOfTemperature.CELSIUS,
         uk2_unit=UnitOfTemperature.CELSIUS,
+        suggested_display_precision=2,
         forecast_mode=["daily"],
     ),
     "apparent_temperature_low": PirateWeatherSensorEntityDescription(
@@ -358,6 +374,7 @@ SENSOR_TYPES: dict[str, PirateWeatherSensorEntityDescription] = {
         ca_unit=UnitOfTemperature.CELSIUS,
         uk_unit=UnitOfTemperature.CELSIUS,
         uk2_unit=UnitOfTemperature.CELSIUS,
+        suggested_display_precision=2,
         forecast_mode=["daily"],
     ),
     "temperature_max": PirateWeatherSensorEntityDescription(
@@ -369,6 +386,7 @@ SENSOR_TYPES: dict[str, PirateWeatherSensorEntityDescription] = {
         ca_unit=UnitOfTemperature.CELSIUS,
         uk_unit=UnitOfTemperature.CELSIUS,
         uk2_unit=UnitOfTemperature.CELSIUS,
+        suggested_display_precision=2,
         forecast_mode=["daily"],
     ),
     "temperature_high": PirateWeatherSensorEntityDescription(
@@ -380,6 +398,7 @@ SENSOR_TYPES: dict[str, PirateWeatherSensorEntityDescription] = {
         ca_unit=UnitOfTemperature.CELSIUS,
         uk_unit=UnitOfTemperature.CELSIUS,
         uk2_unit=UnitOfTemperature.CELSIUS,
+        suggested_display_precision=2,
         forecast_mode=["daily"],
     ),
     "temperature_min": PirateWeatherSensorEntityDescription(
@@ -391,6 +410,7 @@ SENSOR_TYPES: dict[str, PirateWeatherSensorEntityDescription] = {
         ca_unit=UnitOfTemperature.CELSIUS,
         uk_unit=UnitOfTemperature.CELSIUS,
         uk2_unit=UnitOfTemperature.CELSIUS,
+        suggested_display_precision=2,
         forecast_mode=["daily"],
     ),
     "temperature_low": PirateWeatherSensorEntityDescription(
@@ -402,6 +422,7 @@ SENSOR_TYPES: dict[str, PirateWeatherSensorEntityDescription] = {
         ca_unit=UnitOfTemperature.CELSIUS,
         uk_unit=UnitOfTemperature.CELSIUS,
         uk2_unit=UnitOfTemperature.CELSIUS,
+        suggested_display_precision=2,
         forecast_mode=["daily"],
     ),
     "precip_intensity_max": PirateWeatherSensorEntityDescription(
@@ -412,6 +433,7 @@ SENSOR_TYPES: dict[str, PirateWeatherSensorEntityDescription] = {
         ca_unit=UnitOfVolumetricFlux.MILLIMETERS_PER_HOUR,
         uk_unit=UnitOfVolumetricFlux.MILLIMETERS_PER_HOUR,
         uk2_unit=UnitOfVolumetricFlux.MILLIMETERS_PER_HOUR,
+        suggested_display_precision=2,
         icon="mdi:thermometer",
         forecast_mode=["daily"],
     ),
@@ -423,6 +445,7 @@ SENSOR_TYPES: dict[str, PirateWeatherSensorEntityDescription] = {
         ca_unit=UV_INDEX,
         uk_unit=UV_INDEX,
         uk2_unit=UV_INDEX,
+        suggested_display_precision=2,
         icon="mdi:weather-sunny",
         forecast_mode=["currently", "hourly", "daily"],
     ),
@@ -430,6 +453,7 @@ SENSOR_TYPES: dict[str, PirateWeatherSensorEntityDescription] = {
         key="moon_phase",
         name="Moon Phase",
         icon="mdi:weather-night",
+        suggested_display_precision=2,
         forecast_mode=["daily"],
     ),
     "sunrise_time": PirateWeatherSensorEntityDescription(
@@ -613,9 +637,6 @@ async def async_setup_platform(
     # Define as a sensor platform
     config_entry[PW_PLATFORM] = [PW_PLATFORMS[0]]
 
-    # Set as no rounding for compatability
-    config_entry[PW_ROUND] = "No"
-
     hass.async_create_task(
         hass.config_entries.flow.async_init(
             DOMAIN, context={"source": SOURCE_IMPORT}, data=config_entry
@@ -637,9 +658,6 @@ async def async_setup_entry(
     conditions = domain_data[CONF_MONITORED_CONDITIONS]
     forecast_days = domain_data[CONF_FORECAST]
     forecast_hours = domain_data[CONF_HOURLY_FORECAST]
-
-    # Round Output
-    outputRound = domain_data[PW_ROUND]
 
     sensors: list[PirateWeatherSensor] = []
 
@@ -667,7 +685,6 @@ async def async_setup_entry(
                     forecast_hour=None,
                     description=sensorDescription,
                     requestUnits=requestUnits,
-                    outputRound=outputRound,
                 )
             )
 
@@ -686,7 +703,6 @@ async def async_setup_entry(
                         forecast_hour=None,
                         description=sensorDescription,
                         requestUnits=requestUnits,
-                        outputRound=outputRound,
                     )
                 )
 
@@ -705,7 +721,6 @@ async def async_setup_entry(
                         forecast_hour=int(forecast_h),
                         description=sensorDescription,
                         requestUnits=requestUnits,
-                        outputRound=outputRound,
                     )
                 )
 
@@ -729,7 +744,6 @@ class PirateWeatherSensor(SensorEntity):
         forecast_hour: int,
         description: PirateWeatherSensorEntityDescription,
         requestUnits: str,
-        outputRound: str,
     ) -> None:
         """Initialize the sensor."""
         self.client_name = name
@@ -753,7 +767,6 @@ class PirateWeatherSensor(SensorEntity):
         self.forecast_day = forecast_day
         self.forecast_hour = forecast_hour
         self.requestUnits = requestUnits
-        self.outputRound = outputRound
         self.type = condition
         self._icon = None
         self._alerts = None
@@ -913,19 +926,10 @@ class PirateWeatherSensor(SensorEntity):
         if "summary" in self.type:
             self._icon = getattr(data, "icon", "")
 
-        # If output rounding is requested, round to nearest integer
-        if self.outputRound == "Yes":
-            roundingVal = 0
-        else:
-            roundingVal = 1
-
         # Some state data needs to be rounded to whole values or converted to
         # percentages
         if self.type in ["precip_probability", "cloud_cover", "humidity"]:
-            if roundingVal == 0:
-                state = int(round(state * 100, roundingVal))
-            else:
-                state = round(state * 100, roundingVal)
+            state = state * 100
 
         # Logic to convert from SI to requsested units for compatability
         # Temps in F
@@ -998,12 +1002,6 @@ class PirateWeatherSensor(SensorEntity):
             "wind_speed",
             "wind_gust",
         ]:
-            if roundingVal == 0:
-                outState = int(round(state, roundingVal))
-            else:
-                outState = round(state, roundingVal)
-
-        else:
             outState = state
 
         return outState

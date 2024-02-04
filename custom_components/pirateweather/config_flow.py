@@ -34,7 +34,6 @@ from .const import (
     PW_PLATFORMS,
     PW_PLATFORM,
     PW_PREVPLATFORM,
-    PW_ROUND,
 )
 
 ATTRIBUTION = "Powered by Pirate Weather"
@@ -84,7 +83,6 @@ class PirateWeatherConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 vol.Optional(CONF_MONITORED_CONDITIONS, default=[]): cv.multi_select(
                     ALL_CONDITIONS
                 ),
-                vol.Optional(PW_ROUND, default="No"): vol.In(["Yes", "No"]),
                 vol.Optional(CONF_UNITS, default=DEFAULT_UNITS): vol.In(
                     ["si", "us", "ca", "uk"]
                 ),
@@ -172,8 +170,6 @@ class PirateWeatherConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             config[PW_PLATFORM] = None
         if PW_PREVPLATFORM not in config:
             config[PW_PREVPLATFORM] = None
-        if PW_ROUND not in config:
-            config[PW_ROUND] = "No"
         if CONF_SCAN_INTERVAL not in config:
             config[CONF_SCAN_INTERVAL] = DEFAULT_SCAN_INTERVAL
         return await self.async_step_user(config)
@@ -282,13 +278,6 @@ class PirateWeatherOptionsFlow(config_entries.OptionsFlow):
                             self.config_entry.data.get(CONF_UNITS, DEFAULT_UNITS),
                         ),
                     ): vol.In(["si", "us", "ca", "uk"]),
-                    vol.Optional(
-                        PW_ROUND,
-                        default=self.config_entry.options.get(
-                            PW_ROUND,
-                            self.config_entry.data.get(PW_ROUND, "No"),
-                        ),
-                    ): vol.In(["Yes", "No"]),
                 }
             ),
         )

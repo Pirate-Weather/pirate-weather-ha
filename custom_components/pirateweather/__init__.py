@@ -30,7 +30,6 @@ from .const import (
     CONF_UNITS,
     PW_PLATFORMS,
     PW_PLATFORM,
-    PW_ROUND,
 )
 
 # from .weather_update_coordinator import WeatherUpdateCoordinator, DarkSkyData
@@ -55,7 +54,6 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     forecast_days = _get_config_value(entry, CONF_FORECAST)
     forecast_hours = _get_config_value(entry, CONF_HOURLY_FORECAST)
     pw_entity_platform = _get_config_value(entry, PW_PLATFORM)
-    pw_entity_rounding = _get_config_value(entry, PW_ROUND)
     pw_scan_Int = entry.data[CONF_SCAN_INTERVAL]
 
     # Extract list of int from forecast days/ hours string if present
@@ -108,7 +106,6 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         CONF_FORECAST: forecast_days,
         CONF_HOURLY_FORECAST: forecast_hours,
         PW_PLATFORM: pw_entity_platform,
-        PW_ROUND: pw_entity_rounding,
         CONF_SCAN_INTERVAL: pw_scan_Int,
     }
 

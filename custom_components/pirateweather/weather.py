@@ -58,7 +58,6 @@ from .const import (
     PW_PLATFORMS,
     PW_PLATFORM,
     PW_PREVPLATFORM,
-    PW_ROUND,
 )
 
 _LOGGER = logging.getLogger(__name__)
@@ -115,9 +114,6 @@ async def async_setup_platform(
 
     # Add source to config
     config_entry[PW_PLATFORM] = [PW_PLATFORMS[1]]
-
-    # Set as no rounding for compatability
-    config_entry[PW_ROUND] = "No"
 
     hass.async_create_task(
         hass.config_entries.flow.async_init(
@@ -176,11 +172,8 @@ async def async_setup_entry(
 
     unique_id = f"{config_entry.unique_id}"
 
-    # Round Output
-    outputRound = domain_data[PW_ROUND]
-
     pw_weather = PirateWeather(
-        name, unique_id, forecast_mode, weather_coordinator, outputRound
+        name, unique_id, forecast_mode, weather_coordinator
     )
 
     async_add_entities([pw_weather], False)
@@ -205,7 +198,6 @@ class PirateWeather(SingleCoordinatorWeatherEntity[WeatherUpdateCoordinator]):
         unique_id,
         forecast_mode: str,
         weather_coordinator: WeatherUpdateCoordinator,
-        outputRound: str,
     ) -> None:
         """Initialize the sensor."""
         super().__init__(weather_coordinator)
@@ -225,8 +217,6 @@ class PirateWeather(SingleCoordinatorWeatherEntity[WeatherUpdateCoordinator]):
         self._ds_hourly = self._weather_coordinator.data.hourly()
         self._ds_daily = self._weather_coordinator.data.daily()
 
-        self.outputRound = outputRound
-
     @property
     def unique_id(self):
         """Return a unique_id for this entity."""
@@ -234,7 +224,7 @@ class PirateWeather(SingleCoordinatorWeatherEntity[WeatherUpdateCoordinator]):
 
     @property
     def supported_features(self) -> WeatherEntityFeature:
-        """Determine supported features based on available data sets reported by WeatherKit."""
+        """Determine supported features based on available data sets reported by Pirate Weather."""
         features = WeatherEntityFeature(0)
 
         features |= WeatherEntityFeature.FORECAST_DAILY
@@ -261,30 +251,21 @@ class PirateWeather(SingleCoordinatorWeatherEntity[WeatherUpdateCoordinator]):
         """Return the temperature."""
         temperature = self._weather_coordinator.data.currently().d.get("temperature")
 
-        if self.outputRound == "Yes":
-            return round(temperature, 0) + 0
-        else:
-            return round(temperature, 2)
+        return round(temperature, 2)
 
     @property
     def humidity(self):
         """Return the humidity."""
         humidity = self._weather_coordinator.data.currently().d.get("humidity") * 100.0
 
-        if self.outputRound == "Yes":
-            return round(humidity, 0) + 0
-        else:
-            return round(humidity, 2)
+        eturn round(humidity, 0)
 
     @property
     def native_wind_speed(self):
         """Return the wind speed."""
         windspeed = self._weather_coordinator.data.currently().d.get("windSpeed")
 
-        if self.outputRound == "Yes":
-            return round(windspeed, 0) + 0
-        else:
-            return round(windspeed, 2)
+        return round(windspeed, 2)
 
     @property
     def wind_bearing(self):
@@ -296,30 +277,21 @@ class PirateWeather(SingleCoordinatorWeatherEntity[WeatherUpdateCoordinator]):
         """Return the ozone level."""
         ozone = self._weather_coordinator.data.currently().d.get("ozone")
 
-        if self.outputRound == "Yes":
-            return round(ozone, 0) + 0
-        else:
-            return round(ozone, 2)
+        return round(ozone, 2)
 
     @property
     def native_pressure(self):
         """Return the pressure."""
         pressure = self._weather_coordinator.data.currently().d.get("pressure")
 
-        if self.outputRound == "Yes":
-            return round(pressure, 0) + 0
-        else:
-            return round(pressure, 2)
+        return round(pressure, 2)
 
     @property
     def native_visibility(self):
         """Return the visibility."""
         visibility = self._weather_coordinator.data.currently().d.get("visibility")
 
-        if self.outputRound == "Yes":
-            return round(visibility, 0) + 0
-        else:
-            return round(visibility, 2)
+        eturn round(visibility, 2)
 
     @property
     def condition(self):

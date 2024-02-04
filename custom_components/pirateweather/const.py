@@ -61,7 +61,6 @@ PLATFORMS = [Platform.SENSOR, Platform.WEATHER]
 PW_PLATFORMS = ["Sensor", "Weather"]
 PW_PLATFORM = "pw_platform"
 PW_PREVPLATFORM = "pw_prevplatform"
-PW_ROUND = "pw_round"
 
 ATTR_FORECAST_CLOUD_COVERAGE = "cloud_coverage"
 ATTR_FORECAST_HUMIDITY = "humidity"
