@@ -258,7 +258,7 @@ class PirateWeather(SingleCoordinatorWeatherEntity[WeatherUpdateCoordinator]):
         """Return the humidity."""
         humidity = self._weather_coordinator.data.currently().d.get("humidity") * 100.0
 
-        eturn round(humidity, 0)
+        return round(humidity, 0)
 
     @property
     def native_wind_speed(self):
