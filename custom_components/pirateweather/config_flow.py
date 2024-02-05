@@ -235,15 +235,6 @@ class PirateWeatherOptionsFlow(config_entries.OptionsFlow):
                         ),
                     ): cv.multi_select(PW_PLATFORMS),
                     vol.Optional(
-                        CONF_MODE,
-                        default=self.config_entry.options.get(
-                            CONF_MODE,
-                            self.config_entry.data.get(
-                                CONF_MODE, DEFAULT_FORECAST_MODE
-                            ),
-                        ),
-                    ): vol.In(FORECAST_MODES),
-                    vol.Optional(
                         CONF_LANGUAGE,
                         default=self.config_entry.options.get(
                             CONF_LANGUAGE,
