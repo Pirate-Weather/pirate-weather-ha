@@ -261,30 +261,21 @@ class PirateWeather(SingleCoordinatorWeatherEntity[WeatherUpdateCoordinator]):
         """Return the temperature."""
         temperature = self._weather_coordinator.data.currently().d.get("temperature")
 
-        if self.outputRound == "Yes":
-            return round(temperature, 0) + 0
-        else:
-            return round(temperature, 2)
+        return round(temperature, 2)
 
     @property
     def humidity(self):
         """Return the humidity."""
         humidity = self._weather_coordinator.data.currently().d.get("humidity") * 100.0
 
-        if self.outputRound == "Yes":
-            return round(humidity, 0) + 0
-        else:
-            return round(humidity, 2)
+        return round(humidity, 2)
 
     @property
     def native_wind_speed(self):
         """Return the wind speed."""
         windspeed = self._weather_coordinator.data.currently().d.get("windSpeed")
 
-        if self.outputRound == "Yes":
-            return round(windspeed, 0) + 0
-        else:
-            return round(windspeed, 2)
+        return round(windspeed, 2)
 
     @property
     def wind_bearing(self):
@@ -296,30 +287,21 @@ class PirateWeather(SingleCoordinatorWeatherEntity[WeatherUpdateCoordinator]):
         """Return the ozone level."""
         ozone = self._weather_coordinator.data.currently().d.get("ozone")
 
-        if self.outputRound == "Yes":
-            return round(ozone, 0) + 0
-        else:
-            return round(ozone, 2)
+        return round(ozone, 2)
 
     @property
     def native_pressure(self):
         """Return the pressure."""
         pressure = self._weather_coordinator.data.currently().d.get("pressure")
 
-        if self.outputRound == "Yes":
-            return round(pressure, 0) + 0
-        else:
-            return round(pressure, 2)
+        return round(pressure, 2)
 
     @property
     def native_visibility(self):
         """Return the visibility."""
         visibility = self._weather_coordinator.data.currently().d.get("visibility")
 
-        if self.outputRound == "Yes":
-            return round(visibility, 0) + 0
-        else:
-            return round(visibility, 2)
+        return round(visibility, 2)
 
     @property
     def condition(self):
