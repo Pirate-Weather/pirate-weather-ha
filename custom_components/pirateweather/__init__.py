@@ -49,7 +49,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     api_key = entry.data[CONF_API_KEY]
     latitude = entry.data.get(CONF_LATITUDE, hass.config.latitude)
     longitude = entry.data.get(CONF_LONGITUDE, hass.config.longitude)
-    forecast_mode = _get_config_value(entry, CONF_MODE)
+    forecast_mode = "daily"
     conditions = _get_config_value(entry, CONF_MONITORED_CONDITIONS)
     units = _get_config_value(entry, CONF_UNITS)
     forecast_days = _get_config_value(entry, CONF_FORECAST)
