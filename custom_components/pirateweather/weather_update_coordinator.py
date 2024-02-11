@@ -67,6 +67,7 @@ class WeatherUpdateCoordinator(DataUpdateCoordinator):
             + "?units="
             + self.requested_units
             + "&extend=hourly"
+            + "&tz=precise"
         )
 
         async with aiohttp.ClientSession(raise_for_status=True) as session, session.get(
