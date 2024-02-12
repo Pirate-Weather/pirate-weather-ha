@@ -604,7 +604,7 @@ PLATFORM_SCHEMA = PLATFORM_SCHEMA.extend(
     {
         vol.Required(CONF_API_KEY): cv.string,
         vol.Optional(CONF_NAME, default=DEFAULT_NAME): cv.string,
-        vol.Optional(CONF_UNITS): vol.In(ALLOWED_UNITS),
+        vol.Required(CONF_UNITS): vol.In(ALLOWED_UNITS),
         vol.Optional(CONF_LANGUAGE, default=DEFAULT_LANGUAGE): vol.In(LANGUAGE_CODES),
         vol.Optional(CONF_SCAN_INTERVAL, default=DEFAULT_SCAN_INTERVAL): cv.time_period,
         vol.Inclusive(
@@ -950,58 +950,6 @@ class PirateWeatherSensor(SensorEntity):
         # percentages
         if self.type in ["precip_probability", "cloud_cover", "humidity"]:
             state = state * 100
-
-        # Logic to convert from SI to requsested units for compatability
-        # Temps in F
-        if self.requestUnits in ["us"]:
-            if self.type in [
-                "dew_point",
-                "temperature",
-                "apparent_temperature",
-                "temperature_high",
-                "temperature_low",
-                "apparent_temperature_high",
-                "apparent_temperature_low",
-            ]:
-                state = (state * 9 / 5) + 32
-
-        # Precipitation Accumilation (mm in SI) to inches
-        if self.requestUnits in ["us"]:
-            if self.type in [
-                "precip_accumulation",
-            ]:
-                state = state * 0.0393701
-
-        # Precipitation Intensity (mm/h in SI) to inches
-        if self.requestUnits in ["us"]:
-            if self.type in [
-                "precip_intensity",
-            ]:
-                state = state * 0.0393701
-
-        # Km to Miles
-        if self.requestUnits in ["us", "uk", "uk2"]:
-            if self.type in [
-                "visibility",
-                "nearest_storm_distance",
-            ]:
-                state = state * 0.621371
-
-        # Meters/second to Miles/hour
-        if self.requestUnits in ["us", "uk", "uk2"]:
-            if self.type in [
-                "wind_speed",
-                "wind_gust",
-            ]:
-                state = state * 2.23694
-
-        # Meters/second to Km/ hour
-        if self.requestUnits in ["ca"]:
-            if self.type in [
-                "wind_speed",
-                "wind_gust",
-            ]:
-                state = state * 3.6
 
         if self.type in [
             "dew_point",
