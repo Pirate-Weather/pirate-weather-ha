@@ -81,7 +81,7 @@ class PirateWeatherConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                     ALL_CONDITIONS
                 ),
                 vol.Optional(PW_ROUND, default="No"): vol.In(["Yes", "No"]),
-                vol.Optional(CONF_UNITS, default=DEFAULT_UNITS): vol.In(
+                vol.Required(CONF_UNITS, default="si"): vol.In(
                     ["si", "us", "ca", "uk"]
                 ),
             }
@@ -93,6 +93,7 @@ class PirateWeatherConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             forecastMode = "daily"
             forecastPlatform = user_input[PW_PLATFORM]
             entityNamee = user_input[CONF_NAME]
+            requestedUnits = user_input[CONF_UNITS]
 
             # Convert scan interval to timedelta
             if isinstance(user_input[CONF_SCAN_INTERVAL], str):
@@ -262,7 +263,7 @@ class PirateWeatherOptionsFlow(config_entries.OptionsFlow):
                             self.config_entry.data.get(CONF_MONITORED_CONDITIONS, []),
                         ),
                     ): cv.multi_select(ALL_CONDITIONS),
-                    vol.Optional(
+                    vol.Required(
                         CONF_UNITS,
                         default=self.config_entry.options.get(
                             CONF_UNITS,
