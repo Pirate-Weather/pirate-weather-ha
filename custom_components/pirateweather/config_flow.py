@@ -93,7 +93,6 @@ class PirateWeatherConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             forecastMode = "daily"
             forecastPlatform = user_input[PW_PLATFORM]
             entityNamee = user_input[CONF_NAME]
-            requestedUnits = user_input[CONF_UNITS]
 
             # Convert scan interval to timedelta
             if isinstance(user_input[CONF_SCAN_INTERVAL], str):
