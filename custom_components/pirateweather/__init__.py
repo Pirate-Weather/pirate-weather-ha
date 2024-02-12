@@ -89,7 +89,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     hass.data.setdefault(DOMAIN, {})
     # Create and link weather WeatherUpdateCoordinator
     weather_coordinator = WeatherUpdateCoordinator(
-        api_key, latitude, longitude, timedelta(seconds=pw_scan_Int), hass
+        api_key, latitude, longitude, timedelta(seconds=pw_scan_Int), hass, units
     )
     hass.data[DOMAIN][unique_location] = weather_coordinator
 
