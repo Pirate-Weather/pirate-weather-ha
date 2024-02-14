@@ -1019,7 +1019,7 @@ class PirateWeatherSensor(SensorEntity):
             "apparent_temperature_max",
             "pressure",
             "ozone",
-            "uvIndex",
+            "uv_index",
             "wind_speed",
             "wind_gust",
             "visibility",
