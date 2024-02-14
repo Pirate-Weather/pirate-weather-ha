@@ -1030,7 +1030,7 @@ class PirateWeatherSensor(SensorEntity):
             else:
                 outState = round(state, roundingVal)
                 
-        if self.type in [
+        elif self.type in [
             "precip_accumulation",
             "precip_intensity",
             "precip_intensity_max",
