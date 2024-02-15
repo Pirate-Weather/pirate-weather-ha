@@ -39,4 +39,4 @@ jobs:
           issue-inactive-days: '60'
           pr-inactive-days: '60'
           issue-lock-reason: ''
-          github-token: ${{ secrets.STALE_TOKEN }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
