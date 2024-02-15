@@ -1,5 +1,8 @@
 name: Mark stale issues and pull requests
 
+permissions:
+  contents: write
+  
 on:
   schedule:
   - cron: "0 0/6 * * *"
