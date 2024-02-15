@@ -1,7 +1,9 @@
 name: Mark stale issues and pull requests
 
 permissions:
-  contents: write
+  contents: write # only for delete-branch option
+  issues: write
+  pull-requests: write
   
 on:
   schedule:
