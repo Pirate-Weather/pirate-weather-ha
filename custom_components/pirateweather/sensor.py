@@ -943,13 +943,15 @@ class PirateWeatherSensor(SensorEntity):
         # If output rounding is requested, round to nearest integer
         if self.outputRound == "Yes":
             roundingVal = 0
+            roundingPrecip = 2
         else:
-            roundingVal = 1
+            roundingVal = 2
+            roundingPrecip = 4
 
         # Some state data needs to be rounded to whole values or converted to
         # percentages
         if self.type in ["precip_probability", "cloud_cover", "humidity"]:
-            state = state * 100
+            state = int(state * 100)
 
         # Logic to convert from SI to requsested units for compatability
         # Temps in F
@@ -963,7 +965,7 @@ class PirateWeatherSensor(SensorEntity):
                 "apparent_temperature_high",
                 "apparent_temperature_low",
             ]:
-                state = (state * 9 / 5) + 32
+                state = round(state * 9 / 5) + 32
 
         # Precipitation Accumilation (mm in SI) to inches
         if self.requestUnits in ["us"]:
@@ -1015,17 +1017,25 @@ class PirateWeatherSensor(SensorEntity):
             "apparent_temperature_high",
             "temperature_max",
             "apparent_temperature_max",
-            "precip_accumulation",
             "pressure",
             "ozone",
-            "uvIndex",
+            "uv_index",
             "wind_speed",
             "wind_gust",
+            "visibility",
+            "nearest_storm_distance",
         ]:
             if roundingVal == 0:
                 outState = int(round(state, roundingVal))
             else:
-                outState = state
+                outState = round(state, roundingVal)
+
+        elif self.type in [
+            "precip_accumulation",
+            "precip_intensity",
+            "precip_intensity_max",
+        ]:
+            outState = round(state, roundingPrecip)
 
         else:
             outState = state
