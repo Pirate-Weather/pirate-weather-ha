@@ -1,4 +1,5 @@
 """Support for the Pirate Weather (PW) service."""
+
 from __future__ import annotations
 
 import logging

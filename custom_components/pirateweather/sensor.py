@@ -1,4 +1,5 @@
 """Support for PirateWeather (Dark Sky Compatable weather service."""
+
 import logging
 
 from dataclasses import dataclass, field

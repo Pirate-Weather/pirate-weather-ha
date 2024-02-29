@@ -1,4 +1,5 @@
 """Config flow for Pirate Weather."""
+
 import voluptuous as vol
 import logging
 from datetime import timedelta
@@ -123,9 +124,9 @@ class PirateWeatherConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                     _LOGGER.warning(
                         "Pirate Weather Setup Error: Invalid API Key, Ensure that you've subscribed to API at https://pirate-weather.apiable.io/"
                     )
-                    errors[
-                        "base"
-                    ] = "Invalid API Key, Ensure that you've subscribed to API at https://pirate-weather.apiable.io/"
+                    errors["base"] = (
+                        "Invalid API Key, Ensure that you've subscribed to API at https://pirate-weather.apiable.io/"
+                    )
 
             except Exception:
                 _LOGGER.warning("Pirate Weather Setup Error: HTTP Error: " + api_status)
@@ -291,9 +292,10 @@ async def _is_pw_api_online(hass, api_key, lat, lon):
         + str(lon)
     )
 
-    async with aiohttp.ClientSession(raise_for_status=False) as session, session.get(
-        forecastString
-    ) as resp:
+    async with (
+        aiohttp.ClientSession(raise_for_status=False) as session,
+        session.get(forecastString) as resp,
+    ):
         status = resp.status
 
     return status
