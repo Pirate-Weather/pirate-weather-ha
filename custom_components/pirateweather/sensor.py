@@ -1,4 +1,4 @@
-"""Support for PirateWeather (Dark Sky Compatable weather service."""
+"""Support for Pirate Weather (Dark Sky Compatable) weather service."""
 
 import logging
 
@@ -67,7 +67,7 @@ CONF_LANGUAGE = "language"
 CONF_UNITS = "units"
 
 DEFAULT_LANGUAGE = "en"
-DEFAULT_NAME = "PirateWeather"
+DEFAULT_NAME = "Pirate Weather"
 
 DEPRECATED_SENSOR_TYPES = {
     "apparent_temperature_max",
@@ -741,7 +741,7 @@ async def async_setup_entry(
 
 
 class PirateWeatherSensor(SensorEntity):
-    """Class for an PirateWeather sensor."""
+    """Class for an Pirate Weather sensor."""
 
     # _attr_should_poll = False
     _attr_attribution = ATTRIBUTION
@@ -799,7 +799,7 @@ class PirateWeatherSensor(SensorEntity):
 
     @property
     def available(self) -> bool:
-        """Return if weather data is available from PirateWeather."""
+        """Return if weather data is available from Pirate Weather."""
         return self._weather_coordinator.data is not None
 
     @property
