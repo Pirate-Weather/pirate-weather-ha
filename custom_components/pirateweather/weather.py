@@ -284,17 +284,17 @@ class PirateWeather(SingleCoordinatorWeatherEntity[WeatherUpdateCoordinator]):
 
     @property
     def native_wind_speed(self):
-        """Return the wind speed."""
-        windGust = self._weather_coordinator.data.currently().d.get("windGust")
-
-        return round(windGust, 2)
-
-    @property
-    def wind_gust_speed(self):
         """Return the wind gust speed."""
         windspeed = self._weather_coordinator.data.currently().d.get("windSpeed")
 
         return round(windspeed, 2)
+
+    @property
+    def wind_gust_speed(self):
+        """Return the wind speed."""
+        windGust = self._weather_coordinator.data.currently().d.get("windGust")
+
+        return round(windGust, 2)
 
     @property
     def wind_bearing(self):
