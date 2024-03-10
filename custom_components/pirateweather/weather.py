@@ -269,7 +269,9 @@ class PirateWeather(SingleCoordinatorWeatherEntity[WeatherUpdateCoordinator]):
     @property
     def cloud_coverage(self):
         """Return the cloud coverage."""
-        cloudCover = self._weather_coordinator.data.currently().d.get("cloudCover") * 100.0
+        cloudCover = (
+            self._weather_coordinator.data.currently().d.get("cloudCover") * 100.0
+        )
 
         return round(cloudCover, 2)
 
