@@ -1,4 +1,4 @@
-"""Support for the Pirate Weather (PW) service."""
+"""Support for the Pirate Weather service."""
 
 from __future__ import annotations
 
@@ -140,6 +140,7 @@ def _map_daily_forecast(forecast) -> Forecast:
         "humidity": round(forecast.d.get("humidity") * 100, 2),
         "cloud_coverage": round(forecast.d.get("cloudCover") * 100, 0),
         "native_wind_speed": round(forecast.d.get("windSpeed"), 2),
+        "wind_gust_speed": round(forecast.d.get("windGust"), 2),
         "wind_bearing": round(forecast.d.get("windBearing"), 0),
     }
 
@@ -154,6 +155,7 @@ def _map_hourly_forecast(forecast) -> Forecast:
         "native_pressure": forecast.d.get("pressure"),
         "native_wind_speed": round(forecast.d.get("windSpeed"), 2),
         "wind_bearing": round(forecast.d.get("windBearing"), 0),
+        "wind_gust_speed": round(forecast.d.get("windGust"), 2),
         "humidity": round(forecast.d.get("humidity") * 100, 2),
         "native_precipitation": round(forecast.d.get("precipIntensity"), 2),
         "precipitation_probability": round(
@@ -189,7 +191,7 @@ async def async_setup_entry(
 
 
 class PirateWeather(SingleCoordinatorWeatherEntity[WeatherUpdateCoordinator]):
-    """Implementation of an PirateWeather sensor."""
+    """Implementation of an Pirate Weather sensor."""
 
     _attr_attribution = ATTRIBUTION
     _attr_should_poll = False
@@ -235,7 +237,7 @@ class PirateWeather(SingleCoordinatorWeatherEntity[WeatherUpdateCoordinator]):
 
     @property
     def supported_features(self) -> WeatherEntityFeature:
-        """Determine supported features based on available data sets reported by WeatherKit."""
+        """Determine supported features based on available data sets reported by Pirate Weather."""
         features = WeatherEntityFeature(0)
 
         features |= WeatherEntityFeature.FORECAST_DAILY
@@ -244,7 +246,7 @@ class PirateWeather(SingleCoordinatorWeatherEntity[WeatherUpdateCoordinator]):
 
     @property
     def available(self):
-        """Return if weather data is available from PirateWeather."""
+        """Return if weather data is available from Pirate Weather."""
         return self._weather_coordinator.data is not None
 
     @property
@@ -265,6 +267,15 @@ class PirateWeather(SingleCoordinatorWeatherEntity[WeatherUpdateCoordinator]):
         return round(temperature, 2)
 
     @property
+    def cloud_coverage(self):
+        """Return the cloud coverage."""
+        cloudCover = (
+            self._weather_coordinator.data.currently().d.get("cloudCover") * 100.0
+        )
+
+        return round(cloudCover, 2)
+
+    @property
     def humidity(self):
         """Return the humidity."""
         humidity = self._weather_coordinator.data.currently().d.get("humidity") * 100.0
@@ -277,6 +288,13 @@ class PirateWeather(SingleCoordinatorWeatherEntity[WeatherUpdateCoordinator]):
         windspeed = self._weather_coordinator.data.currently().d.get("windSpeed")
 
         return round(windspeed, 2)
+
+    @property
+    def wind_gust_speed(self):
+        """Return the wind gust speed."""
+        windGust = self._weather_coordinator.data.currently().d.get("windGust")
+
+        return round(windGust, 2)
 
     @property
     def wind_bearing(self):

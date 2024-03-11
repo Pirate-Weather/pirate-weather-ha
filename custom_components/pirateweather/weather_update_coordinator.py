@@ -1,4 +1,4 @@
-"""Weather data coordinator for the OpenWeatherMap (OWM) service."""
+"""Weather data coordinator for the Pirate Weather service."""
 
 import logging
 
