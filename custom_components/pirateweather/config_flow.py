@@ -284,7 +284,7 @@ class PirateWeatherOptionsFlow(config_entries.OptionsFlow):
 
 async def _is_pw_api_online(hass, api_key, lat, lon):
     forecastString = (
-        "https://api.pirateweather.net/forecast/"
+        "https://dev.pirateweather.net/forecast/"
         + api_key
         + "/"
         + str(lat)
