@@ -94,6 +94,7 @@ MAP_CONDITION = {
     "hail": ATTR_CONDITION_HAIL,
     "thunderstorm": ATTR_CONDITION_LIGHTNING,
     "tornado": ATTR_CONDITION_EXCEPTIONAL,
+    "none": ATTR_CONDITION_EXCEPTIONAL,
 }
 
 CONF_UNITS = "units"
@@ -140,7 +141,7 @@ def _map_daily_forecast(forecast) -> Forecast:
         "humidity": round(forecast.d.get("humidity") * 100, 2),
         "cloud_coverage": round(forecast.d.get("cloudCover") * 100, 0),
         "native_wind_speed": round(forecast.d.get("windSpeed"), 2),
-        "wind_gust_speed": round(forecast.d.get("windGust"), 2),
+        "native_wind_gust_speed": round(forecast.d.get("windGust"), 2),
         "wind_bearing": round(forecast.d.get("windBearing"), 0),
     }
 
@@ -155,7 +156,7 @@ def _map_hourly_forecast(forecast) -> Forecast:
         "native_pressure": forecast.d.get("pressure"),
         "native_wind_speed": round(forecast.d.get("windSpeed"), 2),
         "wind_bearing": round(forecast.d.get("windBearing"), 0),
-        "wind_gust_speed": round(forecast.d.get("windGust"), 2),
+        "native_wind_gust_speed": round(forecast.d.get("windGust"), 2),
         "humidity": round(forecast.d.get("humidity") * 100, 2),
         "native_precipitation": round(forecast.d.get("precipIntensity"), 2),
         "precipitation_probability": round(
@@ -290,7 +291,7 @@ class PirateWeather(SingleCoordinatorWeatherEntity[WeatherUpdateCoordinator]):
         return round(windspeed, 2)
 
     @property
-    def wind_gust_speed(self):
+    def native_wind_gust_speed(self):
         """Return the wind gust speed."""
         windGust = self._weather_coordinator.data.currently().d.get("windGust")
 
