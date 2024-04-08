@@ -132,7 +132,7 @@ def _map_daily_forecast(forecast) -> Forecast:
     return {
         "datetime": utc_from_timestamp(forecast.d.get("time")).isoformat(),
         "condition": MAP_CONDITION.get(forecast.d.get("icon")),
-        "native_temperature": forecast.d.get("temperatureMax"),
+        "native_temperature": forecast.d.get("temperatureHigh"),
         "native_templow": forecast.d.get("temperatureLow"),
         "native_precipitation": forecast.d.get("precipAccumulation") * 10,
         "precipitation_probability": round(
