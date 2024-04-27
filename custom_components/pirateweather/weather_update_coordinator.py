@@ -68,7 +68,7 @@ class WeatherUpdateCoordinator(DataUpdateCoordinator):
             + "?units="
             + self.requested_units
             + "&extend=hourly"
-            + "&tz=precise"
+            + "&version=2"
         )
 
         async with (
