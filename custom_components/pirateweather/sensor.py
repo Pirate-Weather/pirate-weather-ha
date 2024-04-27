@@ -1095,7 +1095,7 @@ class PirateWeatherSensor(SensorEntity):
             "visibility",
             "nearest_storm_distance",
             "smoke",
-            "smoke_max"
+            "smoke_max",
         ]:
             if roundingVal == 0:
                 outState = int(round(state, roundingVal))
