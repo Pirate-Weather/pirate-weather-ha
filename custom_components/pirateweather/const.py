@@ -116,6 +116,13 @@ ALL_CONDITIONS = {
     "nearest_storm_bearing": "Nearest Storm Bearing",
     "alerts": "Alerts",
     "time": "Time",
+    "fire_index": "Fire Index",
+    "fire_index_max": "Fire Index Max",
+    "smoke": "Smoke",
+    "smoke_max": "Smoke Max",
+    "liquid_accumulation": "Liquid Accumulation",
+    "snow_accumulation": "Snow Accumulation",
+    "ice_accumulation": "Ice Accumulation",
 }
 
 LANGUAGES = [

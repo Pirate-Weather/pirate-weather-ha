@@ -377,6 +377,7 @@ SENSOR_TYPES: dict[str, PirateWeatherSensorEntityDescription] = {
         name="Fire Index",
         state_class=None,
         suggested_display_precision=2,
+        icon="mdi:fire",
         forecast_mode=["currently", "hourly"],
     ),
     "fire_index_max": PirateWeatherSensorEntityDescription(
@@ -384,6 +385,7 @@ SENSOR_TYPES: dict[str, PirateWeatherSensorEntityDescription] = {
         name="Fire Index Max",
         state_class=None,
         suggested_display_precision=2,
+        icon="mdi:fire",
         forecast_mode=["daily"],
     ),
     "smoke": PirateWeatherSensorEntityDescription(
@@ -391,6 +393,7 @@ SENSOR_TYPES: dict[str, PirateWeatherSensorEntityDescription] = {
         name="Smoke",
         state_class=SensorDeviceClass.PM25,
         suggested_display_precision=2,
+        icon="mdi:smoke",
         forecast_mode=["currently", "hourly"],
     ),
     "smoke_max": PirateWeatherSensorEntityDescription(
@@ -398,6 +401,7 @@ SENSOR_TYPES: dict[str, PirateWeatherSensorEntityDescription] = {
         name="Smoke Max",
         state_class=SensorDeviceClass.PM25,
         suggested_display_precision=2,
+        icon="mdi:smoke",
         forecast_mode=["daily"],
     ),
     "apparent_temperature_max": PirateWeatherSensorEntityDescription(
