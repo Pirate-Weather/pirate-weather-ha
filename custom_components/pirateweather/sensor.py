@@ -376,7 +376,6 @@ SENSOR_TYPES: dict[str, PirateWeatherSensorEntityDescription] = {
     "fire_index": PirateWeatherSensorEntityDescription(
         key="fire_index",
         name="Fire Index",
-        state_class=None,
         suggested_display_precision=2,
         icon="mdi:fire",
         forecast_mode=["currently", "hourly"],
@@ -384,7 +383,6 @@ SENSOR_TYPES: dict[str, PirateWeatherSensorEntityDescription] = {
     "fire_index_max": PirateWeatherSensorEntityDescription(
         key="fire_index_max",
         name="Fire Index Max",
-        state_class=None,
         suggested_display_precision=2,
         icon="mdi:fire",
         forecast_mode=["daily"],
@@ -392,7 +390,7 @@ SENSOR_TYPES: dict[str, PirateWeatherSensorEntityDescription] = {
     "smoke": PirateWeatherSensorEntityDescription(
         key="smoke",
         name="Smoke",
-        state_class=SensorDeviceClass.PM25,
+        device_class=SensorDeviceClass.PM25,
         si_unit=CONCENTRATION_MICROGRAMS_PER_CUBIC_METER,
         us_unit=CONCENTRATION_MICROGRAMS_PER_CUBIC_METER,
         ca_unit=CONCENTRATION_MICROGRAMS_PER_CUBIC_METER,
@@ -405,7 +403,7 @@ SENSOR_TYPES: dict[str, PirateWeatherSensorEntityDescription] = {
     "smoke_max": PirateWeatherSensorEntityDescription(
         key="smoke_max",
         name="Smoke Max",
-        state_class=SensorDeviceClass.PM25,
+        device_class=SensorDeviceClass.PM25,
         si_unit=CONCENTRATION_MICROGRAMS_PER_CUBIC_METER,
         us_unit=CONCENTRATION_MICROGRAMS_PER_CUBIC_METER,
         ca_unit=CONCENTRATION_MICROGRAMS_PER_CUBIC_METER,
