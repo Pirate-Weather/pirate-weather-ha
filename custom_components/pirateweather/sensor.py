@@ -376,6 +376,7 @@ SENSOR_TYPES: dict[str, PirateWeatherSensorEntityDescription] = {
     "fire_index": PirateWeatherSensorEntityDescription(
         key="fire_index",
         name="Fire Index",
+        state_class=SensorStateClass.MEASUREMENT,
         suggested_display_precision=2,
         icon="mdi:fire",
         forecast_mode=["currently", "hourly"],
@@ -383,6 +384,7 @@ SENSOR_TYPES: dict[str, PirateWeatherSensorEntityDescription] = {
     "fire_index_max": PirateWeatherSensorEntityDescription(
         key="fire_index_max",
         name="Fire Index Max",
+        state_class=SensorStateClass.MEASUREMENT,
         suggested_display_precision=2,
         icon="mdi:fire",
         forecast_mode=["daily"],
