@@ -45,7 +45,7 @@ class WeatherUpdateCoordinator(DataUpdateCoordinator):
         async with async_timeout.timeout(60):
             try:
                 data = await self._get_pw_weather()
-                _LOGGER.info(
+                _LOGGER.debug(
                     "Pirate Weather data update for "
                     + str(self.latitude)
                     + ","
