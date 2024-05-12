@@ -123,6 +123,10 @@ ALL_CONDITIONS = {
     "liquid_accumulation": "Liquid Accumulation",
     "snow_accumulation": "Snow Accumulation",
     "ice_accumulation": "Ice Accumulation",
+    "apparent_temperature_high_time": "Daytime High Apparent Temperature Time",
+    "apparent_temperature_low_time": "Overnight Low Apparent Temperature Time",
+    "temperature_high_time": "Daytime High Temperature Time",
+    "temperature_min_time": "Daily Low Temperature Time",
 }
 
 LANGUAGES = [
