@@ -454,6 +454,12 @@ SENSOR_TYPES: dict[str, PirateWeatherSensorEntityDescription] = {
         suggested_display_precision=2,
         forecast_mode=["daily"],
     ),
+    "apparent_temperature_high_time": PirateWeatherSensorEntityDescription(
+        key="apparent_temperature_high_time",
+        name="Daytime High Apparent Temperature Time",
+        icon="mdi:clock-time-three-outline",
+        forecast_mode=["daily"],
+    ),
     "apparent_temperature_min": PirateWeatherSensorEntityDescription(
         key="apparent_temperature_min",
         name="Daily Low Apparent Temperature",
@@ -478,6 +484,12 @@ SENSOR_TYPES: dict[str, PirateWeatherSensorEntityDescription] = {
         uk_unit=UnitOfTemperature.CELSIUS,
         uk2_unit=UnitOfTemperature.CELSIUS,
         suggested_display_precision=2,
+        forecast_mode=["daily"],
+    ),
+    "apparent_temperature_low_time": PirateWeatherSensorEntityDescription(
+        key="apparent_temperature_low_time",
+        name="Overnight Low Apparent Temperature Time",
+        icon="mdi:clock-time-three-outline",
         forecast_mode=["daily"],
     ),
     "temperature_max": PirateWeatherSensorEntityDescription(
@@ -506,6 +518,12 @@ SENSOR_TYPES: dict[str, PirateWeatherSensorEntityDescription] = {
         suggested_display_precision=2,
         forecast_mode=["daily"],
     ),
+    "temperature_high_time": PirateWeatherSensorEntityDescription(
+        key="temperature_high_time",
+        name="Daytime High Temperature Time",
+        icon="mdi:clock-time-three-outline",
+        forecast_mode=["daily"],
+    ),
     "temperature_min": PirateWeatherSensorEntityDescription(
         key="temperature_min",
         name="Daily Low Temperature",
@@ -517,6 +535,12 @@ SENSOR_TYPES: dict[str, PirateWeatherSensorEntityDescription] = {
         uk_unit=UnitOfTemperature.CELSIUS,
         uk2_unit=UnitOfTemperature.CELSIUS,
         suggested_display_precision=2,
+        forecast_mode=["daily"],
+    ),
+    "temperature_min_time": PirateWeatherSensorEntityDescription(
+        key="temperature_min_time",
+        name="Daily Low Temperature Time",
+        icon="mdi:clock-time-three-outline",
         forecast_mode=["daily"],
     ),
     "temperature_low": PirateWeatherSensorEntityDescription(
