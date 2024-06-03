@@ -16,7 +16,7 @@ body:
       label: Home Assistant version
       description: You can find your Home Assistant version in **Settings > About.**.
       placeholder: |
-        Example: "2023.2.5"
+        Example: "2024.6.1"
 
   - type: input
     id: integration-version
@@ -24,7 +24,7 @@ body:
       label: Integration version
       description: You can find this by going to **HACS > Pirate Weather.** The number beside the box is the version of the integration you are running.
       placeholder: |
-        Example: "1.2"
+        Example: "1.5.2"
 
   - type: checkboxes
     id: acknowledgements

@@ -1,5 +1,5 @@
 name: Documentation Issue
-description: Report an issue with the PirateWeather API documentation.
+description: Report an issue with the PirateWeather HA documentation.
 labels: ["documentation" , "Needs Review"]
 body:
 
@@ -7,7 +7,7 @@ body:
     id: describe-the-issue
     attributes:
       label: Describe the issue
-      description: Describe the issue with the API documentation
+      description: Describe the issue with the HA documentation
     validations:
       required: true
       

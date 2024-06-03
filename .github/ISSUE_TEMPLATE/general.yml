@@ -16,7 +16,7 @@ body:
       label: Home Assistant version
       description: You can find your Home Assistant version in **Settings > About**.
       placeholder: |
-        Example: "2023.2.5"
+        Example: "2024.6.1"
 
   - type: input
     id: integration-version
@@ -24,7 +24,7 @@ body:
       label: Integration version
       description: You can find this by going to **HACS > Pirate Weather.** The number beside the box is the version of the integration you are running.
       placeholder: |
-        Example: "1.2"
+        Example: "1.5.2"
 
   - type: checkboxes
     id: acknowledgements
@@ -36,13 +36,13 @@ body:
           required: true
         - label: I have updated the Pirate Weather Integration to the latest version.
           required: true
-        - label: I have gone through the [documentation](https://pirateweather.net/en/latest/ha/), [parameter documentation](https://web.archive.org/web/20230128172320/https://www.home-assistant.io/integrations/weather.darksky/) and [sensor documentation](https://web.archive.org/web/20230326100953/https://www.home-assistant.io/integrations/darksky) before opening this issue.
+        - label: I have gone through the [documentation](https://pirateweather.net/en/latest/ha/) before opening this issue.
           required: true
-        - label: I have searched this repository and [Pirate Weather Repository](https://github.com/alexander0042/pirate-weather-ha) to see if the issue has already been reported.
+        - label: I have searched this repository and [API Repository](https://github.com/alexander0042/pirate-weather-ha) to see if the issue has already been reported.
           required: true
         - label: I have restarted my Home Assistant installation.
           required: true
-        - label: I have checked to see if the issue is not an API issue.
+        - label: I have queried the API in my browser to confirm the issue is not with the API.
           required: true
         - label: I have written an informative title.
           required: true

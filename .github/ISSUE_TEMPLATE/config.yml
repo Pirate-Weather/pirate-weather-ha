@@ -2,4 +2,4 @@ blank_issues_enabled: false
 contact_links:
   - name: API Repository
     url: https://github.com/Pirate-Weather/pirateweather/
-    about: Please report any issues with the API here.
+    about: Report issues with and request features to the API here.
