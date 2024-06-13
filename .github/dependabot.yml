@@ -13,8 +13,19 @@ updates:
       timezone: "America/Toronto"
     open-pull-requests-limit: 100
     ignore:
-      # Dependabot should not update Home Assistant as that should match the homeassistant key in hacs.json
+      # Update homeassistant monthly
       - dependency-name: "homeassistant"
+    directory: "/" # Location of package manifests
+    schedule:
+      interval: "monthly"
+      time: "17:00"
+      timezone: "America/Toronto"
+    open-pull-requests-limit: 100
+    ignore:
+      # Update all other dependencies daily
+      - dependency-name: "colorlog"
+      - dependency-name: "pip"
+      - dependency-name: "ruff"
 
   - package-ecosystem: "github-actions"
     directory: "/"
