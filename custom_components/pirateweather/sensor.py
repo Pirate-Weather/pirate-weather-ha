@@ -882,7 +882,6 @@ class PirateWeatherSensor(SensorEntity):
         """Initialize the sensor."""
         self.client_name = name
 
-        description = description
         self.entity_description = description
         self.description = description
 
@@ -976,10 +975,9 @@ class PirateWeatherSensor(SensorEntity):
         if self.type == "alerts":
             extraATTR = self._alerts
             extraATTR[ATTR_ATTRIBUTION] = ATTRIBUTION
-
-            return extraATTR
         else:
-            return {ATTR_ATTRIBUTION: ATTRIBUTION}
+            extraATTR = {ATTR_ATTRIBUTION: ATTRIBUTION}
+        return extraATTR
 
     @property
     def native_value(self) -> StateType:
@@ -1124,25 +1122,6 @@ class PirateWeatherSensor(SensorEntity):
                 "wind_gust",
             ]:
                 state = state * 3.6
-
-        if self.type in [
-            "uv_index",
-        ]:
-            if state < 0 or state > 20:
-                _LOGGER.warning(
-                    "UV Index is reporting %s which is outside the expected range! Setting UV Index to -1! Please report this issue to https://github.com/Pirate-Weather/pirateweather if not already reported.",
-                    state,
-                )
-                state = -1
-        if self.type in [
-            "cloud_cover",
-        ]:
-            if state > 100:
-                _LOGGER.warning(
-                    "Cloud cover is reporting %s which is above 100%! Please report this issue to https://github.com/Pirate-Weather/pirateweather if not already reported.",
-                    state,
-                )
-                state = 100
 
         if self.type in [
             "dew_point",

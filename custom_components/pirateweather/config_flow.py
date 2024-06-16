@@ -5,7 +5,6 @@ from datetime import timedelta
 
 import aiohttp
 import homeassistant.helpers.config_validation as cv
-from httpx import HTTPError
 import voluptuous as vol
 from homeassistant import config_entries
 from homeassistant.const import (
@@ -18,6 +17,7 @@ from homeassistant.const import (
     CONF_SCAN_INTERVAL,
 )
 from homeassistant.core import callback
+from httpx import HTTPError
 
 from .const import (
     ALL_CONDITIONS,
@@ -298,6 +298,4 @@ async def _is_pw_api_online(hass, api_key, lat, lon):
         aiohttp.ClientSession(raise_for_status=False) as session,
         session.get(forecastString) as resp,
     ):
-        status = resp.status
-
-    return status
+        return resp.status

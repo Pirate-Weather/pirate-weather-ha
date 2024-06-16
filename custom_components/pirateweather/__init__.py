@@ -61,7 +61,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     # _LOGGER.warning(forecast_days)
     if isinstance(forecast_days, str):
         # If empty, set to none
-        if forecast_days == "" or forecast_days == "None":
+        if forecast_days in {"", "None"}:
             forecast_days = None
         else:
             if forecast_days[0] == "[":
@@ -72,7 +72,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
 
     if isinstance(forecast_hours, str):
         # If empty, set to none
-        if forecast_hours == "" or forecast_hours == "None":
+        if forecast_hours in {"", "None"}:
             forecast_hours = None
         else:
             if forecast_hours[0] == "[":
