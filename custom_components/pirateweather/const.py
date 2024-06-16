@@ -18,13 +18,13 @@ from homeassistant.components.weather import (
 )
 from homeassistant.const import (
     DEGREE,
-    UnitOfLength,
     PERCENTAGE,
+    UV_INDEX,
+    Platform,
+    UnitOfLength,
     UnitOfPressure,
     UnitOfSpeed,
     UnitOfTemperature,
-    UV_INDEX,
-    Platform,
 )
 
 DOMAIN = "pirateweather"

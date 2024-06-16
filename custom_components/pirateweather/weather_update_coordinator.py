@@ -1,15 +1,12 @@
 """Weather data coordinator for the Pirate Weather service."""
 
+import json
 import logging
 
+import aiohttp
 import async_timeout
 from forecastio.models import Forecast
-import json
-import aiohttp
-
-
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, UpdateFailed
-
 
 from .const import (
     DOMAIN,
@@ -57,7 +54,6 @@ class WeatherUpdateCoordinator(DataUpdateCoordinator):
 
     async def _get_pw_weather(self):
         """Poll weather data from PW."""
-
         forecastString = (
             "https://api.pirateweather.net/forecast/"
             + self._api_key

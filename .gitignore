@@ -8,3 +8,4 @@ venv
 .HA_VERSION
 config/.storage/*
 config/blueprints/*
+.ruff_cache
