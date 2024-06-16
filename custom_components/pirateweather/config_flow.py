@@ -5,6 +5,7 @@ from datetime import timedelta
 
 import aiohttp
 import homeassistant.helpers.config_validation as cv
+from httpx import HTTPError
 import voluptuous as vol
 from homeassistant import config_entries
 from homeassistant.const import (
@@ -127,16 +128,18 @@ class PirateWeatherConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                         "Invalid API Key, Ensure that you've subscribed to API at https://pirate-weather.apiable.io/"
                     )
 
-            except Exception:
-                _LOGGER.warning("Pirate Weather Setup Error: HTTP Error: " + api_status)
-                errors["base"] = "API Error: " + api_status
+            except HTTPError:
+                _LOGGER.warning(
+                    "Pirate Weather Setup Error: API HTTP Error: %s", api_status
+                )
+                errors["base"] = "API Error: %s", api_status
 
-            if not errors:
+            if errors:
+                _LOGGER.warning(errors)
+            else:
                 return self.async_create_entry(
                     title=user_input[CONF_NAME], data=user_input
                 )
-            else:
-                _LOGGER.warning(errors)
 
         return self.async_show_form(step_id="user", data_schema=schema, errors=errors)
 

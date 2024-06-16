@@ -1128,16 +1128,12 @@ class PirateWeatherSensor(SensorEntity):
         if self.type in [
             "uv_index",
         ]:
-            if state < 0:
-                state = 0
+            if state < 0 or state > 20:
                 _LOGGER.warning(
-                    "Setting UV Index to 0 as is below 0! Please report this issue to https://github.com/Pirate-Weather/pirateweather if not already reported."
+                    "UV Index is reporting %s which is outside the expected range! Setting UV Index to -1! Please report this issue to https://github.com/Pirate-Weather/pirateweather if not already reported.",
+                    state,
                 )
-            elif state > 20:
-                state = 20
-                _LOGGER.warning(
-                    "Setting UV Index to 20 as is above 20! Please report this issue to https://github.com/Pirate-Weather/pirateweather if not already reported."
-                )
+                state = -1
         if self.type in [
             "cloud_cover",
         ]:
