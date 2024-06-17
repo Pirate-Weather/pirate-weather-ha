@@ -43,8 +43,7 @@ class WeatherUpdateCoordinator(DataUpdateCoordinator):
         async with async_timeout.timeout(60):
             try:
                 data = await self._get_pw_weather()
-                _LOGGER.debug(
-                    "Pirate Weather data update")
+                _LOGGER.debug("Pirate Weather data update")
             except HTTPException as err:
                 raise UpdateFailed(f"Error communicating with API: {err}") from err
         return data
