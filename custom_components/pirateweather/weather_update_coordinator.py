@@ -44,10 +44,7 @@ class WeatherUpdateCoordinator(DataUpdateCoordinator):
             try:
                 data = await self._get_pw_weather()
                 _LOGGER.debug(
-                    "Pirate Weather data update for %s, %s",
-                    str(self.latitude),
-                    str(self.longitude),
-                )
+                    "Pirate Weather data update")
             except HTTPException as err:
                 raise UpdateFailed(f"Error communicating with API: {err}") from err
         return data
