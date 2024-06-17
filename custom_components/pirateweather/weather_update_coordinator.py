@@ -1,15 +1,13 @@
 """Weather data coordinator for the Pirate Weather service."""
 
+import json
 import logging
+from http.client import HTTPException
 
+import aiohttp
 import async_timeout
 from forecastio.models import Forecast
-import json
-import aiohttp
-
-
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, UpdateFailed
-
 
 from .const import (
     DOMAIN,
@@ -45,19 +43,13 @@ class WeatherUpdateCoordinator(DataUpdateCoordinator):
         async with async_timeout.timeout(60):
             try:
                 data = await self._get_pw_weather()
-                _LOGGER.debug(
-                    "Pirate Weather data update for "
-                    + str(self.latitude)
-                    + ","
-                    + str(self.longitude)
-                )
-            except Exception as err:
-                raise UpdateFailed(f"Error communicating with API: {err}")
+                _LOGGER.debug("Pirate Weather data update")
+            except HTTPException as err:
+                raise UpdateFailed(f"Error communicating with API: {err}") from err
         return data
 
     async def _get_pw_weather(self):
         """Poll weather data from PW."""
-
         forecastString = (
             "https://api.pirateweather.net/forecast/"
             + self._api_key
@@ -80,5 +72,4 @@ class WeatherUpdateCoordinator(DataUpdateCoordinator):
             headers = resp.headers
             status = resp.raise_for_status()
 
-            data = Forecast(jsonText, status, headers)
-        return data
+            return Forecast(jsonText, status, headers)

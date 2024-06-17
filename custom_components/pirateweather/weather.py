@@ -4,20 +4,12 @@ from __future__ import annotations
 
 import logging
 
-import voluptuous as vol
-
 import homeassistant.helpers.config_validation as cv
-from homeassistant.util.dt import utc_from_timestamp
-from homeassistant.helpers.entity_platform import AddEntitiesCallback
-from homeassistant.config_entries import SOURCE_IMPORT, ConfigEntry
-from homeassistant.core import HomeAssistant, callback
-from .weather_update_coordinator import WeatherUpdateCoordinator
-from homeassistant.helpers.typing import DiscoveryInfoType
-
-
+import voluptuous as vol
 from homeassistant.components.weather import (
     ATTR_CONDITION_CLEAR_NIGHT,
     ATTR_CONDITION_CLOUDY,
+    ATTR_CONDITION_EXCEPTIONAL,
     ATTR_CONDITION_FOG,
     ATTR_CONDITION_HAIL,
     ATTR_CONDITION_LIGHTNING,
@@ -27,14 +19,12 @@ from homeassistant.components.weather import (
     ATTR_CONDITION_SNOWY_RAINY,
     ATTR_CONDITION_SUNNY,
     ATTR_CONDITION_WINDY,
-    ATTR_CONDITION_EXCEPTIONAL,
     PLATFORM_SCHEMA,
     Forecast,
-    WeatherEntityFeature,
     SingleCoordinatorWeatherEntity,
+    WeatherEntityFeature,
 )
-
-
+from homeassistant.config_entries import SOURCE_IMPORT, ConfigEntry
 from homeassistant.const import (
     CONF_API_KEY,
     CONF_LATITUDE,
@@ -42,25 +32,30 @@ from homeassistant.const import (
     CONF_MODE,
     CONF_NAME,
     CONF_SCAN_INTERVAL,
+    UnitOfLength,
     UnitOfPrecipitationDepth,
     UnitOfPressure,
     UnitOfSpeed,
     UnitOfTemperature,
-    UnitOfLength,
 )
+from homeassistant.core import HomeAssistant, callback
+from homeassistant.helpers.entity_platform import AddEntitiesCallback
+from homeassistant.helpers.typing import DiscoveryInfoType
+from homeassistant.util.dt import utc_from_timestamp
 
 from .const import (
+    CONF_UNITS,
     DEFAULT_NAME,
     DEFAULT_SCAN_INTERVAL,
     DOMAIN,
-    FORECAST_MODES,
-    CONF_UNITS,
     ENTRY_WEATHER_COORDINATOR,
-    PW_PLATFORMS,
+    FORECAST_MODES,
     PW_PLATFORM,
+    PW_PLATFORMS,
     PW_PREVPLATFORM,
     PW_ROUND,
 )
+from .weather_update_coordinator import WeatherUpdateCoordinator
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -326,7 +321,6 @@ class PirateWeather(SingleCoordinatorWeatherEntity[WeatherUpdateCoordinator]):
     @property
     def condition(self):
         """Return the weather condition."""
-
         return MAP_CONDITION.get(
             self._weather_coordinator.data.currently().d.get("icon")
         )

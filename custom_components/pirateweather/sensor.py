@@ -1,14 +1,12 @@
 """Support for Pirate Weather (Dark Sky Compatable) weather service."""
 
 import logging
-
 from dataclasses import dataclass, field
+from typing import Literal, NamedTuple
 
-import voluptuous as vol
 import homeassistant.helpers.config_validation as cv
 import homeassistant.helpers.template as template_helper
-
-
+import voluptuous as vol
 from homeassistant.components.sensor import (
     PLATFORM_SCHEMA,
     SensorDeviceClass,
@@ -16,14 +14,7 @@ from homeassistant.components.sensor import (
     SensorEntityDescription,
     SensorStateClass,
 )
-from typing import Literal, NamedTuple
-
 from homeassistant.config_entries import SOURCE_IMPORT, ConfigEntry
-from homeassistant.core import HomeAssistant
-from homeassistant.helpers.entity_platform import AddEntitiesCallback
-from homeassistant.helpers.typing import StateType
-from homeassistant.helpers.typing import DiscoveryInfoType
-
 from homeassistant.const import (
     ATTR_ATTRIBUTION,
     CONCENTRATION_MICROGRAMS_PER_CUBIC_METER,
@@ -35,27 +26,28 @@ from homeassistant.const import (
     CONF_SCAN_INTERVAL,
     DEGREE,
     PERCENTAGE,
+    UV_INDEX,
+    UnitOfLength,
+    UnitOfPrecipitationDepth,
     UnitOfPressure,
     UnitOfSpeed,
     UnitOfTemperature,
-    UnitOfLength,
     UnitOfVolumetricFlux,
-    UnitOfPrecipitationDepth,
-    UV_INDEX,
 )
+from homeassistant.core import HomeAssistant
+from homeassistant.helpers.entity_platform import AddEntitiesCallback
+from homeassistant.helpers.typing import DiscoveryInfoType, StateType
 
 from .const import (
+    ALL_CONDITIONS,
     DEFAULT_SCAN_INTERVAL,
     DOMAIN,
     ENTRY_WEATHER_COORDINATOR,
-    ALL_CONDITIONS,
-    PW_PLATFORMS,
     PW_PLATFORM,
+    PW_PLATFORMS,
     PW_PREVPLATFORM,
     PW_ROUND,
 )
-
-
 from .weather_update_coordinator import WeatherUpdateCoordinator
 
 _LOGGER = logging.getLogger(__name__)
@@ -786,7 +778,6 @@ async def async_setup_entry(
     async_add_entities: AddEntitiesCallback,
 ) -> None:
     """Set up Pirate Weather sensor entities based on a config entry."""
-
     domain_data = hass.data[DOMAIN][config_entry.entry_id]
 
     name = domain_data[CONF_NAME]
@@ -891,7 +882,6 @@ class PirateWeatherSensor(SensorEntity):
         """Initialize the sensor."""
         self.client_name = name
 
-        description = description
         self.entity_description = description
         self.description = description
 
@@ -985,15 +975,13 @@ class PirateWeatherSensor(SensorEntity):
         if self.type == "alerts":
             extraATTR = self._alerts
             extraATTR[ATTR_ATTRIBUTION] = ATTRIBUTION
-
-            return extraATTR
         else:
-            return {ATTR_ATTRIBUTION: ATTRIBUTION}
+            extraATTR = {ATTR_ATTRIBUTION: ATTRIBUTION}
+        return extraATTR
 
     @property
     def native_value(self) -> StateType:
         """Return the state of the device."""
-
         self.update_unit_of_measurement()
 
         if self.type == "alerts":

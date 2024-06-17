@@ -3,35 +3,31 @@
 from __future__ import annotations
 
 import logging
+from datetime import timedelta
 from typing import Any
 
-
-from datetime import timedelta
-
 from homeassistant.config_entries import ConfigEntry
-
-
 from homeassistant.const import (
     CONF_API_KEY,
     CONF_LATITUDE,
     CONF_LONGITUDE,
     CONF_MODE,
-    CONF_NAME,
     CONF_MONITORED_CONDITIONS,
+    CONF_NAME,
     CONF_SCAN_INTERVAL,
 )
 from homeassistant.core import HomeAssistant
 
 from .const import (
+    CONF_UNITS,
     DOMAIN,
     ENTRY_NAME,
     ENTRY_WEATHER_COORDINATOR,
     PLATFORMS,
-    UPDATE_LISTENER,
-    CONF_UNITS,
-    PW_PLATFORMS,
     PW_PLATFORM,
+    PW_PLATFORMS,
     PW_ROUND,
+    UPDATE_LISTENER,
 )
 
 # from .weather_update_coordinator import WeatherUpdateCoordinator, DarkSkyData
@@ -65,7 +61,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     # _LOGGER.warning(forecast_days)
     if isinstance(forecast_days, str):
         # If empty, set to none
-        if forecast_days == "" or forecast_days == "None":
+        if forecast_days in {"", "None"}:
             forecast_days = None
         else:
             if forecast_days[0] == "[":
@@ -76,7 +72,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
 
     if isinstance(forecast_hours, str):
         # If empty, set to none
-        if forecast_hours == "" or forecast_hours == "None":
+        if forecast_hours in {"", "None"}:
             forecast_hours = None
         else:
             if forecast_hours[0] == "[":
@@ -137,7 +133,6 @@ async def async_update_options(hass: HomeAssistant, entry: ConfigEntry) -> None:
 
 async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     """Unload a config entry."""
-
     pw_entity_prevplatform = hass.data[DOMAIN][entry.entry_id][PW_PLATFORM]
 
     # If both
