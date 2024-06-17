@@ -1,0 +1,36 @@
+name: "Release"
+
+on:
+  release:
+    types:
+      - "published"
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    name: "Release"
+    runs-on: "ubuntu-latest"
+    permissions:
+      contents: write
+    steps:
+      - name: "Checkout the repository"
+        uses: "actions/checkout@v4.1.6"
+
+      - name: "Adjust version number"
+        shell: "bash"
+        run: |
+          yq -i -o json '.version="${{ github.event.release.tag_name }}"' \
+            "${{ github.workspace }}/custom_components/pirateweather/manifest.json"
+
+      - name: "ZIP the integration directory"
+        shell: "bash"
+        run: |
+          cd "${{ github.workspace }}/custom_components/pirateweather"
+          zip pirateweather.zip -r ./
+
+      - name: "Upload the ZIP file to the release"
+        uses: softprops/action-gh-release@v2.0.5
+        with:
+          files: ${{ github.workspace }}/custom_components/pirateweather/pirateweather.zip
