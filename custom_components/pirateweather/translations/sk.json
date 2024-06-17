@@ -1,0 +1,60 @@
+{
+  "config": {
+    "abort": {
+      "already_configured": "Miesto je už nakonfigurované"
+    },
+    "error": {
+      "cannot_connect": "Nepodarilo sa pripojiť",
+      "invalid_api_key": "Neplatný API kľúč"
+    },
+    "step": {
+      "user": {
+        "data": {
+          "api_key": "API kľúč",
+          "language": "Jazyk",
+          "latitude": "Zemepisná šírka",
+          "longitude": "Zemepisná dĺžka",
+          "mode": "Režim predpovede pre entitu Počasie",
+          "name": "Názov integrácie",
+          "units": "Jednotky pre senzory. Používa sa iba ak sú požadované senzory.",
+          "forecast": "Denné predpovede senzorov vo formáte csv od 0 do 7 (napr. '0,1,3'). Používa sa iba ak sú požadované senzory.",
+          "hourly_forecast": "Hodinové predpovede senzorov vo formáte csv od 0 do 168 (napr. '0,1,10'). Používa sa iba ak sú požadované senzory.",
+          "monitored_conditions": "Monitorované podmienky pre vytváranie senzorov. Používa sa iba ak sú požadované senzory.",
+          "pw_platform": "Entita počasia a/alebo entita senzoru. Senzor vytvorí entity pre každú podmienku v každom čase. Ak si nie ste istí, vyberte iba Počasie!",
+          "pw_round": "Zaokrúhliť hodnoty na najbližšie celé číslo. Uistite sa, že vybrané jednotky zodpovedajú systémovým jednotkám.",
+          "scan_interval": "Sekundy čakania medzi aktualizáciami. Zníženie tejto hodnoty pod 900 sekúnd (15 minút) sa neodporúča."
+        },
+        "description": "Nastavte integráciu Pirate Weather. Pre generovanie API kľúča choďte na https://pirateweather.net",
+        "data_description": {
+          "forecast": "napr. '0,1,4' (bez úvodzoviek)",
+          "hourly_forecast": "napr. '0,1,4' (bez úvodzoviek)"
+        }
+      }
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "data": {
+          "api_key": "API kľúč",
+          "language": "Jazyk",
+          "latitude": "Zemepisná šírka",
+          "longitude": "Zemepisná dĺžka",
+          "mode": "Režim predpovede pre Entitu Počasie",
+          "name": "Názov integrácie",
+          "units": "Jednotky pre senzory. Používa sa iba ak sú požadované senzory.",
+          "forecast": "Denné predpovede senzorov vo formáte csv od 0 do 7 (napr. '0,1,3'). Používa sa iba ak sú požadované senzory.\n POZNÁMKA: Odstránenie senzorov spôsobí, že vzniknú nedostupné entity, ktoré je potrebné vymazať.",
+          "hourly_forecast": "Hodinové predpovede senzorov vo formáte csv od 0 do 168 (napr. '0,1,10'). Používa sa iba ak sú požadované senzory.\n POZNÁMKA: Odstránenie senzorov spôsobí, že vzniknú nedostupné entity, ktoré je potrebné vymazať.",
+          "monitored_conditions": "Monitorované podmienky pre vytváranie senzorov. Používa sa iba ak sú požadované senzory.\n POZNÁMKA: Odstránenie senzorov spôsobí, že vzniknú nedostupné entity, ktoré je potrebné vymazať.",
+          "pw_platform": "Entita Počasie a/alebo Entita Senzoru. Senzor vytvorí entity pre každú podmienku v každom čase. Ak si nie ste istí, vyberte iba Počasie!",
+          "pw_round": "Zaokrúhliť hodnoty na najbližšie celé číslo. Uistite sa, že vybrané jednotky zodpovedajú systémovým jednotkám."
+        },
+        "description": "Nastavte integráciu Pirate Weather. Pre vygenerovanie API kľúča choďte na https://pirateweather.net",
+        "data_description": {
+          "forecast": "napr. '0,1,4'.\n Pre odstránenie existujúcich senzorov napíšte 'None' (bez úvodzoviek).",
+          "hourly_forecast": "napr. '0,1,4'.\n Pre odstránenie existujúcich senzorov napíšte 'None' (bez úvodzoviek)."
+        }
+      }
+    }
+  }
+}
