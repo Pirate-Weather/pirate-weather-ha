@@ -109,17 +109,8 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         CONF_SCAN_INTERVAL: pw_scan_Int,
     }
 
-    # If both platforms
-    if (PW_PLATFORMS[0] in pw_entity_platform) and (
-        PW_PLATFORMS[1] in pw_entity_platform
-    ):
-        await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
-    # If only sensor
-    elif PW_PLATFORMS[0] in pw_entity_platform:
-        await hass.config_entries.async_forward_entry_setup(entry, PLATFORMS[0])
-    # If only weather
-    elif PW_PLATFORMS[1] in pw_entity_platform:
-        await hass.config_entries.async_forward_entry_setup(entry, PLATFORMS[1])
+    # Setup platforms
+    await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
 
     update_listener = entry.add_update_listener(async_update_options)
     hass.data[DOMAIN][entry.entry_id][UPDATE_LISTENER] = update_listener
