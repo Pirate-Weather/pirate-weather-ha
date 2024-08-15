@@ -1,13 +1,13 @@
 """Support for Pirate Weather (Dark Sky Compatable) weather service."""
 
 import logging
-from datetime import fromtimestamp
 from dataclasses import dataclass, field
+from datetime import fromtimestamp
 from typing import Literal, NamedTuple
 
+import voluptuous as vol
 import homeassistant.helpers.config_validation as cv
 import homeassistant.helpers.template as template_helper
-import voluptuous as vol
 from homeassistant.components.sensor import (
     PLATFORM_SCHEMA,
     SensorDeviceClass,
