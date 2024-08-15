@@ -234,7 +234,7 @@ class PirateWeatherOptionsFlow(config_entries.OptionsFlow):
                                 CONF_SCAN_INTERVAL, DEFAULT_SCAN_INTERVAL
                             ),
                         ),
-                    ): int,                      
+                    ): int,
                     vol.Required(
                         PW_PLATFORM,
                         default=self.config_entry.options.get(

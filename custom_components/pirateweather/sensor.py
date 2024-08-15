@@ -5,9 +5,9 @@ from dataclasses import dataclass, field
 from datetime import fromtimestamp
 from typing import Literal, NamedTuple
 
-import voluptuous as vol
 import homeassistant.helpers.config_validation as cv
 import homeassistant.helpers.template as template_helper
+import voluptuous as vol
 from homeassistant.components.sensor import (
     PLATFORM_SCHEMA,
     SensorDeviceClass,
@@ -1162,8 +1162,8 @@ class PirateWeatherSensor(SensorEntity):
             "precip_intensity_max",
         ]:
             outState = round(state, roundingPrecip)
-            
-        # Convert unix times to datetimes times 
+
+        # Convert unix times to datetimes times
         elif self.type in [
             "temperature_high_time",
             "temperature_low_time",

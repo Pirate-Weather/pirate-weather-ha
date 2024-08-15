@@ -109,7 +109,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         CONF_SCAN_INTERVAL: pw_scan_Int,
     }
 
-    # Setup platforms   
+    # Setup platforms
     # If both platforms
     if (PW_PLATFORMS[0] in pw_entity_platform) and (
         PW_PLATFORMS[1] in pw_entity_platform

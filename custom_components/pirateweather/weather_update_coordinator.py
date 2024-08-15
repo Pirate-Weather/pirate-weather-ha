@@ -49,17 +49,17 @@ class WeatherUpdateCoordinator(DataUpdateCoordinator):
 
     async def _get_pw_weather(self):
         """Poll weather data from PW."""
-        
+
         if self.latitude == 0.0:
           requestLatitude = self.hass.config.latitude
         else:
           requestLatitude = self.latitude
-          
+
         if self.longitude == 0.0:
           requestLongitude = self.hass.config.latitude
         else:
           requestLongitude = self.longitude
-          
+
         forecastString = (
             "https://api.pirateweather.net/forecast/"
             + self._api_key
