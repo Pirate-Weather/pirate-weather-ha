@@ -1,7 +1,8 @@
 """Support for Pirate Weather (Dark Sky Compatable) weather service."""
-from datetime import datetime
+
 import logging
 from dataclasses import dataclass, field
+import datetime as datetime
 from typing import Literal, NamedTuple
 
 import homeassistant.helpers.config_validation as cv
