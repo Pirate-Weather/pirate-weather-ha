@@ -1,8 +1,8 @@
 """Support for Pirate Weather (Dark Sky Compatable) weather service."""
 
 import logging
+from datetime import fromtimestamp
 from dataclasses import dataclass, field
-import datetime as datetime
 from typing import Literal, NamedTuple
 
 import homeassistant.helpers.config_validation as cv
@@ -1172,7 +1172,7 @@ class PirateWeatherSensor(SensorEntity):
             "sunrise_time",
             "sunset_time",
         ]:
-            outState = datetime.fromtimestamp(state)
+            outState = fromtimestamp(state)
         else:
             outState = state
 
