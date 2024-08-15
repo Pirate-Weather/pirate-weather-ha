@@ -51,14 +51,14 @@ class WeatherUpdateCoordinator(DataUpdateCoordinator):
         """Poll weather data from PW."""
 
         if self.latitude == 0.0:
-          requestLatitude = self.hass.config.latitude
+            requestLatitude = self.hass.config.latitude
         else:
-          requestLatitude = self.latitude
+            requestLatitude = self.latitude
 
         if self.longitude == 0.0:
-          requestLongitude = self.hass.config.latitude
+            requestLongitude = self.hass.config.latitude
         else:
-          requestLongitude = self.longitude
+            requestLongitude = self.longitude
 
         forecastString = (
             "https://api.pirateweather.net/forecast/"
