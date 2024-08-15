@@ -1,5 +1,5 @@
 """Support for Pirate Weather (Dark Sky Compatable) weather service."""
-from datetime import datetim
+from datetime import datetime
 import logging
 from dataclasses import dataclass, field
 from typing import Literal, NamedTuple

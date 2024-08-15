@@ -40,7 +40,7 @@
                     "language": "Language",
                     "latitude": "Latitude. Set as 0 to use current location",
                     "longitude": "Longitude. Set as 0 to use current location",
-					"scan_interval": "Seconds to wait between updates. Reducing this below 900 seconds (15 minutes) is not recomended."   
+					"scan_interval": "Seconds to wait between updates. Reducing this below 900 seconds (15 minutes) is not recomended.",
                     "mode": "Forecast mode for the Weather entity",
                     "name": "Integration Name",
                     "units": "Units for sensors. Only used for if sensors are requested.",

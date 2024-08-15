@@ -82,9 +82,6 @@ class WeatherUpdateCoordinator(DataUpdateCoordinator):
             headers = resp.headers
             status = resp.raise_for_status()
 
-            _LOGGER.debug("Pirate Weather data update for "
-                    + str(requestLatitude)
-                    + ","
-                    + str(requestLongitude))
+            _LOGGER.debug("Pirate Weather data update")
 
             return Forecast(jsonText, status, headers)
