@@ -43,20 +43,30 @@ class WeatherUpdateCoordinator(DataUpdateCoordinator):
         async with async_timeout.timeout(60):
             try:
                 data = await self._get_pw_weather()
-                _LOGGER.debug("Pirate Weather data update")
             except HTTPException as err:
                 raise UpdateFailed(f"Error communicating with API: {err}") from err
         return data
 
     async def _get_pw_weather(self):
         """Poll weather data from PW."""
+        
+        if self.latitude == 0.0:
+          requestLatitude = self.hass.config.latitude
+        else:
+          requestLatitude = self.latitude
+          
+        if self.longitude == 0.0:
+          requestLongitude = self.hass.config.latitude
+        else:
+          requestLongitude = self.longitude
+          
         forecastString = (
             "https://api.pirateweather.net/forecast/"
             + self._api_key
             + "/"
-            + str(self.latitude)
+            + str(requestLatitude)
             + ","
-            + str(self.longitude)
+            + str(requestLongitude)
             + "?units="
             + self.requested_units
             + "&extend=hourly"
@@ -71,5 +81,10 @@ class WeatherUpdateCoordinator(DataUpdateCoordinator):
             jsonText = json.loads(resptext)
             headers = resp.headers
             status = resp.raise_for_status()
+
+            _LOGGER.debug("Pirate Weather data update for "
+                    + str(requestLatitude)
+                    + ","
+                    + str(requestLongitude))
 
             return Forecast(jsonText, status, headers)

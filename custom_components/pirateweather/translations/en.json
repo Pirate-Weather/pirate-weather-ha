@@ -12,8 +12,8 @@
                 "data": {
                     "api_key": "API Key",
                     "language": "Language",
-                    "latitude": "Latitude",
-                    "longitude": "Longitude",
+                    "latitude": "Latitude. Set as 0 to use current location",
+                    "longitude": "Longitude. Set as 0 to use current location",
                     "mode": "Forecast mode for the Weather entity",
                     "name": "Integration Name",
                     "units": "Units for sensors. Only used for if sensors are requested.",
@@ -38,8 +38,9 @@
                 "data": {
                     "api_key": "API Key",
                     "language": "Language",
-                    "latitude": "Latitude",
-                    "longitude": "Longitude",
+                    "latitude": "Latitude. Set as 0 to use current location",
+                    "longitude": "Longitude. Set as 0 to use current location",
+					"scan_interval": "Seconds to wait between updates. Reducing this below 900 seconds (15 minutes) is not recomended."   
                     "mode": "Forecast mode for the Weather entity",
                     "name": "Integration Name",
                     "units": "Units for sensors. Only used for if sensors are requested.",

@@ -226,6 +226,15 @@ class PirateWeatherOptionsFlow(config_entries.OptionsFlow):
                             ),
                         ),
                     ): cv.longitude,
+                    vol.Optional(
+                        CONF_SCAN_INTERVAL,
+                        default=self.config_entry.options.get(
+                            CONF_SCAN_INTERVAL,
+                            self.config_entry.data.get(
+                                CONF_SCAN_INTERVAL, DEFAULT_SCAN_INTERVAL
+                            ),
+                        ),
+                    ): int,                      
                     vol.Required(
                         PW_PLATFORM,
                         default=self.config_entry.options.get(

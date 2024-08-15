@@ -1,5 +1,5 @@
 """Support for Pirate Weather (Dark Sky Compatable) weather service."""
-
+from datetime import datetim
 import logging
 from dataclasses import dataclass, field
 from typing import Literal, NamedTuple
@@ -1161,7 +1161,17 @@ class PirateWeatherSensor(SensorEntity):
             "precip_intensity_max",
         ]:
             outState = round(state, roundingPrecip)
-
+            
+        # Convert unix times to datetimes times 
+        elif self.type in [
+            "temperature_high_time",
+            "temperature_low_time",
+            "apparent_temperature_high_time",
+            "apparent_temperature_low_time",
+            "sunrise_time",
+            "sunset_time",
+        ]:
+            outState = datetime.fromtimestamp(state)
         else:
             outState = state
 
