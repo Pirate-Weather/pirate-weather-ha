@@ -1090,6 +1090,9 @@ class PirateWeatherSensor(SensorEntity):
         if self.requestUnits in ["us"]:
             if self.type in [
                 "precip_accumulation",
+                "liquid_accumulation",
+                "snow_accumulation",
+                "ice_accumulation",
             ]:
                 state = state * 0.0393701
 
