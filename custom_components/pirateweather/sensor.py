@@ -2,7 +2,7 @@
 
 import logging
 from dataclasses import dataclass, field
-from datetime import fromtimestamp
+from datetime import datetime
 from typing import Literal, NamedTuple
 
 import homeassistant.helpers.config_validation as cv
@@ -1175,7 +1175,7 @@ class PirateWeatherSensor(SensorEntity):
             "sunrise_time",
             "sunset_time",
         ]:
-            outState = fromtimestamp(state)
+            outState = datetime.fromtimestamp(state)
         else:
             outState = state
 
