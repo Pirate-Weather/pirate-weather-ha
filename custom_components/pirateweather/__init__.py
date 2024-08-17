@@ -58,8 +58,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     if not pw_scan_Int:
         pw_scan_Int = 1200
 
-    if pw_scan_Int < 60:
-        pw_scan_Int = 60
+    pw_scan_Int = max(pw_scan_Int, 60)
 
     # Extract list of int from forecast days/ hours string if present
     # _LOGGER.warning('forecast_days_type: ' + str(type(forecast_days)))
