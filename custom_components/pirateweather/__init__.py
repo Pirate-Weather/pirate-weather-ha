@@ -56,7 +56,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     pw_scan_Int = _get_config_value(entry, CONF_SCAN_INTERVAL)
 
     if not pw_scan_Int:
-        pw_scan_Int = 1200
+        pw_scan_Int = entry.data[CONF_SCAN_INTERVAL]
 
     pw_scan_Int = max(pw_scan_Int, 60)
 
