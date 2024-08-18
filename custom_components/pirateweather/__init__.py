@@ -55,6 +55,11 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     pw_entity_rounding = _get_config_value(entry, PW_ROUND)
     pw_scan_Int = _get_config_value(entry, CONF_SCAN_INTERVAL)
 
+    if not pw_scan_Int:
+        pw_scan_Int = entry.data[CONF_SCAN_INTERVAL]
+
+    pw_scan_Int = max(pw_scan_Int, 60)
+
     # Extract list of int from forecast days/ hours string if present
     # _LOGGER.warning('forecast_days_type: ' + str(type(forecast_days)))
 
@@ -164,7 +169,7 @@ async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
 
 
 def _get_config_value(config_entry: ConfigEntry, key: str) -> Any:
-    if config_entry.options:
+    if config_entry.options and key in config_entry.options:
         return config_entry.options[key]
     return config_entry.data[key]
 
