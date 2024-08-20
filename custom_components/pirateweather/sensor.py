@@ -1,8 +1,7 @@
 """Support for Pirate Weather (Dark Sky Compatable) weather service."""
-
+import datetime
 import logging
 from dataclasses import dataclass, field
-from datetime import datetime
 from typing import Literal, NamedTuple
 
 import homeassistant.helpers.config_validation as cv
@@ -451,6 +450,7 @@ SENSOR_TYPES: dict[str, PirateWeatherSensorEntityDescription] = {
         key="apparent_temperature_high_time",
         name="Daytime High Apparent Temperature Time",
         icon="mdi:clock-time-three-outline",
+        device_class=SensorDeviceClass.TIMESTAMP,
         forecast_mode=["daily"],
     ),
     "apparent_temperature_min": PirateWeatherSensorEntityDescription(
@@ -483,6 +483,7 @@ SENSOR_TYPES: dict[str, PirateWeatherSensorEntityDescription] = {
         key="apparent_temperature_low_time",
         name="Overnight Low Apparent Temperature Time",
         icon="mdi:clock-time-three-outline",
+        device_class=SensorDeviceClass.TIMESTAMP,
         forecast_mode=["daily"],
     ),
     "temperature_max": PirateWeatherSensorEntityDescription(
@@ -515,6 +516,7 @@ SENSOR_TYPES: dict[str, PirateWeatherSensorEntityDescription] = {
         key="temperature_high_time",
         name="Daytime High Temperature Time",
         icon="mdi:clock-time-three-outline",
+        device_class=SensorDeviceClass.TIMESTAMP,
         forecast_mode=["daily"],
     ),
     "temperature_min": PirateWeatherSensorEntityDescription(
@@ -531,9 +533,10 @@ SENSOR_TYPES: dict[str, PirateWeatherSensorEntityDescription] = {
         forecast_mode=["daily"],
     ),
     "temperature_min_time": PirateWeatherSensorEntityDescription(
-        key="temperature_min_time",
+        key="temperature_low_time",
         name="Daily Low Temperature Time",
         icon="mdi:clock-time-three-outline",
+        device_class=SensorDeviceClass.TIMESTAMP,
         forecast_mode=["daily"],
     ),
     "temperature_low": PirateWeatherSensorEntityDescription(
@@ -586,12 +589,14 @@ SENSOR_TYPES: dict[str, PirateWeatherSensorEntityDescription] = {
         key="sunrise_time",
         name="Sunrise",
         icon="mdi:white-balance-sunny",
+        device_class=SensorDeviceClass.TIMESTAMP,
         forecast_mode=["daily"],
     ),
     "sunset_time": PirateWeatherSensorEntityDescription(
         key="sunset_time",
         name="Sunset",
         icon="mdi:weather-night",
+        device_class=SensorDeviceClass.TIMESTAMP,
         forecast_mode=["daily"],
     ),
     "alerts": PirateWeatherSensorEntityDescription(
@@ -604,6 +609,7 @@ SENSOR_TYPES: dict[str, PirateWeatherSensorEntityDescription] = {
         key="time",
         name="Time",
         icon="mdi:clock-time-three-outline",
+        device_class=SensorDeviceClass.TIMESTAMP,
         forecast_mode=["currently", "hourly", "daily"],
     ),
 }
@@ -1090,9 +1096,6 @@ class PirateWeatherSensor(SensorEntity):
         if self.requestUnits in ["us"]:
             if self.type in [
                 "precip_accumulation",
-                "liquid_accumulation",
-                "snow_accumulation",
-                "ice_accumulation",
             ]:
                 state = state * 0.0393701
 
@@ -1127,7 +1130,19 @@ class PirateWeatherSensor(SensorEntity):
             ]:
                 state = state * 3.6
 
+        # Convert unix times to datetimes times 
         if self.type in [
+            "temperature_high_time",
+            "temperature_low_time",
+            "apparent_temperature_high_time",
+            "apparent_temperature_low_time",
+            "sunrise_time",
+            "sunset_time",
+            "time",
+        ]:
+            outState = datetime.datetime.fromtimestamp(state, datetime.UTC)
+
+        elif self.type in [
             "dew_point",
             "temperature",
             "apparent_temperature",
@@ -1166,16 +1181,6 @@ class PirateWeatherSensor(SensorEntity):
         ]:
             outState = round(state, roundingPrecip)
 
-        # Convert unix times to datetimes times
-        elif self.type in [
-            "temperature_high_time",
-            "temperature_low_time",
-            "apparent_temperature_high_time",
-            "apparent_temperature_low_time",
-            "sunrise_time",
-            "sunset_time",
-        ]:
-            outState = datetime.fromtimestamp(state)
         else:
             outState = state
 
