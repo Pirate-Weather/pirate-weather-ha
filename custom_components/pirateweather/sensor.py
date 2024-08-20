@@ -1099,7 +1099,7 @@ class PirateWeatherSensor(SensorEntity):
                 "precip_accumulation",
                 "liquid_accumulation",
                 "snow_accumulation",
-                "ice_accumulation",                
+                "ice_accumulation",
             ]:
                 state = state * 0.0393701
 
