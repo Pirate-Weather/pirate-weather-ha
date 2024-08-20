@@ -1,4 +1,5 @@
 """Support for Pirate Weather (Dark Sky Compatable) weather service."""
+
 import datetime
 import logging
 from dataclasses import dataclass, field
@@ -1130,7 +1131,7 @@ class PirateWeatherSensor(SensorEntity):
             ]:
                 state = state * 3.6
 
-        # Convert unix times to datetimes times 
+        # Convert unix times to datetimes times
         if self.type in [
             "temperature_high_time",
             "temperature_low_time",
