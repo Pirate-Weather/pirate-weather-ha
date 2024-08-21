@@ -1137,7 +1137,7 @@ class PirateWeatherSensor(SensorEntity):
         # Convert unix times to datetimes times
         if self.type in [
             "temperature_high_time",
-            "temperature_low_time",
+            "temperature_min_time",
             "apparent_temperature_high_time",
             "apparent_temperature_low_time",
             "sunrise_time",
