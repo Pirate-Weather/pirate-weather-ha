@@ -133,7 +133,7 @@ ALL_CONDITIONS = {
     "nbm_fire_update_time": "NBM Fire Update Time",
     "hrrr_18_48_update_time": "HRRR 18-48 Update Time",
     "gfs_update_time": "GFS Update Time",
-    "gefs_update_time": "GEFS Update Time",        
+    "gefs_update_time": "GEFS Update Time",
 }
 
 LANGUAGES = [

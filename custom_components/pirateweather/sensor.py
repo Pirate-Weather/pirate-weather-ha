@@ -619,7 +619,7 @@ SENSOR_TYPES: dict[str, PirateWeatherSensorEntityDescription] = {
         icon="mdi:clock-time-three-outline",
         device_class=SensorDeviceClass.TIMESTAMP,
         forecast_mode=[],
-    ),  
+    ),
     "hrrr_0_18_update_time": PirateWeatherSensorEntityDescription(
         key="hrrr_0-18",
         name="HRRR 0-18 Update Time",
@@ -661,7 +661,7 @@ SENSOR_TYPES: dict[str, PirateWeatherSensorEntityDescription] = {
         icon="mdi:clock-time-three-outline",
         device_class=SensorDeviceClass.TIMESTAMP,
         forecast_mode=[],
-    ),    
+    ),
 }
 
 
@@ -1076,8 +1076,12 @@ class PirateWeatherSensor(SensorEntity):
             "gfs_update_time",
             "gefs_update_time",
         ]:
-            model_time_string = self._weather_coordinator.data.json['flags']['sourceTimes'][self.entity_description.key]
-            native_val = datetime.datetime.strptime(model_time_string[0:-1], '%Y-%m-%d %H').replace(tzinfo=datetime.timezone.utc)
+            model_time_string = self._weather_coordinator.data.json["flags"][
+                "sourceTimes"
+            ][self.entity_description.key]
+            native_val = datetime.datetime.strptime(
+                model_time_string[0:-1], "%Y-%m-%d %H"
+            ).replace(tzinfo=datetime.UTC)
 
         elif self.type == "minutely_summary":
             native_val = getattr(
@@ -1205,7 +1209,7 @@ class PirateWeatherSensor(SensorEntity):
             "sunset_time",
             "time",
         ]:
-            outState = datetime.datetime.fromtimestamp(state, datetime.timezone.utc)
+            outState = datetime.datetime.fromtimestamp(state, datetime.UTC)
 
         elif self.type in [
             "dew_point",
