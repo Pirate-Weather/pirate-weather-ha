@@ -126,7 +126,7 @@ ALL_CONDITIONS = {
     "apparent_temperature_high_time": "Daytime High Apparent Temperature Time",
     "apparent_temperature_low_time": "Overnight Low Apparent Temperature Time",
     "temperature_high_time": "Daytime High Temperature Time",
-    "temperature_min_time": "Overnight Low Temperature Time",
+    "temperature_min_time": "Low Temperature Time",
     "hrrr_subh_update_time": "HRRR SubH Update Time",
     "hrrr_0_18_update_time": "HRRR 0-18 Update Time",
     "nbm_update_time": "NBM Update Time",

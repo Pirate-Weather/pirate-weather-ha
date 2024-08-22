@@ -534,7 +534,7 @@ SENSOR_TYPES: dict[str, PirateWeatherSensorEntityDescription] = {
         forecast_mode=["daily"],
     ),
     "temperature_min_time": PirateWeatherSensorEntityDescription(
-        key="temperature_low_time",
+        key="temperature_min_time",
         name="Daily Low Temperature Time",
         icon="mdi:clock-time-three-outline",
         device_class=SensorDeviceClass.TIMESTAMP,
