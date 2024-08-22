@@ -126,7 +126,14 @@ ALL_CONDITIONS = {
     "apparent_temperature_high_time": "Daytime High Apparent Temperature Time",
     "apparent_temperature_low_time": "Overnight Low Apparent Temperature Time",
     "temperature_high_time": "Daytime High Temperature Time",
-    "temperature_min_time": "Daily Low Temperature Time",
+    "temperature_min_time": "Overnight Low Temperature Time",
+    "hrrr_subh_update_time": "HRRR SubH Update Time",
+    "hrrr_0_18_update_time": "HRRR 0-18 Update Time",
+    "nbm_update_time": "NBM Update Time",
+    "nbm_fire_update_time": "NBM Fire Update Time",
+    "hrrr_18_48_update_time": "HRRR 18-48 Update Time",
+    "gfs_update_time": "GFS Update Time",
+    "gefs_update_time": "GEFS Update Time",        
 }
 
 LANGUAGES = [
