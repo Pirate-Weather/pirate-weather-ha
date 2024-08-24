@@ -10,7 +10,7 @@ jobs:
   validate:
     runs-on: "ubuntu-latest"
     steps:
-      - uses: "actions/checkout@v4.1.1"
+      - uses: "actions/checkout@v4.1.6"
       - name: HACS validation
         uses: "hacs/action@main"
         with:
