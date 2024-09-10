@@ -2,4 +2,4 @@ blank_issues_enabled: false
 contact_links:
   - name: API Repository
     url: https://github.com/Pirate-Weather/pirateweather/
-    about: Report issues with and request features to the API here.
+    about: Report issues with and request features to the API here. If the integration error includes a HTTP error code (such as 500 Internal Server Error, 400 Bad Request, etc.) the issue should be reported here.

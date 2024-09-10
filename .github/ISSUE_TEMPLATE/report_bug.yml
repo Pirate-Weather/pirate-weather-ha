@@ -78,5 +78,7 @@ body:
           required: true
         - label: I have queried the API in my browser to confirm the issue is not with the API.
           required: true
+        - label: I have not included my API key anywhere in my issue.
+          required: true
         - label: I have written an informative title.
           required: true
