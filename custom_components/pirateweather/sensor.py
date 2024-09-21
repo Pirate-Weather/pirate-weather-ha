@@ -1076,12 +1076,15 @@ class PirateWeatherSensor(SensorEntity):
             "gfs_update_time",
             "gefs_update_time",
         ]:
-            model_time_string = self._weather_coordinator.data.json["flags"][
-                "sourceTimes"
-            ][self.entity_description.key]
-            native_val = datetime.datetime.strptime(
-                model_time_string[0:-1], "%Y-%m-%d %H"
-            ).replace(tzinfo=datetime.UTC)
+            try:
+                model_time_string = self._weather_coordinator.data.json["flags"][
+                    "sourceTimes"
+                ][self.entity_description.key]
+                native_val = datetime.datetime.strptime(
+                    model_time_string[0:-1], "%Y-%m-%d %H"
+                ).replace(tzinfo=datetime.UTC)
+            except KeyError:
+                native_val = None
 
         elif self.type == "minutely_summary":
             native_val = getattr(
