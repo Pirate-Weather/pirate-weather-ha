@@ -12,6 +12,13 @@ updates:
       time: "17:00"
       timezone: "America/Toronto"
     open-pull-requests-limit: 100
+    groups:
+      pip:
+        patterns: 
+        - "@pip*"
+        update-types:
+        - "minor"
+        - "patch"
   - package-ecosystem: "github-actions"
     directory: "/"
     schedule:
