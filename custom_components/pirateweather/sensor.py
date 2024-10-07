@@ -388,9 +388,10 @@ SENSOR_TYPES: dict[str, PirateWeatherSensorEntityDescription] = {
     "fire_risk_level": PirateWeatherSensorEntityDescription(
         key="fire_risk_level",
         name="Fire Risk Level",
-        state_class=SensorDeviceClass.ENUM,
+        device_class=SensorDeviceClass.ENUM,
+        state_class=SensorStateClass.MEASUREMENT,
         icon="mdi:fire",
-        forecast_mode=["currently", "hourly"],
+        forecast_mode=["currently", "hourly", "daily"],
         options=['Extreme', 'Very High', 'High', 'Moderate', 'Low', 'N/A'],
     ),    
     "fire_index_max": PirateWeatherSensorEntityDescription(
@@ -1133,8 +1134,12 @@ class PirateWeatherSensor(SensorEntity):
 
         If the sensor type is unknown, the current state is returned.
         """
-        lookup_type = convert_to_camel(self.type)
-        state = data.get(lookup_type)
+        
+        if self.type ==  "fire_risk_level":
+          state = data.get("fireIndex")
+        else:
+          lookup_type = convert_to_camel(self.type)
+          state = data.get(lookup_type)
 
         if state is None:
             return state
@@ -1222,10 +1227,11 @@ class PirateWeatherSensor(SensorEntity):
         ]:
             outState = datetime.datetime.fromtimestamp(state, datetime.UTC)
         
-        elif self.type is  "fire_risk_level":
+        elif self.type ==  "fire_risk_level":
             if state == -999:
                 outState = "N/A"
             else:
+              # Per https://github.com/Pirate-Weather/pirateweather/issues/119#issuecomment-2088343476
                 if state >= 30:
                     outState = "Extreme"
                 elif state >= 20:
