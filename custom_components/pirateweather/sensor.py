@@ -385,6 +385,14 @@ SENSOR_TYPES: dict[str, PirateWeatherSensorEntityDescription] = {
         icon="mdi:fire",
         forecast_mode=["currently", "hourly"],
     ),
+    "fire_risk_level": PirateWeatherSensorEntityDescription(
+        key="fire_risk_level",
+        name="Fire Risk Level",
+        state_class=SensorDeviceClass.ENUM,
+        icon="mdi:fire",
+        forecast_mode=["currently", "hourly"],
+        options=['Extreme', 'Very High', 'High', 'Moderate', 'Low', 'N/A'],
+    ),    
     "fire_index_max": PirateWeatherSensorEntityDescription(
         key="fire_index_max",
         name="Fire Index Max",
@@ -1213,6 +1221,21 @@ class PirateWeatherSensor(SensorEntity):
             "time",
         ]:
             outState = datetime.datetime.fromtimestamp(state, datetime.UTC)
+        
+        elif self.type is  "fire_risk_level":
+            if state == -999:
+                outState = "N/A"
+            else:
+                if state >= 30:
+                    outState = "Extreme"
+                elif state >= 20:
+                    outState = "Very High"
+                elif state >= 10:
+                    outState = "High"
+                elif state >= 5:
+                    outState = "Moderate"
+                else:
+                 outState = "Low"
 
         elif self.type in [
             "dew_point",
