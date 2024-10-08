@@ -1,28 +1,26 @@
-"""Taken from the fantastic Dark Sky library: https://github.com/ZeevG/python-forecast.io in Octovber 2024."""
+"""Taken from the fantastic Dark Sky library: https://github.com/ZeevG/python-forecast.io in October 2024."""
 
 import datetime
-
 import requests
 
 
 class UnicodeMixin:
-    """Mixin class to handle defining the proper __str__/__unicode__ methods in Python 2 or 3."""
+    """Mixin class to handle defining the proper __str__ methods for Python 2 or 3 compatibility."""
 
     def __str__(self):
-        """Mixin class to handle defining the proper __str__/__unicode__ methods in Python 2 or 3."""
+        """Returns the unicode representation of the object for Python 2/3 compatibility."""
         return self.__unicode__()
 
 
 class PropertyUnavailable(AttributeError):
-    """Mixin class to handle defining the proper __str__/__unicode__ methods in Python 2 or 3."""
+    """Exception raised when a requested property is unavailable in the forecast data."""
 
 
 class Forecast(UnicodeMixin):
-    """Mixin class to handle defining the proper __str__/__unicode__ methods in Python 2 or 3."""
+    """Represents the forecast data with utility methods to access various weather blocks."""
 
     def __init__(self, data, response, headers):
-        """Mixin class to handle defining the proper __str__/__unicode__ methods in Python 2 or 3."""
-
+        """Initializes the Forecast with data, HTTP response, and headers."""
         self.response = response
         self.http_headers = headers
         self.json = data
@@ -32,43 +30,37 @@ class Forecast(UnicodeMixin):
             self._alerts.append(Alert(alertJSON))
 
     def update(self):
-        """Mixin class to handle defining the proper __str__/__unicode__ methods in Python 2 or 3."""
-
+        """Updates the forecast data by making a new request to the same URL."""
         r = requests.get(self.response.url)
         self.json = r.json()
         self.response = r
 
     def currently(self):
-        """Mixin class to handle defining the proper __str__/__unicode__ methods in Python 2 or 3."""
-
+        """Returns the current weather data block."""
         return self._forcastio_data("currently")
 
     def minutely(self):
-        """Mixin class to handle defining the proper __str__/__unicode__ methods in Python 2 or 3."""
-
+        """Returns the minutely weather data block."""
         return self._forcastio_data("minutely")
 
     def hourly(self):
-        """Mixin class to handle defining the proper __str__/__unicode__ methods in Python 2 or 3."""
-
+        """Returns the hourly weather data block."""
         return self._forcastio_data("hourly")
 
     def daily(self):
-        """Mixin class to handle defining the proper __str__/__unicode__ methods in Python 2 or 3."""
-
+        """Returns the daily weather data block."""
         return self._forcastio_data("daily")
 
     def offset(self):
-        """Mixin class to handle defining the proper __str__/__unicode__ methods in Python 2 or 3."""
-
+        """Returns the time zone offset for the forecast location."""
         return self.json["offset"]
 
     def alerts(self):
-        """Mixin class to handle defining the proper __str__/__unicode__ methods in Python 2 or 3."""
-
+        """Returns the list of alerts issued for this forecast."""
         return self._alerts
 
     def _forcastio_data(self, key):
+        """Helper method to retrieve specific weather data (currently, minutely, hourly, daily)."""
         keys = ["minutely", "currently", "hourly", "daily"]
         try:
             if key not in self.json:
@@ -92,20 +84,17 @@ class Forecast(UnicodeMixin):
 
 
 class ForecastioDataBlock(UnicodeMixin):
-    """Mixin class to handle defining the proper __str__/__unicode__ methods in Python 2 or 3."""
+    """Represents a block of weather data such as minutely, hourly, or daily summaries."""
 
     def __init__(self, d=None):
-        """Mixin class to handle defining the proper __str__/__unicode__ methods in Python 2 or 3."""
-
+        """Initializes the data block with summary and icon information."""
         d = d or {}
         self.summary = d.get("summary")
         self.icon = d.get("icon")
-
         self.data = [ForecastioDataPoint(datapoint) for datapoint in d.get("data", [])]
 
     def __unicode__(self):
-        """Mixin class to handle defining the proper __str__/__unicode__ methods in Python 2 or 3."""
-
+        """Returns a string representation of the data block."""
         return "<ForecastioDataBlock instance: " "%s with %d ForecastioDataPoints>" % (
             self.summary,
             len(self.data),
@@ -113,11 +102,10 @@ class ForecastioDataBlock(UnicodeMixin):
 
 
 class ForecastioDataPoint(UnicodeMixin):
-    """Mixin class to handle defining the proper __str__/__unicode__ methods in Python 2 or 3."""
+    """Represents a single data point in a weather forecast, such as an hourly or daily data point."""
 
     def __init__(self, d={}):
-        """Mixin class to handle defining the proper __str__/__unicode__ methods in Python 2 or 3."""
-
+        """Initializes the data point with timestamp and weather information."""
         self.d = d
 
         try:
@@ -139,8 +127,7 @@ class ForecastioDataPoint(UnicodeMixin):
             self.sunsetTime = None
 
     def __getattr__(self, name):
-        """Mixin class to handle defining the proper __str__/__unicode__ methods in Python 2 or 3."""
-
+        """Allows access to weather properties dynamically, raising an error if unavailable."""
         try:
             return self.d[name]
         except KeyError as err:
@@ -150,31 +137,27 @@ class ForecastioDataPoint(UnicodeMixin):
             ) from err
 
     def __unicode__(self):
-        """Mixin class to handle defining the proper __str__/__unicode__ methods in Python 2 or 3."""
-
+        """Returns a string representation of the data point."""
         return "<ForecastioDataPoint instance: " f"{self.summary} at {self.time}>"
 
 
 class Alert(UnicodeMixin):
-    """Mixin class to handle defining the proper __str__/__unicode__ methods in Python 2 or 3."""
+    """Represents a weather alert, such as a storm warning or flood alert."""
 
     def __init__(self, json):
-        """Mixin class to handle defining the proper __str__/__unicode__ methods in Python 2 or 3."""
-
+        """Initializes the alert with the raw JSON data."""
         self.json = json
 
     def __getattr__(self, name):
-        """Mixin class to handle defining the proper __str__/__unicode__ methods in Python 2 or 3."""
-
+        """Allows access to alert properties dynamically, raising an error if unavailable."""
         try:
             return self.json[name]
         except KeyError as err:
             raise PropertyUnavailable(
                 f"Property '{name}' is not valid"
-                " or is not available for this forecast"
+                " or is not available for this alert"
             ) from err
 
     def __unicode__(self):
-        """Mixin class to handle defining the proper __str__/__unicode__ methods in Python 2 or 3."""
-
+        """Returns a string representation of the alert."""
         return f"<Alert instance: {self.title} at {self.time}>"
