@@ -1135,12 +1135,12 @@ class PirateWeatherSensor(SensorEntity):
         """
 
         if self.type == "fire_risk_level":
-            if self.forecast_hour is not None: 
-              state = data.get("fireIndex")
+            if self.forecast_hour is not None:
+                state = data.get("fireIndex")
             elif self.forecast_day is not None:
-              state = data.get("fireIndexMax")
+                state = data.get("fireIndexMax")
             else:
-              state = data.get("fireIndex")
+                state = data.get("fireIndex")
         else:
             lookup_type = convert_to_camel(self.type)
             state = data.get(lookup_type)
