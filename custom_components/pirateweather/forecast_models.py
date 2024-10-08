@@ -1,6 +1,7 @@
 """Taken from the fantastic Dark Sky library: https://github.com/ZeevG/python-forecast.io in October 2024."""
 
 import datetime
+
 import requests
 
 class UnicodeMixin:
