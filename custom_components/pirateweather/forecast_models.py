@@ -3,7 +3,6 @@
 import datetime
 import requests
 
-
 class UnicodeMixin:
     """Provide string representation for Python 2/3 compatibility."""
 
