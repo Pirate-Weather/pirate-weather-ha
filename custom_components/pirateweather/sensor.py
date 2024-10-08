@@ -385,6 +385,14 @@ SENSOR_TYPES: dict[str, PirateWeatherSensorEntityDescription] = {
         icon="mdi:fire",
         forecast_mode=["currently", "hourly"],
     ),
+    "fire_risk_level": PirateWeatherSensorEntityDescription(
+        key="fire_risk_level",
+        name="Fire Risk Level",
+        device_class=SensorDeviceClass.ENUM,
+        icon="mdi:fire",
+        forecast_mode=["currently", "hourly", "daily"],
+        options=["Extreme", "Very High", "High", "Moderate", "Low", "N/A"],
+    ),
     "fire_index_max": PirateWeatherSensorEntityDescription(
         key="fire_index_max",
         name="Fire Index Max",
@@ -1125,8 +1133,17 @@ class PirateWeatherSensor(SensorEntity):
 
         If the sensor type is unknown, the current state is returned.
         """
-        lookup_type = convert_to_camel(self.type)
-        state = data.get(lookup_type)
+
+        if self.type == "fire_risk_level":
+            if self.forecast_hour is not None:
+                state = data.get("fireIndex")
+            elif self.forecast_day is not None:
+                state = data.get("fireIndexMax")
+            else:
+                state = data.get("fireIndex")
+        else:
+            lookup_type = convert_to_camel(self.type)
+            state = data.get(lookup_type)
 
         if state is None:
             return state
@@ -1214,6 +1231,8 @@ class PirateWeatherSensor(SensorEntity):
         ]:
             outState = datetime.datetime.fromtimestamp(state, datetime.UTC)
 
+        elif self.type == "fire_risk_level":
+            outState = fire_index(state)
         elif self.type in [
             "dew_point",
             "temperature",
@@ -1277,3 +1296,22 @@ def convert_to_camel(data):
     components = data.split("_")
     capital_components = "".join(x.title() for x in components[1:])
     return f"{components[0]}{capital_components}"
+
+
+def fire_index(fire_index):
+    """Convert numeric fire index to a textual value."""
+
+    if fire_index == -999:
+        outState = "N/A"
+    elif fire_index >= 30:
+        outState = "Extreme"
+    elif fire_index >= 20:
+        outState = "Very High"
+    elif fire_index >= 10:
+        outState = "High"
+    elif fire_index >= 5:
+        outState = "Moderate"
+    else:
+        outState = "Low"
+
+    return outState

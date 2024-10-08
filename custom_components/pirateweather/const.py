@@ -118,6 +118,7 @@ ALL_CONDITIONS = {
     "time": "Time",
     "fire_index": "Fire Index",
     "fire_index_max": "Fire Index Max",
+    "fire_risk_level": "Fire Risk Level",
     "smoke": "Smoke",
     "smoke_max": "Smoke Max",
     "liquid_accumulation": "Liquid Accumulation",

@@ -6,12 +6,12 @@ from http.client import HTTPException
 
 import aiohttp
 import async_timeout
-from forecastio.models import Forecast
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, UpdateFailed
 
 from .const import (
     DOMAIN,
 )
+from .forecast_models import Forecast
 
 _LOGGER = logging.getLogger(__name__)
 
