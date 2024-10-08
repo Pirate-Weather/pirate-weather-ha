@@ -4,6 +4,7 @@ import datetime
 
 import requests
 
+
 class UnicodeMixin:
     """Provide string representation for Python 2/3 compatibility."""
 
@@ -154,8 +155,7 @@ class Alert(UnicodeMixin):
             return self.json[name]
         except KeyError as err:
             raise PropertyUnavailable(
-                f"Property '{name}' is not valid"
-                " or is not available for this alert"
+                f"Property '{name}' is not valid" " or is not available for this alert"
             ) from err
 
     def __unicode__(self):
