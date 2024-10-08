@@ -389,7 +389,6 @@ SENSOR_TYPES: dict[str, PirateWeatherSensorEntityDescription] = {
         key="fire_risk_level",
         name="Fire Risk Level",
         device_class=SensorDeviceClass.ENUM,
-        state_class=SensorStateClass.MEASUREMENT,
         icon="mdi:fire",
         forecast_mode=["currently", "hourly", "daily"],
         options=["Extreme", "Very High", "High", "Moderate", "Low", "N/A"],
@@ -1136,7 +1135,12 @@ class PirateWeatherSensor(SensorEntity):
         """
 
         if self.type == "fire_risk_level":
-            state = data.get("fireIndex")
+            if self.forecast_hour is not None: 
+              state = data.get("fireIndex")
+            elif self.forecast_day is not None:
+              state = data.get("fireIndexMax")
+            else:
+              state = data.get("fireIndex")
         else:
             lookup_type = convert_to_camel(self.type)
             state = data.get(lookup_type)
@@ -1229,7 +1233,6 @@ class PirateWeatherSensor(SensorEntity):
 
         elif self.type == "fire_risk_level":
             outState = fire_index(state)
-
         elif self.type in [
             "dew_point",
             "temperature",
