@@ -233,6 +233,48 @@ SENSOR_TYPES: dict[str, PirateWeatherSensorEntityDescription] = {
         icon="mdi:weather-snowy-rainy",
         forecast_mode=["hourly", "daily"],
     ),
+    "current_day_liquid": PirateWeatherSensorEntityDescription(
+        key="current_day_liquid",
+        name="Current Day Liquid Accumulation",
+        device_class=SensorDeviceClass.PRECIPITATION,
+        state_class=SensorStateClass.MEASUREMENT,
+        si_unit=UnitOfLength.CENTIMETERS,
+        us_unit=UnitOfLength.INCHES,
+        ca_unit=UnitOfLength.CENTIMETERS,
+        uk_unit=UnitOfLength.CENTIMETERS,
+        uk2_unit=UnitOfLength.CENTIMETERS,
+        suggested_display_precision=4,
+        icon="mdi:weather-rainy",
+        forecast_mode=["currently"],
+    ),
+    "current_day_snow": PirateWeatherSensorEntityDescription(
+        key="current_day_snow",
+        name="Current Day Snow Accumulation",
+        device_class=SensorDeviceClass.PRECIPITATION,
+        state_class=SensorStateClass.MEASUREMENT,
+        si_unit=UnitOfLength.CENTIMETERS,
+        us_unit=UnitOfLength.INCHES,
+        ca_unit=UnitOfLength.CENTIMETERS,
+        uk_unit=UnitOfLength.CENTIMETERS,
+        uk2_unit=UnitOfLength.CENTIMETERS,
+        suggested_display_precision=4,
+        icon="mdi:weather-snowy",
+        forecast_mode=["currently"],
+    ),
+    "current_day_ice": PirateWeatherSensorEntityDescription(
+        key="current_day_ice",
+        name="Current Day Ice Accumulation",
+        device_class=SensorDeviceClass.PRECIPITATION,
+        state_class=SensorStateClass.MEASUREMENT,
+        si_unit=UnitOfLength.CENTIMETERS,
+        us_unit=UnitOfLength.INCHES,
+        ca_unit=UnitOfLength.CENTIMETERS,
+        uk_unit=UnitOfLength.CENTIMETERS,
+        uk2_unit=UnitOfLength.CENTIMETERS,
+        suggested_display_precision=4,
+        icon="mdi:weather-snowy-rainy",
+        forecast_mode=["currently"],
+    ),
     "temperature": PirateWeatherSensorEntityDescription(
         key="temperature",
         name="Temperature",
@@ -1178,13 +1220,16 @@ class PirateWeatherSensor(SensorEntity):
             ]:
                 state = round(state * 9 / 5) + 32
 
-        # Precipitation Accumilation (mm in SI) to inches
+        # Precipitation Accumilation (cm in SI) to inches
         if self.requestUnits in ["us"]:
             if self.type in [
                 "precip_accumulation",
                 "liquid_accumulation",
                 "snow_accumulation",
                 "ice_accumulation",
+                "current_day_liquid",
+                "current_day_snow",
+                "current_day_ice",
             ]:
                 state = state * 0.0393701
 
@@ -1269,6 +1314,9 @@ class PirateWeatherSensor(SensorEntity):
             "ice_accumulation",
             "precip_intensity",
             "precip_intensity_max",
+            "current_day_liquid",
+            "current_day_snow",
+            "current_day_ice",
         ]:
             outState = round(state, roundingPrecip)
 
