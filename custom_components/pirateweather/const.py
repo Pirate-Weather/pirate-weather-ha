@@ -135,6 +135,9 @@ ALL_CONDITIONS = {
     "hrrr_18_48_update_time": "HRRR 18-48 Update Time",
     "gfs_update_time": "GFS Update Time",
     "gefs_update_time": "GEFS Update Time",
+    "current_day_liquid": "Current Day Liquid Accumulation",
+    "current_day_snow": "Current Day Snow Accumulation",
+    "current_day_ice": "Current Day Ice Accumulation",
 }
 
 LANGUAGES = [

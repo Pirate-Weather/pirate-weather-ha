@@ -78,7 +78,7 @@ class Forecast(UnicodeMixin):
             if key == "currently":
                 return ForecastioDataPoint(self.json[key])
             return ForecastioDataBlock(self.json[key])
-        except requests.HTTPError:
+        except KeyError:
             if key == "currently":
                 return ForecastioDataPoint()
             return ForecastioDataBlock()
