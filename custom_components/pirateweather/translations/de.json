@@ -1,0 +1,61 @@
+{
+    "config": {
+        "abort": {
+            "already_configured": "Standort ist bereits konfiguriert"
+        },
+        "error": {
+            "cannot_connect": "Fehler beim Verbinden",
+            "invalid_api_key": "Ungültiger API-Schlüssel"
+        },
+        "step": {
+            "user": {
+                "data": {
+                    "api_key": "API-Schlüssel",
+                    "language": "Sprache",
+                    "latitude": "Breitengrad. Auf 0 setzen um aktuelle Position zu verwenden",
+                    "longitude": "Längengerad. Auf 0 setzen um aktuelle Position zu verwenden",
+                    "mode": "Vorhersage-Modus für die Wetter-Entität",
+                    "name": "Name der Integration",
+                    "units": "Einheiten für Sensoren. Nur genutzt wenn Sensoren angefordert wurden.",
+                    "forecast": "Tägliche Vorhersage-Sensoren im csv-Format von 0-7 (z. B. '0,1,3'). Wird nur verwendet, wenn Sensoren angefordert werden.",
+                    "hourly_forecast": "Stündliche Vorhersage-Sensoren im csv-Format von 0-168 (z. B. '0,1,10'). Nur verwendet, wenn Sensoren angefordert werden.",
+                    "monitored_conditions": "Überwachte Bedingungen, für die Sensoren erstellt werden sollen. Wird nur verwendet, wenn Sensoren angefordert werden.",
+                    "pw_platform": "Wetter- und/oder Sensor-Entität. Sensor wird für jede Bedingung zu jeder Zeit Entitäten erstellen. Wenn Sie unsicher sind, wählen Sie nur Wetter!",
+                    "pw_round": "Rundet die Werte auf die nächstliegende Ganzzahl. Stellen Sie sicher, dass die gewählten Einheiten mit den Systemeinheiten übereinstimmen.",
+                    "scan_interval": "Sekunden, die zwischen den Aktualisierungen gewartet werden. Es wird nicht empfohlen, diesen Wert unter 900 Sekunden (15 Minuten) zu senken."
+                },
+                "description": "Pirate Weather-Integration einrichten. Besuche https://pirateweather.net um einen API-Schlüssel zu generieren.",
+                "data_description": {
+                    "forecast": "z.B. '0,1,4' (ohne Anführungszeichen)",
+                    "hourly_forecast": "z.B. '0,1,4' (ohne Anführungszeichen)"
+                }
+            }
+        }
+    },
+    "options": {
+        "step": {
+            "init": {
+                "data": {
+                    "api_key": "API-Schlüssel",
+                    "language": "Sprache",
+                    "latitude": "Breitengrad. Auf 0 setzen um aktuelle Position zu verwenden",
+                    "longitude": "Längengerad. Auf 0 setzen um aktuelle Position zu verwenden",
+                    "scan_interval": "Sekunden, die zwischen den Aktualisierungen gewartet werden. Es wird nicht empfohlen, diesen Wert unter 900 Sekunden (15 Minuten) zu senken.",
+                    "mode": "Vorhersage-Modus für die Wetter-Entität",
+                    "name": "Name der Integration",
+                    "units": "Einheiten für Sensoren. Nur genutzt wenn Sensoren angefordert wurden.",
+                    "forecast": "Tägliche Vorhersage-Sensoren im csv-Format von 0-7 (z. B. '0,1,3'). Wird nur verwendet, wenn Sensoren angefordert werden.\n HINWEIS: Das Entfernen von Sensoren führt zu verwaisten Einheiten, die gelöscht werden müssen.",
+                    "hourly_forecast": "Stündliche Vorhersage-Sensoren im csv-Format von 0-168 (z. B. '0,1,10'). Nur verwendet, wenn Sensoren angefordert werden.\n HINWEIS: Das Entfernen von Sensoren führt zu verwaisten Einheiten, die gelöscht werden müssen.",
+                    "monitored_conditions": "Überwachte Bedingungen, für die Sensoren erstellt werden sollen. Wird nur verwendet, wenn Sensoren angefordert werden.",
+                    "pw_platform": "Wetter- und/oder Sensor-Entität. Sensor wird für jede Bedingung zu jeder Zeit Entitäten erstellen. Wenn Sie unsicher sind, wählen Sie nur Wetter!",
+                    "pw_round": "Rundet die Werte auf die nächstliegende Ganzzahl. Stellen Sie sicher, dass die gewählten Einheiten mit den Systemeinheiten übereinstimmen."
+                },
+                "description": "Pirate Weather-Integration einrichten. Besuche https://pirateweather.net um einen API-Schlüssel zu generieren.",
+                "data_description": {
+                    "forecast": "z.B '0,1,4'.\n Gib 'None' (ohne Anführungszeichen) ein, um bestehende Sensoren zu entfernen.",
+                    "hourly_forecast": "z.B. '0,1,4'.\n Gib 'None' (ohne Anführungszeichen) ein, um bestehende Sensoren zu entfernen."
+                }
+            }
+        }
+    }
+}
