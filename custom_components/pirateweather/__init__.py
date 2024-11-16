@@ -44,8 +44,8 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     """Set up Pirate Weather as config entry."""
     name = entry.data[CONF_NAME]
     api_key = entry.data[CONF_API_KEY]
-    latitude = entry.data.get(CONF_LATITUDE, hass.config.latitude)
-    longitude = entry.data.get(CONF_LONGITUDE, hass.config.longitude)
+    latitude = _get_config_value(entry, CONF_LATITUDE)
+    longitude = _get_config_value(entry, CONF_LONGITUDE)
     forecast_mode = "daily"
     conditions = _get_config_value(entry, CONF_MONITORED_CONDITIONS)
     units = _get_config_value(entry, CONF_UNITS)
@@ -55,8 +55,15 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     pw_entity_rounding = _get_config_value(entry, PW_ROUND)
     pw_scan_Int = _get_config_value(entry, CONF_SCAN_INTERVAL)
 
+    # If scan_interval config value is not configured fall back to the entry data config value
     if not pw_scan_Int:
         pw_scan_Int = entry.data[CONF_SCAN_INTERVAL]
+
+    # If latitude or longitude is not configured fall back to the HA location
+    if not latitude:
+        latitude = hass.config.latitude
+    if not longitude:
+        longitude = hass.config.longitude
 
     pw_scan_Int = max(pw_scan_Int, 60)
 
