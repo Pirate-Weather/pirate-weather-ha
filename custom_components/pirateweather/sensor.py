@@ -1220,7 +1220,7 @@ class PirateWeatherSensor(SensorEntity):
             ]:
                 state = round(state * 9 / 5) + 32
 
-        # Precipitation Accumilation (cm in SI) to inches
+        # Precipitation Accumulation (cm in SI) to inches
         if self.requestUnits in ["us"]:
             if self.type in [
                 "precip_accumulation",
@@ -1231,7 +1231,7 @@ class PirateWeatherSensor(SensorEntity):
                 "current_day_snow",
                 "current_day_ice",
             ]:
-                state = state * 0.0393701
+                state = state * 0.3937008
 
         # Precipitation Intensity (mm/h in SI) to inches
         if self.requestUnits in ["us"]:
