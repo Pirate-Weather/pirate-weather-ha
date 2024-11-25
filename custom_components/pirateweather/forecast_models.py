@@ -96,10 +96,7 @@ class ForecastioDataBlock(UnicodeMixin):
 
     def __unicode__(self):
         """Return a string representation of the data block."""
-        return "<ForecastioDataBlock instance: " "%s with %d ForecastioDataPoints>" % (
-            self.summary,
-            len(self.data),
-        )
+        return f"<PirateWeatherDataBlock instance: {self.summary} with {len(self.data)} PirateWeatherDataPoints>"
 
 
 class ForecastioDataPoint(UnicodeMixin):
