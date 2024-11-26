@@ -3,3 +3,9 @@ contact_links:
   - name: API Repository
     url: https://github.com/Pirate-Weather/pirateweather/
     about: Report issues with and request features to the API here. If the integration is reporting an error due to an Internal Server Error then the issue should be reported here.
+  - name: Code Repository
+    url: https://github.com/Pirate-Weather/pirate-weather-code
+    about: Please report any issues with the self-hosting code here.
+  - name: Translations Repository
+    url: https://github.com/Pirate-Weather/translations
+    about: Please report any issues with the summary translations here.
