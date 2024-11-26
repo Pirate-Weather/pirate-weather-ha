@@ -61,7 +61,7 @@ class WeatherUpdateCoordinator(DataUpdateCoordinator):
             requestLongitude = self.longitude
 
         forecastString = (
-            "https://api.pirateweather.net/forecast/"
+            "https://dev.pirateweather.net/forecast/"
             + self._api_key
             + "/"
             + str(requestLatitude)
