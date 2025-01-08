@@ -822,7 +822,7 @@ LANGUAGE_CODES = [
     "zh-tw",
 ]
 
-ALLOWED_UNITS = ["auto", "si", "us", "ca", "uk", "uk2"]
+ALLOWED_UNITS = ["si", "us", "ca", "uk", "uk2"]
 
 ALERTS_ATTRS = ["time", "description", "expires", "severity", "uri", "regions", "title"]
 
