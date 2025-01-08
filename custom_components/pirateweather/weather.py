@@ -69,7 +69,7 @@ PLATFORM_SCHEMA = PLATFORM_SCHEMA.extend(
         vol.Optional(PW_PLATFORM): cv.string,
         vol.Optional(PW_PREVPLATFORM): cv.string,
         vol.Optional(CONF_MODE, default="hourly"): vol.In(FORECAST_MODES),
-        vol.Optional(CONF_UNITS): vol.In(["auto", "si", "us", "ca", "uk", "uk2"]),
+        vol.Optional(CONF_UNITS): vol.In(["si", "us", "ca", "uk", "uk2"]),
         vol.Optional(CONF_NAME, default=DEFAULT_NAME): cv.string,
         vol.Optional(CONF_SCAN_INTERVAL, default=DEFAULT_SCAN_INTERVAL): cv.time_period,
     }
