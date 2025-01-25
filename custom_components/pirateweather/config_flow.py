@@ -1,12 +1,19 @@
 """Config flow for Pirate Weather."""
 
+from __future__ import annotations
+
 import logging
 from datetime import timedelta
 
 import aiohttp
 import homeassistant.helpers.config_validation as cv
 import voluptuous as vol
-from homeassistant import config_entries
+from homeassistant.config_entries import (
+    ConfigEntry,
+    ConfigFlow,
+    ConfigFlowResult,
+    OptionsFlow,
+)
 from homeassistant.const import (
     CONF_API_KEY,
     CONF_LATITUDE,
@@ -44,18 +51,20 @@ CONF_FORECAST = "forecast"
 CONF_HOURLY_FORECAST = "hourly_forecast"
 
 
-class PirateWeatherConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
+class PirateWeatherConfigFlow(ConfigFlow, domain=DOMAIN):
     """Config flow for PirateWeather."""
 
     VERSION = CONFIG_FLOW_VERSION
 
     @staticmethod
     @callback
-    def async_get_options_flow(config_entry):
+    def async_get_options_flow(
+        config_entry: ConfigEntry,
+    ) -> PirateWeatherOptionsFlow:
         """Get the options flow for this handler."""
-        return PirateWeatherOptionsFlow(config_entry)
+        return PirateWeatherOptionsFlow()
 
-    async def async_step_user(self, user_input=None):
+    async def async_step_user(self, user_input=None) -> ConfigFlowResult:
         """Handle a flow initialized by the user."""
         errors = {}
 
@@ -178,14 +187,10 @@ class PirateWeatherConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         return await self.async_step_user(config)
 
 
-class PirateWeatherOptionsFlow(config_entries.OptionsFlow):
+class PirateWeatherOptionsFlow(OptionsFlow):
     """Handle options."""
 
-    def __init__(self, config_entry):
-        """Initialize options flow."""
-        self.config_entry = config_entry
-
-    async def async_step_init(self, user_input=None):
+    async def async_step_init(self, user_input: dict | None = None) -> ConfigFlowResult:
         """Manage the options."""
         if user_input is not None:
             # if self.config_entry.options:
@@ -199,97 +204,100 @@ class PirateWeatherOptionsFlow(config_entries.OptionsFlow):
 
         return self.async_show_form(
             step_id="init",
-            data_schema=vol.Schema(
-                {
-                    vol.Optional(
+            data_schema=self._get_options_schema(),
+        )
+
+    def _get_options_schema(self):
+        return vol.Schema(
+            {
+                vol.Optional(
+                    CONF_NAME,
+                    default=self.config_entry.options.get(
                         CONF_NAME,
-                        default=self.config_entry.options.get(
-                            CONF_NAME,
-                            self.config_entry.data.get(CONF_NAME, DEFAULT_NAME),
-                        ),
-                    ): str,
-                    vol.Optional(
+                        self.config_entry.data.get(CONF_NAME, DEFAULT_NAME),
+                    ),
+                ): str,
+                vol.Optional(
+                    CONF_LATITUDE,
+                    default=self.config_entry.options.get(
                         CONF_LATITUDE,
-                        default=self.config_entry.options.get(
-                            CONF_LATITUDE,
-                            self.config_entry.data.get(
-                                CONF_LATITUDE, self.hass.config.latitude
-                            ),
+                        self.config_entry.data.get(
+                            CONF_LATITUDE, self.hass.config.latitude
                         ),
-                    ): cv.latitude,
-                    vol.Optional(
+                    ),
+                ): cv.latitude,
+                vol.Optional(
+                    CONF_LONGITUDE,
+                    default=self.config_entry.options.get(
                         CONF_LONGITUDE,
-                        default=self.config_entry.options.get(
-                            CONF_LONGITUDE,
-                            self.config_entry.data.get(
-                                CONF_LONGITUDE, self.hass.config.longitude
-                            ),
+                        self.config_entry.data.get(
+                            CONF_LONGITUDE, self.hass.config.longitude
                         ),
-                    ): cv.longitude,
-                    vol.Optional(
+                    ),
+                ): cv.longitude,
+                vol.Optional(
+                    CONF_SCAN_INTERVAL,
+                    default=self.config_entry.options.get(
                         CONF_SCAN_INTERVAL,
-                        default=self.config_entry.options.get(
-                            CONF_SCAN_INTERVAL,
-                            self.config_entry.data.get(
-                                CONF_SCAN_INTERVAL, DEFAULT_SCAN_INTERVAL
-                            ),
+                        self.config_entry.data.get(
+                            CONF_SCAN_INTERVAL, DEFAULT_SCAN_INTERVAL
                         ),
-                    ): int,
-                    vol.Required(
+                    ),
+                ): int,
+                vol.Required(
+                    PW_PLATFORM,
+                    default=self.config_entry.options.get(
                         PW_PLATFORM,
-                        default=self.config_entry.options.get(
-                            PW_PLATFORM,
-                            self.config_entry.data.get(PW_PLATFORM, []),
-                        ),
-                    ): cv.multi_select(PW_PLATFORMS),
-                    vol.Optional(
+                        self.config_entry.data.get(PW_PLATFORM, []),
+                    ),
+                ): cv.multi_select(PW_PLATFORMS),
+                vol.Optional(
+                    CONF_LANGUAGE,
+                    default=self.config_entry.options.get(
                         CONF_LANGUAGE,
-                        default=self.config_entry.options.get(
-                            CONF_LANGUAGE,
-                            self.config_entry.data.get(CONF_LANGUAGE, DEFAULT_LANGUAGE),
+                        self.config_entry.data.get(CONF_LANGUAGE, DEFAULT_LANGUAGE),
+                    ),
+                ): vol.In(LANGUAGES),
+                vol.Optional(
+                    CONF_FORECAST,
+                    default=str(
+                        self.config_entry.options.get(
+                            CONF_FORECAST,
+                            self.config_entry.data.get(CONF_FORECAST, ""),
                         ),
-                    ): vol.In(LANGUAGES),
-                    vol.Optional(
-                        CONF_FORECAST,
-                        default=str(
-                            self.config_entry.options.get(
-                                CONF_FORECAST,
-                                self.config_entry.data.get(CONF_FORECAST, ""),
-                            ),
+                    ),
+                ): str,
+                vol.Optional(
+                    CONF_HOURLY_FORECAST,
+                    default=str(
+                        self.config_entry.options.get(
+                            CONF_HOURLY_FORECAST,
+                            self.config_entry.data.get(CONF_HOURLY_FORECAST, ""),
                         ),
-                    ): str,
-                    vol.Optional(
-                        CONF_HOURLY_FORECAST,
-                        default=str(
-                            self.config_entry.options.get(
-                                CONF_HOURLY_FORECAST,
-                                self.config_entry.data.get(CONF_HOURLY_FORECAST, ""),
-                            ),
-                        ),
-                    ): str,
-                    vol.Optional(
+                    ),
+                ): str,
+                vol.Optional(
+                    CONF_MONITORED_CONDITIONS,
+                    default=self.config_entry.options.get(
                         CONF_MONITORED_CONDITIONS,
-                        default=self.config_entry.options.get(
-                            CONF_MONITORED_CONDITIONS,
-                            self.config_entry.data.get(CONF_MONITORED_CONDITIONS, []),
-                        ),
-                    ): cv.multi_select(ALL_CONDITIONS),
-                    vol.Optional(
+                        self.config_entry.data.get(CONF_MONITORED_CONDITIONS, []),
+                    ),
+                ): cv.multi_select(ALL_CONDITIONS),
+                vol.Optional(
+                    CONF_UNITS,
+                    default=self.config_entry.options.get(
                         CONF_UNITS,
-                        default=self.config_entry.options.get(
-                            CONF_UNITS,
-                            self.config_entry.data.get(CONF_UNITS, DEFAULT_UNITS),
-                        ),
-                    ): vol.In(["si", "us", "ca", "uk"]),
-                    vol.Optional(
+                        self.config_entry.data.get(CONF_UNITS, DEFAULT_UNITS),
+                    ),
+                ): vol.In(["si", "us", "ca", "uk"]),
+                vol.Optional(
+                    PW_ROUND,
+                    default=self.config_entry.options.get(
                         PW_ROUND,
-                        default=self.config_entry.options.get(
-                            PW_ROUND,
-                            self.config_entry.data.get(PW_ROUND, "No"),
-                        ),
-                    ): vol.In(["Yes", "No"]),
-                }
-            ),
+                        self.config_entry.options.get(PW_ROUND, "No"),
+                    ),
+                ): vol.In(["Yes", "No"]),
+            }
         )
 
 
