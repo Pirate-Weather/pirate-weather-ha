@@ -21,12 +21,13 @@ ATTRIBUTION = "Powered by Pirate Weather"
 class WeatherUpdateCoordinator(DataUpdateCoordinator):
     """Weather data update coordinator."""
 
-    def __init__(self, api_key, latitude, longitude, pw_scan_Int, hass):
+    def __init__(self, api_key, latitude, longitude, pw_scan_Int, language, hass):
         """Initialize coordinator."""
         self._api_key = api_key
         self.latitude = latitude
         self.longitude = longitude
         self.pw_scan_Int = pw_scan_Int
+        self.language = language
         self.requested_units = "si"
 
         self.data = None
@@ -71,6 +72,8 @@ class WeatherUpdateCoordinator(DataUpdateCoordinator):
             + self.requested_units
             + "&extend=hourly"
             + "&version=2"
+            + "&lang="
+            + self.language
         )
 
         async with (
