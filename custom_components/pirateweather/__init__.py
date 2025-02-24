@@ -9,6 +9,7 @@ from typing import Any
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import (
     CONF_API_KEY,
+    CONF_LANGUAGE,
     CONF_LATITUDE,
     CONF_LONGITUDE,
     CONF_MODE,
@@ -54,6 +55,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     pw_entity_platform = _get_config_value(entry, PW_PLATFORM)
     pw_entity_rounding = _get_config_value(entry, PW_ROUND)
     pw_scan_Int = _get_config_value(entry, CONF_SCAN_INTERVAL)
+    language = _get_config_value(entry, CONF_LANGUAGE)
 
     # If scan_interval config value is not configured fall back to the entry data config value
     if not pw_scan_Int:
@@ -98,7 +100,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     hass.data.setdefault(DOMAIN, {})
     # Create and link weather WeatherUpdateCoordinator
     weather_coordinator = WeatherUpdateCoordinator(
-        api_key, latitude, longitude, timedelta(seconds=pw_scan_Int), hass
+        api_key, latitude, longitude, timedelta(seconds=pw_scan_Int), language, hass
     )
     hass.data[DOMAIN][unique_location] = weather_coordinator
 
@@ -119,6 +121,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         PW_PLATFORM: pw_entity_platform,
         PW_ROUND: pw_entity_rounding,
         CONF_SCAN_INTERVAL: pw_scan_Int,
+        CONF_LANGUAGE: language,
     }
 
     # Setup platforms
