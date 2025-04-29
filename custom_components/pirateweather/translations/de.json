@@ -22,7 +22,8 @@
                     "monitored_conditions": "Überwachte Bedingungen, für die Sensoren erstellt werden sollen. Wird nur verwendet, wenn Sensoren angefordert werden.",
                     "pw_platform": "Wetter- und/oder Sensor-Entität. Sensor wird für jede Bedingung zu jeder Zeit Entitäten erstellen. Wenn Sie unsicher sind, wählen Sie nur Wetter!",
                     "pw_round": "Rundet die Werte auf die nächstliegende Ganzzahl. Stellen Sie sicher, dass die gewählten Einheiten mit den Systemeinheiten übereinstimmen.",
-                    "scan_interval": "Sekunden, die zwischen den Aktualisierungen gewartet werden. Es wird nicht empfohlen, diesen Wert unter 900 Sekunden (15 Minuten) zu senken."
+                    "scan_interval": "Sekunden, die zwischen den Aktualisierungen gewartet werden. Es wird nicht empfohlen, diesen Wert unter 900 Sekunden (15 Minuten) zu senken.", 
+                    "endpoint": "Endpunkt zur Verwendung der Entwicklungs- oder lokalen Quelle mit https:\\. Standard ist https:\\api.pirateweather.net"
                 },
                 "description": "Pirate Weather-Integration einrichten. Besuche https://pirateweather.net um einen API-Schlüssel zu generieren.",
                 "data_description": {
@@ -48,7 +49,8 @@
                     "hourly_forecast": "Stündliche Vorhersage-Sensoren im csv-Format von 0-168 (z. B. '0,1,10'). Nur verwendet, wenn Sensoren angefordert werden.\n HINWEIS: Das Entfernen von Sensoren führt zu verwaisten Einheiten, die gelöscht werden müssen.",
                     "monitored_conditions": "Überwachte Bedingungen, für die Sensoren erstellt werden sollen. Wird nur verwendet, wenn Sensoren angefordert werden.",
                     "pw_platform": "Wetter- und/oder Sensor-Entität. Sensor wird für jede Bedingung zu jeder Zeit Entitäten erstellen. Wenn Sie unsicher sind, wählen Sie nur Wetter!",
-                    "pw_round": "Rundet die Werte auf die nächstliegende Ganzzahl. Stellen Sie sicher, dass die gewählten Einheiten mit den Systemeinheiten übereinstimmen."
+                    "pw_round": "Rundet die Werte auf die nächstliegende Ganzzahl. Stellen Sie sicher, dass die gewählten Einheiten mit den Systemeinheiten übereinstimmen.", 
+                    "endpoint": "Endpunkt zur Verwendung der Entwicklungs- oder lokalen Quelle mit https:\\. Standard ist https:\\api.pirateweather.net"
                 },
                 "description": "Pirate Weather-Integration einrichten. Besuche https://pirateweather.net um einen API-Schlüssel zu generieren.",
                 "data_description": {

@@ -28,9 +28,11 @@ from httpx import HTTPError
 
 from .const import (
     ALL_CONDITIONS,
+    CONF_ENDPOINT,
     CONF_LANGUAGE,
     CONF_UNITS,
     CONFIG_FLOW_VERSION,
+    DEFAULT_ENDPOINT,
     DEFAULT_FORECAST_MODE,
     DEFAULT_LANGUAGE,
     DEFAULT_NAME,
@@ -94,6 +96,7 @@ class PirateWeatherConfigFlow(ConfigFlow, domain=DOMAIN):
                 vol.Optional(CONF_UNITS, default=DEFAULT_UNITS): vol.In(
                     ["si", "us", "ca", "uk"]
                 ),
+                vol.Optional(CONF_ENDPOINT, default=DEFAULT_ENDPOINT): str,
             }
         )
 
@@ -103,6 +106,7 @@ class PirateWeatherConfigFlow(ConfigFlow, domain=DOMAIN):
             forecastMode = "daily"
             forecastPlatform = user_input[PW_PLATFORM]
             entityNamee = user_input[CONF_NAME]
+            endpoint = user_input[CONF_ENDPOINT]
 
             # Convert scan interval to timedelta
             if isinstance(user_input[CONF_SCAN_INTERVAL], str):
@@ -126,7 +130,7 @@ class PirateWeatherConfigFlow(ConfigFlow, domain=DOMAIN):
 
             try:
                 api_status = await _is_pw_api_online(
-                    self.hass, user_input[CONF_API_KEY], latitude, longitude
+                    self.hass, user_input[CONF_API_KEY], latitude, longitude, endpoint
                 )
 
                 if api_status == 403:
@@ -184,6 +188,8 @@ class PirateWeatherConfigFlow(ConfigFlow, domain=DOMAIN):
             config[PW_ROUND] = "No"
         if CONF_SCAN_INTERVAL not in config:
             config[CONF_SCAN_INTERVAL] = DEFAULT_SCAN_INTERVAL
+        if CONF_ENDPOINT not in config:
+            config[CONF_ENDPOINT] = DEFAULT_ENDPOINT
         return await self.async_step_user(config)
 
 
@@ -297,19 +303,21 @@ class PirateWeatherOptionsFlow(OptionsFlow):
                         self.config_entry.options.get(PW_ROUND, "No"),
                     ),
                 ): vol.In(["Yes", "No"]),
+                vol.Optional(
+                    CONF_ENDPOINT,
+                    default=str(
+                        self.config_entry.options.get(
+                            CONF_ENDPOINT,
+                            self.config_entry.data.get(CONF_ENDPOINT, DEFAULT_ENDPOINT),
+                        ),
+                    ),
+                ): str,
             }
         )
 
 
-async def _is_pw_api_online(hass, api_key, lat, lon):
-    forecastString = (
-        "https://api.pirateweather.net/forecast/"
-        + api_key
-        + "/"
-        + str(lat)
-        + ","
-        + str(lon)
-    )
+async def _is_pw_api_online(hass, api_key, lat, lon, endpoint):
+    forecastString = endpoint + "/forecast/" + api_key + "/" + str(lat) + "," + str(lon)
 
     async with (
         aiohttp.ClientSession(raise_for_status=False) as session,
