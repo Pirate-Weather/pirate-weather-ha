@@ -28,16 +28,16 @@ from httpx import HTTPError
 
 from .const import (
     ALL_CONDITIONS,
+    CONF_ENDPOINT,
     CONF_LANGUAGE,
     CONF_UNITS,
     CONFIG_FLOW_VERSION,
-    CONF_ENDPOINT,
+    DEFAULT_ENDPOINT,
     DEFAULT_FORECAST_MODE,
     DEFAULT_LANGUAGE,
     DEFAULT_NAME,
     DEFAULT_SCAN_INTERVAL,
     DEFAULT_UNITS,
-    DEFAULT_ENDPOINT,
     DOMAIN,
     LANGUAGES,
     PW_PLATFORM,
@@ -96,7 +96,7 @@ class PirateWeatherConfigFlow(ConfigFlow, domain=DOMAIN):
                 vol.Optional(CONF_UNITS, default=DEFAULT_UNITS): vol.In(
                     ["si", "us", "ca", "uk"]
                 ),
-                vol.Optional(CONF_ENDPOINT, default=DEFAULT_ENDPOINT): str,                
+                vol.Optional(CONF_ENDPOINT, default=DEFAULT_ENDPOINT): str,
             }
         )
 
@@ -107,7 +107,7 @@ class PirateWeatherConfigFlow(ConfigFlow, domain=DOMAIN):
             forecastPlatform = user_input[PW_PLATFORM]
             entityNamee = user_input[CONF_NAME]
             endpoint = user_input[CONF_ENDPOINT]
-            
+
             # Convert scan interval to timedelta
             if isinstance(user_input[CONF_SCAN_INTERVAL], str):
                 user_input[CONF_SCAN_INTERVAL] = cv.time_period_str(
@@ -189,7 +189,7 @@ class PirateWeatherConfigFlow(ConfigFlow, domain=DOMAIN):
         if CONF_SCAN_INTERVAL not in config:
             config[CONF_SCAN_INTERVAL] = DEFAULT_SCAN_INTERVAL
         if CONF_ENDPOINT not in config:
-            config[CONF_ENDPOINT] = DEFAULT_ENDPOINT            
+            config[CONF_ENDPOINT] = DEFAULT_ENDPOINT
         return await self.async_step_user(config)
 
 
@@ -317,14 +317,7 @@ class PirateWeatherOptionsFlow(OptionsFlow):
 
 
 async def _is_pw_api_online(hass, api_key, lat, lon, endpoint):
-    forecastString = (
-        endpoint + "/forecast/"
-        + api_key
-        + "/"
-        + str(lat)
-        + ","
-        + str(lon)
-    )
+    forecastString = endpoint + "/forecast/" + api_key + "/" + str(lat) + "," + str(lon)
 
     async with (
         aiohttp.ClientSession(raise_for_status=False) as session,

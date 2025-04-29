@@ -20,8 +20,8 @@ from homeassistant.const import (
 from homeassistant.core import HomeAssistant
 
 from .const import (
-    CONF_UNITS,
     CONF_ENDPOINT,
+    CONF_UNITS,
     DEFAULT_ENDPOINT,
     DOMAIN,
     ENTRY_NAME,
@@ -59,18 +59,16 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     pw_scan_Int = _get_config_value(entry, CONF_SCAN_INTERVAL)
     language = _get_config_value(entry, CONF_LANGUAGE)
     endpoint = _get_config_value(entry, CONF_ENDPOINT)
-    
+
     # If scan_interval config value is not configured fall back to the entry data config value
     if not pw_scan_Int:
         pw_scan_Int = entry.data[CONF_SCAN_INTERVAL]
 
-    
     # If endpoint config value is not configured fall back to the default
     if not endpoint:
         endpoint = DEFAULT_ENDPOINT
         _LOGGER.info("Using default Pirate Weather Endpoint")
-        
-          
+
     # If latitude or longitude is not configured fall back to the HA location
     if not latitude:
         latitude = hass.config.latitude
@@ -110,7 +108,13 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     hass.data.setdefault(DOMAIN, {})
     # Create and link weather WeatherUpdateCoordinator
     weather_coordinator = WeatherUpdateCoordinator(
-        api_key, latitude, longitude, timedelta(seconds=pw_scan_Int), language, endpoint, hass
+        api_key,
+        latitude,
+        longitude,
+        timedelta(seconds=pw_scan_Int),
+        language,
+        endpoint,
+        hass,
     )
     hass.data[DOMAIN][unique_location] = weather_coordinator
 
@@ -192,11 +196,10 @@ async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
 def _get_config_value(config_entry: ConfigEntry, key: str) -> Any:
     if config_entry.options and key in config_entry.options:
         return config_entry.options[key]
-    # Check if key exists     
-    elif config_entry.data and key in config_entry.data: 
-      return config_entry.data[key]
-    else:
-      return None
+    # Check if key exists
+    if config_entry.data and key in config_entry.data:
+        return config_entry.data[key]
+    return None
 
 
 def _filter_domain_configs(elements, domain):

@@ -12,6 +12,7 @@ class UnicodeMixin:
         """Return the unicode representation of the object for Python 2/3 compatibility."""
         return self.__unicode__()
 
+
 """Models used in the Pirate Weather library."""
 
 

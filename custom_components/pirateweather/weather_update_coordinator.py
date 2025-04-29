@@ -21,7 +21,9 @@ ATTRIBUTION = "Powered by Pirate Weather"
 class WeatherUpdateCoordinator(DataUpdateCoordinator):
     """Weather data update coordinator."""
 
-    def __init__(self, api_key, latitude, longitude, pw_scan_Int, language, endpoint, hass):
+    def __init__(
+        self, api_key, latitude, longitude, pw_scan_Int, language, endpoint, hass
+    ):
         """Initialize coordinator."""
         self._api_key = api_key
         self.latitude = latitude
@@ -63,8 +65,8 @@ class WeatherUpdateCoordinator(DataUpdateCoordinator):
             requestLongitude = self.longitude
 
         forecastString = (
-            self.endpoint + 
-            "/forecast/"
+            self.endpoint
+            + "/forecast/"
             + self._api_key
             + "/"
             + str(requestLatitude)
@@ -87,6 +89,6 @@ class WeatherUpdateCoordinator(DataUpdateCoordinator):
             headers = resp.headers
             status = resp.raise_for_status()
 
-            _LOGGER.debug("Pirate Weather data update from: " + self.endpoint)
+            _LOGGER.debug("Pirate Weather data update from: %s", self.endpoint)
 
             return Forecast(jsonText, status, headers)
