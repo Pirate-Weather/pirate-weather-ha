@@ -12,9 +12,7 @@ class UnicodeMixin:
         """Return the unicode representation of the object for Python 2/3 compatibility."""
         return self.__unicode__()
 
-
-class PropertyUnavailable(AttributeError):
-    """Raise when a requested property is unavailable in the forecast data."""
+"""Models used in the Pirate Weather library."""
 
 
 class Forecast(UnicodeMixin):
@@ -38,19 +36,23 @@ class Forecast(UnicodeMixin):
 
     def currently(self):
         """Return the current weather data block."""
-        return self._forcastio_data("currently")
+        return self._pirateweather_data("currently")
 
     def minutely(self):
         """Return the minutely weather data block."""
-        return self._forcastio_data("minutely")
+        return self._pirateweather_data("minutely")
 
     def hourly(self):
         """Return the hourly weather data block."""
-        return self._forcastio_data("hourly")
+        return self._pirateweather_data("hourly")
 
     def daily(self):
         """Return the daily weather data block."""
-        return self._forcastio_data("daily")
+        return self._pirateweather_data("daily")
+
+    def flags(self):
+        """Return the flags data block."""
+        return self._pirateweather_data("flags")
 
     def offset(self):
         """Return the time zone offset for the forecast location."""
@@ -60,31 +62,33 @@ class Forecast(UnicodeMixin):
         """Return the list of alerts issued for this forecast."""
         return self._alerts
 
-    def _forcastio_data(self, key):
+    def _pirateweather_data(self, key):
         """Fetch and return specific weather data (currently, minutely, hourly, daily)."""
-        keys = ["minutely", "currently", "hourly", "daily"]
+        keys = ["minutely", "currently", "hourly", "daily", "flags"]
         try:
             if key not in self.json:
                 keys.remove(key)
                 url = "{}&exclude={}{}".format(
                     self.response.url.split("&")[0],
                     ",".join(keys),
-                    ",alerts,flags",
+                    ",alerts",
                 )
 
                 response = requests.get(url).json()
                 self.json[key] = response[key]
 
             if key == "currently":
-                return ForecastioDataPoint(self.json[key])
-            return ForecastioDataBlock(self.json[key])
+                return PirateWeatherDataPoint(self.json[key])
+            if key == "flags":
+                return PirateWeatherFlagsBlock(self.json[key])
+            return PirateWeatherDataBlock(self.json[key])
         except KeyError:
             if key == "currently":
-                return ForecastioDataPoint()
-            return ForecastioDataBlock()
+                return PirateWeatherDataPoint()
+            return PirateWeatherDataBlock()
 
 
-class ForecastioDataBlock(UnicodeMixin):
+class PirateWeatherDataBlock(UnicodeMixin):
     """Represent a block of weather data such as minutely, hourly, or daily summaries."""
 
     def __init__(self, d=None):
@@ -92,14 +96,33 @@ class ForecastioDataBlock(UnicodeMixin):
         d = d or {}
         self.summary = d.get("summary")
         self.icon = d.get("icon")
-        self.data = [ForecastioDataPoint(datapoint) for datapoint in d.get("data", [])]
+        self.data = [
+            PirateWeatherDataPoint(datapoint) for datapoint in d.get("data", [])
+        ]
 
     def __unicode__(self):
         """Return a string representation of the data block."""
         return f"<PirateWeatherDataBlock instance: {self.summary} with {len(self.data)} PirateWeatherDataPoints>"
 
 
-class ForecastioDataPoint(UnicodeMixin):
+class PirateWeatherFlagsBlock(UnicodeMixin):
+    """Represent a block of flags data."""
+
+    def __init__(self, d=None):
+        """Initialize the data block with flags information."""
+        d = d or {}
+        self.units = d.get("units")
+        self.version = d.get("version")
+        self.nearestStation = d.get("nearest-station")
+        self.sources = list(d.get("sources"))
+        self.sourceTimes = d.get("sourceTimes")
+
+    def __unicode__(self):
+        """Return a string representation of the data block."""
+        return f"<PirateWeatherFlagsDataBlock instance: {self.version}>"
+
+
+class PirateWeatherDataPoint(UnicodeMixin):
     """Represent a single data point in a weather forecast, such as an hourly or daily data point."""
 
     def __init__(self, d={}):
@@ -125,17 +148,15 @@ class ForecastioDataPoint(UnicodeMixin):
             self.sunsetTime = None
 
     def __getattr__(self, name):
-        """Return the weather property dynamically or raise PropertyUnavailable if missing."""
+        """Return the weather property dynamically or return None if missing."""
         try:
             return self.d[name]
-        except KeyError as err:
-            raise PropertyUnavailable(
-                f"Property '{name}' is not valid or is not available for this forecast"
-            ) from err
+        except KeyError:
+            return None
 
     def __unicode__(self):
         """Return a string representation of the data point."""
-        return f"<ForecastioDataPoint instance: {self.summary} at {self.time}>"
+        return f"<PirateWeatherDataPoint instance: {self.summary} at {self.time}>"
 
 
 class Alert(UnicodeMixin):
@@ -146,13 +167,11 @@ class Alert(UnicodeMixin):
         self.json = json
 
     def __getattr__(self, name):
-        """Return the alert property dynamically or raise PropertyUnavailable if missing."""
+        """Return the alert property dynamically or return None if missing."""
         try:
             return self.json[name]
-        except KeyError as err:
-            raise PropertyUnavailable(
-                f"Property '{name}' is not valid or is not available for this alert"
-            ) from err
+        except KeyError:
+            return None
 
     def __unicode__(self):
         """Return a string representation of the alert."""

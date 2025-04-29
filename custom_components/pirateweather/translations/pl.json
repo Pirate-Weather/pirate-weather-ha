@@ -22,7 +22,8 @@
                     "monitored_conditions": "Monitorowane warunki do tworzenia czujników. Używane tylko wtedy, gdy wymagane są sensory.",
                     "pw_platform": "Encja Pogody i/lub Encja Sensora. Sensor będzie tworzył encjei dla każdego warunku w każdym czasie. Jeśli nie jesteś pewien, wybierz tylko Pogoda!",
                     "pw_round": "Zaokrąglij wartości do najbliższej liczby całkowitej. Upewnij się, że wybrane jednostki pasują do jednostek systemowych.",
-                    "scan_interval": "Sekundy oczekiwania między aktualizacjami. Nie zaleca się skracania tego poniżej 900 sekund (15 minut)."                                         
+                    "scan_interval": "Sekundy oczekiwania między aktualizacjami. Nie zaleca się skracania tego poniżej 900 sekund (15 minut).", 
+                    "endpoint": "Punkt końcowy do użycia dev lub lokalnego źródła, z https:\\. Domyślnie jest to https:\\api.pirateweather.net"                                         
                 },
                 "description": "Skonfiguruj integrację Pirate Weather. Aby wygenerować klucz API, przejdź do https://pirateweather.net",
                 "data_description": {
@@ -47,7 +48,8 @@
                     "hourly_forecast":  "Sensory prognozy godzinowej w formie csv od 0 do 168 (np. '0,1,10'). Używane tylko wtedy, gdy wymagane są sensory. UWAGA: Usunięcie czujników spowoduje utworzenie osieroconych encji, które należy usunąć.",
                     "monitored_conditions": "Monitorowane warunki do tworzenia czujników. Używane tylko wtedy, gdy wymagane są sensory. UWAGA: Usunięcie czujników spowoduje utworzenie osieroconych encji, które należy usunąć.",
                     "pw_platform": "Encja Pogody i/lub Encja Sensora. Sensor będzie tworzył encjei dla każdego warunku w każdym czasie. Jeśli nie jesteś pewien, wybierz tylko Pogoda!",
-                    "pw_round": "Zaokrąglij wartości do najbliższej liczby całkowitej. Upewnij się, że wybrane jednostki pasują do jednostek systemowych."
+                    "pw_round": "Zaokrąglij wartości do najbliższej liczby całkowitej. Upewnij się, że wybrane jednostki pasują do jednostek systemowych.", 
+                    "endpoint": "Punkt końcowy do użycia dev lub lokalnego źródła, z https:\\. Domyślnie jest to https:\\api.pirateweather.net"
                 },
                 "description": "Skonfiguruj integrację Pirate Weather. Aby wygenerować klucz API, przejdź do https://pirateweather.net",
                 "data_description": {
