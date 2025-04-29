@@ -1127,9 +1127,8 @@ class PirateWeatherSensor(SensorEntity):
             "gefs_update_time",
         ]:
             try:
-                model_time_string = self._weather_coordinator.data.json["flags"][
-                    "sourceTimes"
-                ][self.entity_description.key]
+                flags =  self._weather_coordinator.data.flags()               
+                model_time_string = flags.sourceTimes[self.entity_description.key]
                 native_val = datetime.datetime.strptime(
                     model_time_string[0:-1], "%Y-%m-%d %H"
                 ).replace(tzinfo=datetime.UTC)
