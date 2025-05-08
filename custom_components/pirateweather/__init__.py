@@ -114,6 +114,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         timedelta(seconds=pw_scan_Int),
         language,
         endpoint,
+        units,
         hass,
     )
     hass.data[DOMAIN][unique_location] = weather_coordinator

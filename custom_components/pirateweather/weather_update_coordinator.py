@@ -22,7 +22,7 @@ class WeatherUpdateCoordinator(DataUpdateCoordinator):
     """Weather data update coordinator."""
 
     def __init__(
-        self, api_key, latitude, longitude, pw_scan_Int, language, endpoint, hass
+        self, api_key, latitude, longitude, pw_scan_Int, language, endpoint, units, hass
     ):
         """Initialize coordinator."""
         self._api_key = api_key
@@ -31,7 +31,7 @@ class WeatherUpdateCoordinator(DataUpdateCoordinator):
         self.pw_scan_Int = pw_scan_Int
         self.language = language
         self.endpoint = endpoint
-        self.requested_units = "si"
+        self.requested_units = units
 
         self.data = None
         self.currently = None
