@@ -197,6 +197,9 @@ class PirateWeather(SingleCoordinatorWeatherEntity[WeatherUpdateCoordinator]):
     _attr_native_temperature_unit = UnitOfTemperature.CELSIUS
     _attr_native_visibility_unit = UnitOfLength.KILOMETERS
     _attr_native_wind_speed_unit = UnitOfSpeed.METERS_PER_SECOND
+    _attr_supported_features = (
+            WeatherEntityFeature.FORECAST_DAILY | WeatherEntityFeature.FORECAST_HOURLY
+    )
 
     def __init__(
         self,
@@ -230,15 +233,6 @@ class PirateWeather(SingleCoordinatorWeatherEntity[WeatherUpdateCoordinator]):
     def unique_id(self):
         """Return a unique_id for this entity."""
         return self._unique_id
-
-    @property
-    def supported_features(self) -> WeatherEntityFeature:
-        """Determine supported features based on available data sets reported by Pirate Weather."""
-        features = WeatherEntityFeature(0)
-
-        features |= WeatherEntityFeature.FORECAST_DAILY
-        features |= WeatherEntityFeature.FORECAST_HOURLY
-        return features
 
     @property
     def available(self):
@@ -343,23 +337,3 @@ class PirateWeather(SingleCoordinatorWeatherEntity[WeatherUpdateCoordinator]):
             return None
 
         return [_map_hourly_forecast(f) for f in hourly_forecast]
-
-    async def async_update(self) -> None:
-        """Get the latest data from PW and updates the states."""
-        await self._weather_coordinator.async_request_refresh()
-
-    #    async def update(self):
-    #        """Get the latest data from Dark Sky."""
-    #        await self._dark_sky.update()
-    #
-    #        self._ds_data = self._dark_sky.data
-    #        currently = self._dark_sky.currently
-    #        self._ds_currently = currently.d if currently else {}
-    #        self._ds_hourly = self._dark_sky.hourly
-    #        self._ds_daily = self._dark_sky.daily
-
-    async def async_added_to_hass(self) -> None:
-        """Connect to dispatcher listening for entity data notifications."""
-        self.async_on_remove(
-            self._weather_coordinator.async_add_listener(self.async_write_ha_state)
-        )
