@@ -1,4 +1,4 @@
-"""Consts for the OpenWeatherMap."""
+"""Consts for the Pirate Weather."""
 
 from __future__ import annotations
 
