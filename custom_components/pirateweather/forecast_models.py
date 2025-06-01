@@ -1,4 +1,4 @@
-"""Taken from the fantastic Dark Sky library: https://github.com/ZeevG/python-forecast.io in October 2024."""
+"""Taken from the fantastic Dark Sky library: https://github.com/ZeevG/python-forecast.io in October 2024. Updated in April 2025 using the Pirate Weather library: https://github.com/cloneofghosts/python-pirate-weather."""
 
 import datetime
 
