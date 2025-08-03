@@ -23,6 +23,7 @@ from .const import (
     CONF_ENDPOINT,
     CONF_UNITS,
     DEFAULT_ENDPOINT,
+    DEFAULT_SCAN_INTERVAL,
     DOMAIN,
     ENTRY_NAME,
     ENTRY_WEATHER_COORDINATOR,
@@ -62,7 +63,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
 
     # If scan_interval config value is not configured fall back to the entry data config value
     if not scan_interval:
-        scan_interval = entry.data[CONF_SCAN_INTERVAL]
+        scan_interval = entry.data.get(CONF_SCAN_INTERVAL, DEFAULT_SCAN_INTERVAL)
 
     # If endpoint config value is not configured fall back to the default
     if not endpoint:
