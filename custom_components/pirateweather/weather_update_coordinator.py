@@ -6,6 +6,7 @@ from http.client import HTTPException
 
 import aiohttp
 import async_timeout
+from homeassistant.config_entries import ConfigEntry
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, UpdateFailed
 
 from .const import (
@@ -22,7 +23,15 @@ class WeatherUpdateCoordinator(DataUpdateCoordinator):
     """Weather data update coordinator."""
 
     def __init__(
-        self, api_key, latitude, longitude, pw_scan_Int, language, endpoint, hass
+        self,
+        api_key,
+        latitude,
+        longitude,
+        pw_scan_Int,
+        language,
+        endpoint,
+        hass,
+        config_entry: ConfigEntry,
     ):
         """Initialize coordinator."""
         self._api_key = api_key
@@ -39,7 +48,13 @@ class WeatherUpdateCoordinator(DataUpdateCoordinator):
         self.daily = None
         self._connect_error = False
 
-        super().__init__(hass, _LOGGER, name=DOMAIN, update_interval=pw_scan_Int)
+        super().__init__(
+            hass,
+            _LOGGER,
+            name=DOMAIN,
+            update_interval=pw_scan_Int,
+            config_entry=config_entry,
+        )
 
     async def _async_update_data(self):
         """Update the data."""

@@ -115,6 +115,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         language,
         endpoint,
         hass,
+        entry,
     )
     hass.data[DOMAIN][unique_location] = weather_coordinator
 
