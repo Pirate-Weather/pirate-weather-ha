@@ -27,7 +27,7 @@ class WeatherUpdateCoordinator(DataUpdateCoordinator):
         api_key,
         latitude,
         longitude,
-        pw_scan_Int,
+        scan_interval,
         language,
         endpoint,
         hass,
@@ -37,7 +37,7 @@ class WeatherUpdateCoordinator(DataUpdateCoordinator):
         self._api_key = api_key
         self.latitude = latitude
         self.longitude = longitude
-        self.pw_scan_Int = pw_scan_Int
+        self.scan_interval = scan_interval
         self.language = language
         self.endpoint = endpoint
         self.requested_units = "si"
@@ -52,7 +52,7 @@ class WeatherUpdateCoordinator(DataUpdateCoordinator):
             hass,
             _LOGGER,
             name=DOMAIN,
-            update_interval=pw_scan_Int,
+            update_interval=scan_interval,
             config_entry=config_entry,
         )
 
