@@ -92,6 +92,44 @@ MAP_CONDITION = {
     "none": ATTR_CONDITION_EXCEPTIONAL,
 }
 
+WEATHER_UNITS = {
+    "si": {
+        "temperature": UnitOfTemperature.CELSIUS,
+        "wind_speed": UnitOfSpeed.METERS_PER_SECOND,
+        "pressure": UnitOfPressure.MBAR,
+        "precipitation": UnitOfPrecipitationDepth.MILLIMETERS,
+        "visibility": UnitOfLength.KILOMETERS,
+    },
+    "us": {
+        "temperature": UnitOfTemperature.FAHRENHEIT,
+        "wind_speed": UnitOfSpeed.MILES_PER_HOUR,
+        "pressure": UnitOfPressure.MBAR,
+        "precipitation": UnitOfPrecipitationDepth.INCHES,
+        "visibility": UnitOfLength.MILES,
+    },
+    "ca": {
+        "temperature": UnitOfTemperature.CELSIUS,
+        "wind_speed": UnitOfSpeed.KILOMETERS_PER_HOUR,
+        "pressure": UnitOfPressure.MBAR,
+        "precipitation": UnitOfPrecipitationDepth.MILLIMETERS,
+        "visibility": UnitOfLength.KILOMETERS,
+    },
+    "uk": {
+        "temperature": UnitOfTemperature.CELSIUS,
+        "wind_speed": UnitOfSpeed.MILES_PER_HOUR,
+        "pressure": UnitOfPressure.MBAR,
+        "precipitation": UnitOfPrecipitationDepth.MILLIMETERS,
+        "visibility": UnitOfLength.MILES,
+    },
+    "uk2": {
+        "temperature": UnitOfTemperature.CELSIUS,
+        "wind_speed": UnitOfSpeed.MILES_PER_HOUR,
+        "pressure": UnitOfPressure.MBAR,
+        "precipitation": UnitOfPrecipitationDepth.MILLIMETERS,
+        "visibility": UnitOfLength.MILES,
+    },
+}
+
 CONF_UNITS = "units"
 
 DEFAULT_NAME = "Pirate Weather"
@@ -123,13 +161,16 @@ async def async_setup_platform(
     )
 
 
-def _map_daily_forecast(forecast) -> Forecast:
+def _map_daily_forecast(forecast, unit_system) -> Forecast:
+    precip = forecast.d.get("precipAccumulation")
+    if precip is not None and unit_system != "us":
+        precip = precip * 10
     return {
         "datetime": utc_from_timestamp(forecast.d.get("time")).isoformat(),
         "condition": MAP_CONDITION.get(forecast.d.get("icon")),
         "native_temperature": forecast.d.get("temperatureHigh"),
         "native_templow": forecast.d.get("temperatureLow"),
-        "native_precipitation": forecast.d.get("precipAccumulation") * 10,
+        "native_precipitation": precip,
         "precipitation_probability": round(
             forecast.d.get("precipProbability") * 100, 0
         ),
@@ -191,12 +232,6 @@ class PirateWeather(SingleCoordinatorWeatherEntity[WeatherUpdateCoordinator]):
 
     _attr_attribution = ATTRIBUTION
     _attr_should_poll = False
-
-    _attr_native_precipitation_unit = UnitOfPrecipitationDepth.MILLIMETERS
-    _attr_native_pressure_unit = UnitOfPressure.MBAR
-    _attr_native_temperature_unit = UnitOfTemperature.CELSIUS
-    _attr_native_visibility_unit = UnitOfLength.KILOMETERS
-    _attr_native_wind_speed_unit = UnitOfSpeed.METERS_PER_SECOND
     _attr_supported_features = (
         WeatherEntityFeature.FORECAST_DAILY | WeatherEntityFeature.FORECAST_HOURLY
     )
@@ -228,6 +263,15 @@ class PirateWeather(SingleCoordinatorWeatherEntity[WeatherUpdateCoordinator]):
         self._ds_daily = self._weather_coordinator.data.daily()
 
         self.outputRound = outputRound
+
+        units = WEATHER_UNITS.get(
+            self._weather_coordinator.requested_units, WEATHER_UNITS["si"]
+        )
+        self._attr_native_temperature_unit = units["temperature"]
+        self._attr_native_wind_speed_unit = units["wind_speed"]
+        self._attr_native_pressure_unit = units["pressure"]
+        self._attr_native_precipitation_unit = units["precipitation"]
+        self._attr_native_visibility_unit = units["visibility"]
 
     @property
     def unique_id(self):
@@ -326,7 +370,10 @@ class PirateWeather(SingleCoordinatorWeatherEntity[WeatherUpdateCoordinator]):
         if not daily_forecast:
             return None
 
-        return [_map_daily_forecast(f) for f in daily_forecast]
+        return [
+            _map_daily_forecast(f, self._weather_coordinator.requested_units)
+            for f in daily_forecast
+        ]
 
     @callback
     def _async_forecast_hourly(self) -> list[Forecast] | None:

@@ -29,6 +29,7 @@ class WeatherUpdateCoordinator(DataUpdateCoordinator):
         scan_interval,
         language,
         endpoint,
+        units,
         hass,
         config_entry: ConfigEntry,
     ):
@@ -39,7 +40,7 @@ class WeatherUpdateCoordinator(DataUpdateCoordinator):
         self.scan_interval = scan_interval
         self.language = language
         self.endpoint = endpoint
-        self.requested_units = "si"
+        self.requested_units = units or "si"
 
         self.data = None
         self.currently = None
