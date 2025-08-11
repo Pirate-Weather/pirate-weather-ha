@@ -294,8 +294,9 @@ class PirateWeather(SingleCoordinatorWeatherEntity[WeatherUpdateCoordinator]):
 
         return round(temperature, 2)
 
+    @property
     def native_apparent_temperature(self):
-        """Return the temperature."""
+        """Return the apparent temperature."""
         native_apparent_temperature = self._weather_coordinator.data.currently().d.get(
             "apparentTemperature"
         )
