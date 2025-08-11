@@ -5,9 +5,9 @@ from __future__ import annotations
 import logging
 from datetime import timedelta
 
-import aiohttp
 import homeassistant.helpers.config_validation as cv
 import voluptuous as vol
+from aiohttp import ClientError
 from homeassistant.config_entries import (
     ConfigEntry,
     ConfigFlow,
@@ -24,7 +24,7 @@ from homeassistant.const import (
     CONF_SCAN_INTERVAL,
 )
 from homeassistant.core import callback
-from httpx import HTTPError
+from homeassistant.helpers.aiohttp_client import async_get_clientsession
 
 from .const import (
     ALL_CONDITIONS,
@@ -141,7 +141,7 @@ class PirateWeatherConfigFlow(ConfigFlow, domain=DOMAIN):
                         "Invalid API Key, Ensure that you've subscribed to API at https://pirate-weather.apiable.io/"
                     )
 
-            except HTTPError:
+            except ClientError:
                 _LOGGER.warning(
                     "Pirate Weather Setup Error: API HTTP Error: %s", api_status
                 )
@@ -319,8 +319,6 @@ class PirateWeatherOptionsFlow(OptionsFlow):
 async def _is_pw_api_online(hass, api_key, lat, lon, endpoint):
     forecastString = endpoint + "/forecast/" + api_key + "/" + str(lat) + "," + str(lon)
 
-    async with (
-        aiohttp.ClientSession(raise_for_status=False) as session,
-        session.get(forecastString) as resp,
-    ):
+    session = async_get_clientsession(hass)
+    async with session.get(forecastString) as resp:
         return resp.status
