@@ -115,6 +115,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         timedelta(seconds=scan_interval),
         language,
         endpoint,
+        units,
         hass,
         entry,
     )
