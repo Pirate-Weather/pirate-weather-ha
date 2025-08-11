@@ -1,7 +1,9 @@
 # Pirate Weather Integrations
-This integration is designed to replace the defunct Dark Sky integration in Home Assistant with a modified and updated, but fully compatible version that relies on the [Pirate Weather API](https://pirateweather.net/en/latest/) instead! 
+This integration is designed to replace the defunct Dark Sky integration in Home Assistant with a modified and updated, but fully compatible version that relies on the [Pirate Weather API](https://pirateweather.net/en/latest/) instead!
 
 To get a feel for the data returned by this API, check out <https://merrysky.net>! To view the current API status check out the [status page](https://pirateweather.xitoring.io/).
+
+Configuration now includes an optional field to exclude specific weather models from the forecast.
 
 I'm really hoping to keep free access going for this API, but it does take money to run the AWS back-end. If you'd like to support this project, I have a sponsorship link setup on my [profile](https://github.com/sponsors/alexander0042/)! This project (especially the free tier) wouldn't be possibile without the ongoing support from the project sponsors, so they're the [heros](https://github.com/SJV83) [here](https://github.com/matthewj301)! 
 

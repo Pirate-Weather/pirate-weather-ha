@@ -38,6 +38,7 @@ MANUFACTURER = "PirateWeather"
 CONF_LANGUAGE = "language"
 CONF_UNITS = "units"
 CONF_ENDPOINT = "endpoint"
+CONF_MODELS = "models"
 CONFIG_FLOW_VERSION = 2
 ENTRY_NAME = "name"
 ENTRY_WEATHER_COORDINATOR = "weather_coordinator"
