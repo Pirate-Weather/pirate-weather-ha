@@ -118,7 +118,7 @@ WEATHER_UNITS = {
         "temperature": UnitOfTemperature.CELSIUS,
         "wind_speed": UnitOfSpeed.MILES_PER_HOUR,
         "pressure": UnitOfPressure.MBAR,
-        "precipitation": UnitOfPrecipitationDepth.INCHES,
+        "precipitation": UnitOfPrecipitationDepth.MILLIMETERS,
         "visibility": UnitOfLength.MILES,
     },
     "uk2": {
@@ -163,7 +163,7 @@ async def async_setup_platform(
 
 def _map_daily_forecast(forecast, unit_system) -> Forecast:
     precip = forecast.d.get("precipAccumulation")
-    if precip is not None and unit_system not in ["us", "uk"]:
+    if precip is not None and unit_system not in ["us"]:
         precip = precip * 10
     return {
         "datetime": utc_from_timestamp(forecast.d.get("time")).isoformat(),
