@@ -98,8 +98,7 @@ class WeatherUpdateCoordinator(DataUpdateCoordinator):
         session = async_get_clientsession(self.hass)
         async with session.get(forecastString) as resp:
             resp.raise_for_status()
-            resptext = await resp.text()
-            jsonText = json.loads(resptext)
+            jsonText = await resp.json()
             headers = resp.headers
             _LOGGER.debug("Pirate Weather data update from: %s", self.endpoint)
             return Forecast(jsonText, resp, headers)
