@@ -247,12 +247,6 @@ class PirateWeather(SingleCoordinatorWeatherEntity[WeatherUpdateCoordinator]):
         """Initialize the sensor."""
         super().__init__(weather_coordinator)
         self._attr_name = name
-        # self._attr_device_info = DeviceInfo(
-        #    entry_type=DeviceEntryType.SERVICE,
-        #    identifiers={(DOMAIN, unique_id)},
-        #    manufacturer=MANUFACTURER,
-        #    name=DEFAULT_NAME,
-        # )
         self._weather_coordinator = weather_coordinator
         self._name = name
         self._mode = forecast_mode
@@ -300,6 +294,13 @@ class PirateWeather(SingleCoordinatorWeatherEntity[WeatherUpdateCoordinator]):
 
         return round(temperature, 2)
 
+    def native_apparent_temperature(self):
+        """Return the temperature."""
+        native_apparent_temperature = self._weather_coordinator.data.currently().d.get("apparentTemperature")
+
+        return round(native_apparent_temperature, 2)
+
+
     @property
     def cloud_coverage(self):
         """Return the cloud coverage."""
@@ -315,6 +316,14 @@ class PirateWeather(SingleCoordinatorWeatherEntity[WeatherUpdateCoordinator]):
         humidity = self._weather_coordinator.data.currently().d.get("humidity") * 100.0
 
         return round(humidity, 2)
+
+    @property
+    def native_dew_point(self):
+        """Return the dew point."""
+        native_dew_point = self._weather_coordinator.data.currently().d.get("dewPoint")
+
+        return round(native_dew_point, 2)
+
 
     @property
     def native_wind_speed(self):
