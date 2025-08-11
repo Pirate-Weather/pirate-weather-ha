@@ -21,6 +21,7 @@ from homeassistant.core import HomeAssistant
 
 from .const import (
     CONF_ENDPOINT,
+    CONF_MODELS,
     CONF_UNITS,
     DEFAULT_ENDPOINT,
     DEFAULT_SCAN_INTERVAL,
@@ -60,6 +61,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     scan_interval = _get_config_value(entry, CONF_SCAN_INTERVAL)
     language = _get_config_value(entry, CONF_LANGUAGE)
     endpoint = _get_config_value(entry, CONF_ENDPOINT)
+    models = _get_config_value(entry, CONF_MODELS)
 
     # If scan_interval config value is not configured fall back to the entry data config value
     if not scan_interval:
@@ -118,6 +120,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         units,
         hass,
         entry,
+        models,
     )
     hass.data[DOMAIN][unique_location] = weather_coordinator
 
@@ -140,6 +143,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         CONF_SCAN_INTERVAL: scan_interval,
         CONF_LANGUAGE: language,
         CONF_ENDPOINT: endpoint,
+        CONF_MODELS: models,
     }
 
     # Setup platforms

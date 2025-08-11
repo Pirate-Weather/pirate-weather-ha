@@ -32,6 +32,7 @@ class WeatherUpdateCoordinator(DataUpdateCoordinator):
         units,
         hass,
         config_entry: ConfigEntry,
+        models: str | None,
     ):
         """Initialize coordinator."""
         self._api_key = api_key
@@ -41,6 +42,7 @@ class WeatherUpdateCoordinator(DataUpdateCoordinator):
         self.language = language
         self.endpoint = endpoint
         self.requested_units = units or "si"
+        self.models = models
 
         self.data = None
         self.currently = None
@@ -94,6 +96,9 @@ class WeatherUpdateCoordinator(DataUpdateCoordinator):
             + "&lang="
             + self.language
         )
+        if self.models:
+            exclusions = ",".join(f"!{m.strip()}" for m in self.models.split(","))
+            forecastString += "&models=" + exclusions
 
         session = async_get_clientsession(self.hass)
         async with session.get(forecastString) as resp:

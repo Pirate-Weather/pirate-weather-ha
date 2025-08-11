@@ -30,6 +30,7 @@ from .const import (
     ALL_CONDITIONS,
     CONF_ENDPOINT,
     CONF_LANGUAGE,
+    CONF_MODELS,
     CONF_UNITS,
     CONFIG_FLOW_VERSION,
     DEFAULT_ENDPOINT,
@@ -87,6 +88,7 @@ class PirateWeatherConfigFlow(ConfigFlow, domain=DOMAIN):
                 vol.Required(CONF_LANGUAGE, default=DEFAULT_LANGUAGE): vol.In(
                     LANGUAGES
                 ),
+                vol.Optional(CONF_MODELS, default=""): str,
                 vol.Optional(CONF_FORECAST, default=""): str,
                 vol.Optional(CONF_HOURLY_FORECAST, default=""): str,
                 vol.Optional(CONF_MONITORED_CONDITIONS, default=[]): cv.multi_select(
@@ -264,6 +266,15 @@ class PirateWeatherOptionsFlow(OptionsFlow):
                         self.config_entry.data.get(CONF_LANGUAGE, DEFAULT_LANGUAGE),
                     ),
                 ): vol.In(LANGUAGES),
+                vol.Optional(
+                    CONF_MODELS,
+                    default=str(
+                        self.config_entry.options.get(
+                            CONF_MODELS,
+                            self.config_entry.data.get(CONF_MODELS, ""),
+                        ),
+                    ),
+                ): str,
                 vol.Optional(
                     CONF_FORECAST,
                     default=str(
