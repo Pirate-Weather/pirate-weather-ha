@@ -1,9 +1,9 @@
 """Weather data coordinator for the Pirate Weather service."""
 
-import json
 import logging
 from http.client import HTTPException
 
+from aiohttp import ClientError
 import async_timeout
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
@@ -62,7 +62,7 @@ class WeatherUpdateCoordinator(DataUpdateCoordinator):
         async with async_timeout.timeout(60):
             try:
                 data = await self._get_pw_weather()
-            except HTTPException as err:
+            except ClientError as err:
                 raise UpdateFailed(f"Error communicating with API: {err}") from err
         return data
 
