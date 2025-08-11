@@ -25,7 +25,6 @@ from homeassistant.const import (
 )
 from homeassistant.core import callback
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
-from httpx import HTTPError
 
 from .const import (
     ALL_CONDITIONS,

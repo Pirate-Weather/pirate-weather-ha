@@ -1,9 +1,8 @@
 """Weather data coordinator for the Pirate Weather service."""
 
-import logging
-from http.client import HTTPException
-
 from aiohttp import ClientError
+import logging
+
 import async_timeout
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
