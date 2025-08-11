@@ -8,6 +8,7 @@
   "dependencies": [],
   "documentation": "https://github.com/alexander0042/pirate-weather-ha",
   "iot_class": "cloud_polling",
+  "integration_type": "service",
   "issue_tracker": "https://github.com/alexander0042/pirate-weather-ha/issues",
   "version": "1.7.4"
 }

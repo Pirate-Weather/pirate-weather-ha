@@ -5,7 +5,6 @@ from __future__ import annotations
 import logging
 from datetime import timedelta
 
-import aiohttp
 import homeassistant.helpers.config_validation as cv
 import voluptuous as vol
 from homeassistant.config_entries import (
@@ -24,6 +23,7 @@ from homeassistant.const import (
     CONF_SCAN_INTERVAL,
 )
 from homeassistant.core import callback
+from homeassistant.helpers.aiohttp_client import async_get_clientsession
 from httpx import HTTPError
 
 from .const import (
@@ -319,8 +319,6 @@ class PirateWeatherOptionsFlow(OptionsFlow):
 async def _is_pw_api_online(hass, api_key, lat, lon, endpoint):
     forecastString = endpoint + "/forecast/" + api_key + "/" + str(lat) + "," + str(lon)
 
-    async with (
-        aiohttp.ClientSession(raise_for_status=False) as session,
-        session.get(forecastString) as resp,
-    ):
+    session = async_get_clientsession(hass)
+    async with session.get(forecastString) as resp:
         return resp.status

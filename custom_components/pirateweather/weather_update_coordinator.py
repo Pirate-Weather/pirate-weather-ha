@@ -4,9 +4,9 @@ import json
 import logging
 from http.client import HTTPException
 
-import aiohttp
 import async_timeout
 from homeassistant.config_entries import ConfigEntry
+from homeassistant.helpers.aiohttp_client import async_get_clientsession
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, UpdateFailed
 
 from .const import (
@@ -95,10 +95,8 @@ class WeatherUpdateCoordinator(DataUpdateCoordinator):
             + self.language
         )
 
-        async with (
-            aiohttp.ClientSession(raise_for_status=True) as session,
-            session.get(forecastString) as resp,
-        ):
+        session = async_get_clientsession(self.hass)
+        async with session.get(forecastString) as resp:
             resptext = await resp.text()
             jsonText = json.loads(resptext)
             headers = resp.headers
