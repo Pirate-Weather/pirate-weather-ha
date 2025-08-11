@@ -296,10 +296,11 @@ class PirateWeather(SingleCoordinatorWeatherEntity[WeatherUpdateCoordinator]):
 
     def native_apparent_temperature(self):
         """Return the temperature."""
-        native_apparent_temperature = self._weather_coordinator.data.currently().d.get("apparentTemperature")
+        native_apparent_temperature = self._weather_coordinator.data.currently().d.get(
+            "apparentTemperature"
+        )
 
         return round(native_apparent_temperature, 2)
-
 
     @property
     def cloud_coverage(self):
@@ -323,7 +324,6 @@ class PirateWeather(SingleCoordinatorWeatherEntity[WeatherUpdateCoordinator]):
         native_dew_point = self._weather_coordinator.data.currently().d.get("dewPoint")
 
         return round(native_dew_point, 2)
-
 
     @property
     def native_wind_speed(self):
