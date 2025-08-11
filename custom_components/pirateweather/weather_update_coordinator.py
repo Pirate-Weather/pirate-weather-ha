@@ -100,7 +100,8 @@ class WeatherUpdateCoordinator(DataUpdateCoordinator):
             exclusions = ",".join(
                 m.strip() for m in self.models.split(",") if m.strip()
             )
-            if exclusions: forecastString += "&exclude=" + exclusions
+            if exclusions:
+                forecastString += "&exclude=" + exclusions
 
         session = async_get_clientsession(self.hass)
         async with session.get(forecastString) as resp:
