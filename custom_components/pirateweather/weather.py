@@ -123,13 +123,16 @@ async def async_setup_platform(
     )
 
 
-def _map_daily_forecast(forecast) -> Forecast:
+def _map_daily_forecast(forecast, units: str) -> Forecast:
+    precip = forecast.d.get("precipAccumulation")
+    if precip is not None and units != "us":
+        precip = precip * 10
     return {
         "datetime": utc_from_timestamp(forecast.d.get("time")).isoformat(),
         "condition": MAP_CONDITION.get(forecast.d.get("icon")),
         "native_temperature": forecast.d.get("temperatureHigh"),
         "native_templow": forecast.d.get("temperatureLow"),
-        "native_precipitation": forecast.d.get("precipAccumulation") * 10,
+        "native_precipitation": precip,
         "precipitation_probability": round(
             forecast.d.get("precipProbability") * 100, 0
         ),
@@ -229,6 +232,31 @@ class PirateWeather(SingleCoordinatorWeatherEntity[WeatherUpdateCoordinator]):
 
         self.outputRound = outputRound
 
+        units = self._weather_coordinator.requested_units
+        if units == "us":
+            self._attr_native_temperature_unit = UnitOfTemperature.FAHRENHEIT
+            self._attr_native_wind_speed_unit = UnitOfSpeed.MILES_PER_HOUR
+            self._attr_native_visibility_unit = UnitOfLength.MILES
+            self._attr_native_precipitation_unit = UnitOfPrecipitationDepth.INCHES
+        elif units == "ca":
+            self._attr_native_temperature_unit = UnitOfTemperature.CELSIUS
+            self._attr_native_wind_speed_unit = UnitOfSpeed.KILOMETERS_PER_HOUR
+            self._attr_native_visibility_unit = UnitOfLength.KILOMETERS
+            self._attr_native_precipitation_unit = UnitOfPrecipitationDepth.MILLIMETERS
+        elif units in ["uk", "uk2"]:
+            self._attr_native_temperature_unit = UnitOfTemperature.CELSIUS
+            self._attr_native_wind_speed_unit = UnitOfSpeed.MILES_PER_HOUR
+            if units == "uk2":
+                self._attr_native_visibility_unit = UnitOfLength.MILES
+            else:
+                self._attr_native_visibility_unit = UnitOfLength.KILOMETERS
+            self._attr_native_precipitation_unit = UnitOfPrecipitationDepth.MILLIMETERS
+        else:
+            self._attr_native_temperature_unit = UnitOfTemperature.CELSIUS
+            self._attr_native_wind_speed_unit = UnitOfSpeed.METERS_PER_SECOND
+            self._attr_native_visibility_unit = UnitOfLength.KILOMETERS
+            self._attr_native_precipitation_unit = UnitOfPrecipitationDepth.MILLIMETERS
+
     @property
     def unique_id(self):
         """Return a unique_id for this entity."""
@@ -326,7 +354,8 @@ class PirateWeather(SingleCoordinatorWeatherEntity[WeatherUpdateCoordinator]):
         if not daily_forecast:
             return None
 
-        return [_map_daily_forecast(f) for f in daily_forecast]
+        units = self._weather_coordinator.requested_units
+        return [_map_daily_forecast(f, units) for f in daily_forecast]
 
     @callback
     def _async_forecast_hourly(self) -> list[Forecast] | None:
