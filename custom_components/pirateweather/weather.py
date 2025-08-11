@@ -118,7 +118,7 @@ WEATHER_UNITS = {
         "temperature": UnitOfTemperature.CELSIUS,
         "wind_speed": UnitOfSpeed.MILES_PER_HOUR,
         "pressure": UnitOfPressure.MBAR,
-        "precipitation": UnitOfPrecipitationDepth.MILLIMETERS,
+        "precipitation": UnitOfPrecipitationDepth.INCHES,
         "visibility": UnitOfLength.MILES,
     },
     "uk2": {
