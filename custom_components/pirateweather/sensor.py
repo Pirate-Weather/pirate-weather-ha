@@ -1186,6 +1186,10 @@ class PirateWeatherSensor(SensorEntity):
             lookup_type = convert_to_camel(self.type)
             state = data.get(lookup_type)
 
+            # If the sensor is numeric and the data is -999 set return None instead of -999
+            if isinstance(state, (int, float)) and state == -999:
+                return None
+
         if state is None:
             return state
 
