@@ -292,7 +292,7 @@ class PirateWeather(SingleCoordinatorWeatherEntity[WeatherUpdateCoordinator]):
         """Return the temperature."""
         temperature = self._weather_coordinator.data.currently().d.get("temperature")
 
-        return round(temperature, 2)
+        return round(temperature, 2) if temperature != -999 else None
 
     @property
     def native_apparent_temperature(self):
@@ -301,7 +301,11 @@ class PirateWeather(SingleCoordinatorWeatherEntity[WeatherUpdateCoordinator]):
             "apparentTemperature"
         )
 
-        return round(native_apparent_temperature, 2)
+        return (
+            round(native_apparent_temperature, 2)
+            if native_apparent_temperature != -999
+            else None
+        )
 
     @property
     def cloud_coverage(self):
@@ -310,61 +314,63 @@ class PirateWeather(SingleCoordinatorWeatherEntity[WeatherUpdateCoordinator]):
             self._weather_coordinator.data.currently().d.get("cloudCover") * 100.0
         )
 
-        return round(cloudCover, 2)
+        return round(cloudCover, 2) if cloudCover != -999 else None
 
     @property
     def humidity(self):
         """Return the humidity."""
         humidity = self._weather_coordinator.data.currently().d.get("humidity") * 100.0
 
-        return round(humidity, 2)
+        return round(humidity, 2) if humidity != -999 else None
 
     @property
     def native_dew_point(self):
         """Return the dew point."""
         native_dew_point = self._weather_coordinator.data.currently().d.get("dewPoint")
 
-        return round(native_dew_point, 2)
+        return round(native_dew_point, 2) if native_dew_point != -999 else None
 
     @property
     def native_wind_speed(self):
         """Return the wind speed."""
         windspeed = self._weather_coordinator.data.currently().d.get("windSpeed")
 
-        return round(windspeed, 2)
+        return round(windspeed, 2) if windspeed != -999 else None
 
     @property
     def native_wind_gust_speed(self):
         """Return the wind gust speed."""
         windGust = self._weather_coordinator.data.currently().d.get("windGust")
 
-        return round(windGust, 2)
+        return round(windGust, 2) if windGust != -999 else None
 
     @property
     def wind_bearing(self):
         """Return the wind bearing."""
-        return self._weather_coordinator.data.currently().d.get("windBearing")
+        windBearing = self._weather_coordinator.data.currently().d.get("windBearing")
+
+        return windBearing if windBearing != -999 else None
 
     @property
     def ozone(self):
         """Return the ozone level."""
         ozone = self._weather_coordinator.data.currently().d.get("ozone")
 
-        return round(ozone, 2)
+        return round(ozone, 2) if ozone != -999 else None
 
     @property
     def native_pressure(self):
         """Return the pressure."""
         pressure = self._weather_coordinator.data.currently().d.get("pressure")
 
-        return round(pressure, 2)
+        return round(pressure, 2) if pressure != -999 else None
 
     @property
     def native_visibility(self):
         """Return the visibility."""
         visibility = self._weather_coordinator.data.currently().d.get("visibility")
 
-        return round(visibility, 2)
+        return round(visibility, 2) if visibility != -999 else None
 
     @property
     def condition(self):
