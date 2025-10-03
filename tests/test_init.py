@@ -51,6 +51,7 @@ async def test_setup_entry_with_coordinator_error(
     mock_config_entry,
 ) -> None:
     """Test setup fails when coordinator cannot fetch data."""
+
     # Mock a failed API response
     class AsyncContextManagerMock:
         """Mock async context manager for response."""
