@@ -56,6 +56,29 @@ Home Assistant instance running and already configured with the included
 [`configuration.yaml`](./config/configuration.yaml)
 file.
 
+### Running Tests
+
+The project includes a comprehensive test suite to ensure the integration works correctly. Before submitting a pull request, please:
+
+1. Install test dependencies:
+   ```bash
+   pip install -r requirements_test.txt
+   ```
+
+2. Run the tests:
+   ```bash
+   ./scripts/test
+   ```
+
+   Or manually:
+   ```bash
+   pytest tests/
+   ```
+
+3. Ensure all tests pass and add new tests for any new functionality.
+
+For more information about the test suite, see [tests/README.md](tests/README.md).
+
 ## License
 
 By contributing, you agree that your contributions will be licensed under its Apache-2.0 License.

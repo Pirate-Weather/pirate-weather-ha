@@ -1,0 +1,150 @@
+{
+  "latitude": 37.8267,
+  "longitude": -122.4233,
+  "timezone": "America/Los_Angeles",
+  "offset": -8,
+  "elevation": 2,
+  "currently": {
+    "time": 1642524000,
+    "summary": "Clear",
+    "icon": "clear-day",
+    "nearestStormDistance": 0,
+    "nearestStormBearing": 0,
+    "precipIntensity": 0,
+    "precipProbability": 0,
+    "precipIntensityError": 0,
+    "precipType": "none",
+    "temperature": 55.5,
+    "apparentTemperature": 54.2,
+    "dewPoint": 38.8,
+    "humidity": 0.55,
+    "pressure": 1013.2,
+    "windSpeed": 5.2,
+    "windGust": 8.1,
+    "windBearing": 270,
+    "cloudCover": 0.1,
+    "uvIndex": 3,
+    "visibility": 10,
+    "ozone": 300
+  },
+  "minutely": {
+    "summary": "Clear for the hour.",
+    "icon": "clear-day",
+    "data": [
+      {
+        "time": 1642524000,
+        "precipIntensity": 0,
+        "precipProbability": 0,
+        "precipIntensityError": 0,
+        "precipType": "none"
+      }
+    ]
+  },
+  "hourly": {
+    "summary": "Clear throughout the day.",
+    "icon": "clear-day",
+    "data": [
+      {
+        "time": 1642524000,
+        "icon": "clear-day",
+        "summary": "Clear",
+        "precipIntensity": 0,
+        "precipProbability": 0,
+        "precipIntensityError": 0,
+        "precipAccumulation": 0,
+        "precipType": "none",
+        "temperature": 55.5,
+        "apparentTemperature": 54.2,
+        "dewPoint": 38.8,
+        "humidity": 0.55,
+        "pressure": 1013.2,
+        "windSpeed": 5.2,
+        "windGust": 8.1,
+        "windBearing": 270,
+        "cloudCover": 0.1,
+        "uvIndex": 3,
+        "visibility": 10,
+        "ozone": 300
+      },
+      {
+        "time": 1642527600,
+        "icon": "clear-day",
+        "summary": "Clear",
+        "precipIntensity": 0,
+        "precipProbability": 0,
+        "precipIntensityError": 0,
+        "precipAccumulation": 0,
+        "precipType": "none",
+        "temperature": 56.8,
+        "apparentTemperature": 55.4,
+        "dewPoint": 39.2,
+        "humidity": 0.52,
+        "pressure": 1013.0,
+        "windSpeed": 5.5,
+        "windGust": 8.4,
+        "windBearing": 275,
+        "cloudCover": 0.12,
+        "uvIndex": 4,
+        "visibility": 10,
+        "ozone": 298
+      }
+    ]
+  },
+  "daily": {
+    "summary": "No precipitation throughout the week.",
+    "icon": "clear-day",
+    "data": [
+      {
+        "time": 1642492800,
+        "icon": "clear-day",
+        "summary": "Clear throughout the day.",
+        "sunriseTime": 1642516200,
+        "sunsetTime": 1642551000,
+        "moonPhase": 0.51,
+        "precipIntensity": 0,
+        "precipIntensityMax": 0,
+        "precipIntensityMaxTime": 1642492800,
+        "precipProbability": 0,
+        "precipAccumulation": 0,
+        "precipType": "none",
+        "temperatureHigh": 58.2,
+        "temperatureHighTime": 1642539600,
+        "temperatureLow": 45.3,
+        "temperatureLowTime": 1642579200,
+        "apparentTemperatureHigh": 57.1,
+        "apparentTemperatureHighTime": 1642539600,
+        "apparentTemperatureLow": 44.1,
+        "apparentTemperatureLowTime": 1642579200,
+        "dewPoint": 39.5,
+        "humidity": 0.58,
+        "pressure": 1013.5,
+        "windSpeed": 5.8,
+        "windGust": 9.2,
+        "windGustTime": 1642539600,
+        "windBearing": 272,
+        "cloudCover": 0.15,
+        "uvIndex": 4,
+        "uvIndexTime": 1642532400,
+        "visibility": 10,
+        "temperatureMin": 45.3,
+        "temperatureMinTime": 1642492800,
+        "temperatureMax": 58.2,
+        "temperatureMaxTime": 1642539600,
+        "apparentTemperatureMin": 44.1,
+        "apparentTemperatureMinTime": 1642492800,
+        "apparentTemperatureMax": 57.1,
+        "apparentTemperatureMaxTime": 1642539600
+      }
+    ]
+  },
+  "alerts": [],
+  "flags": {
+    "sources": ["gfs", "gefs"],
+    "sourceTimes": {
+      "gfs": "2022-01-18 18:00:00",
+      "gefs": "2022-01-18 18:00:00"
+    },
+    "units": "us",
+    "version": "V2.0"
+  }
+}

@@ -10,3 +10,7 @@ config/.storage/*
 config/blueprints/*
 .ruff_cache
 config/deps/*
+.pytest_cache
+htmlcov
+.tox
+*.egg-info

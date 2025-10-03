@@ -1,0 +1,14 @@
+#!/usr/bin/env bash
+
+set -e
+
+cd "$(dirname "$0")/.."
+
+# Install test requirements if not already installed
+if ! python3 -c "import pytest" 2>/dev/null; then
+    echo "Installing test requirements..."
+    python3 -m pip install -r requirements_test.txt
+fi
+
+# Run tests
+python3 -m pytest tests/ "$@"
