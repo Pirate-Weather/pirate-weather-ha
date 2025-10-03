@@ -32,9 +32,3 @@ jobs:
 
       - name: "Run tests"
         run: python3 -m pytest tests/ -v --tb=short
-
-      - name: "Upload coverage reports"
-        if: matrix.python-version == '3.13'
-        uses: codecov/codecov-action@v5
-        with:
-          fail_ci_if_error: false
