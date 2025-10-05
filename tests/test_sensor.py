@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import pytest
 from homeassistant.const import (
     CONF_API_KEY,
     CONF_LATITUDE,
@@ -98,8 +99,7 @@ async def test_sensor_values(
     temp_sensor = hass.states.get("sensor.pirateweather_temperature")
     assert temp_sensor is not None
     # The API returns 62.64°F which is ~17.02°C
-    assert float(temp_sensor.state) > 15.0
-    assert float(temp_sensor.state) < 20.0
+    assert float(temp_sensor.state) == pytest.approx(17.02, abs=0.01)
 
     humidity_sensor = hass.states.get("sensor.pirateweather_humidity")
     assert humidity_sensor is not None
@@ -141,7 +141,7 @@ async def test_sensor_v2_fields(
     # Check V2 specific sensors
     smoke_sensor = hass.states.get("sensor.pirateweather_smoke")
     if smoke_sensor:  # Only if sensor type exists in const.py
-        assert float(smoke_sensor.state) == 0.0
+        assert float(smoke_sensor.state) == 0.01
 
     fire_index_sensor = hass.states.get("sensor.pirateweather_fire_index")
     if fire_index_sensor:
