@@ -76,6 +76,8 @@ async def test_form_invalid_api_key(
 
     mock_resp = AsyncMock()
     mock_resp.status = 403
+    mock_resp.raise_for_status = Mock()
+    mock_resp.json = AsyncMock(return_value={})
     mock_session = AsyncMock()
     mock_session.get = Mock(return_value=AsyncContextManagerMock(mock_resp))
 

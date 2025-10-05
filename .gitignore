@@ -14,3 +14,4 @@ config/deps/*
 htmlcov
 .tox
 *.egg-info
+*.lock
