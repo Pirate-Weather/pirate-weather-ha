@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from unittest.mock import AsyncMock, Mock, patch
 
+from aiohttp import ClientError
 from homeassistant.config_entries import ConfigEntryState
 from homeassistant.core import HomeAssistant
 
@@ -67,7 +68,10 @@ async def test_setup_entry_with_coordinator_error(
 
     mock_resp = AsyncMock()
     mock_resp.status = 500
-    mock_resp.raise_for_status.side_effect = Exception("API Error")
+    # Use a synchronous Mock for raise_for_status so it raises immediately when called
+    mock_resp.raise_for_status = Mock(side_effect=ClientError("API Error"))
+    # Ensure resp.json() returns a plain dict (not a coroutine) for Forecast parsing
+    mock_resp.json = AsyncMock(return_value={})
 
     mock_session = AsyncMock()
     mock_session.get = Mock(return_value=AsyncContextManagerMock(mock_resp))

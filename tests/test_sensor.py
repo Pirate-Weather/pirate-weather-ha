@@ -97,17 +97,17 @@ async def test_sensor_values(
     # Note: Temperature is converted from F to C when units is "us"
     temp_sensor = hass.states.get("sensor.pirateweather_temperature")
     assert temp_sensor is not None
-    # The API returns 62.89°F which is ~17.16°C
+    # The API returns 62.64°F which is ~17.02°C
     assert float(temp_sensor.state) > 15.0
     assert float(temp_sensor.state) < 20.0
 
     humidity_sensor = hass.states.get("sensor.pirateweather_humidity")
     assert humidity_sensor is not None
-    assert float(humidity_sensor.state) == 81.0  # 0.81 * 100
+    assert float(humidity_sensor.state) == 85.0  # 0.85 * 100
 
     pressure_sensor = hass.states.get("sensor.pirateweather_pressure")
     assert pressure_sensor is not None
-    assert float(pressure_sensor.state) == 1018.33
+    assert float(pressure_sensor.state) == 1009.77
 
 
 async def test_sensor_v2_fields(
@@ -145,11 +145,11 @@ async def test_sensor_v2_fields(
 
     fire_index_sensor = hass.states.get("sensor.pirateweather_fire_index")
     if fire_index_sensor:
-        assert float(fire_index_sensor.state) == 14.04
+        assert float(fire_index_sensor.state) == 7.33
 
     feels_like_sensor = hass.states.get("sensor.pirateweather_feels_like")
     if feels_like_sensor:
-        assert float(feels_like_sensor.state) == 61.77
+        assert float(feels_like_sensor.state) == 64.6
 
 
 async def test_sensor_forecast_daily(

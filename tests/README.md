@@ -7,6 +7,7 @@ This directory contains integration tests for the Pirate Weather Home Assistant 
 - **conftest.py**: Common fixtures and test configuration
 - **test_config_flow.py**: Tests for the configuration flow (setup and options)
 - **test_init.py**: Tests for integration initialization, setup, and unload
+ - **test_sensor.py**: Tests for sensors (state, attributes, and unit handling)
 - **test_coordinator.py**: Tests for the weather data coordinator
 - **fixtures/**: Sample API responses and test data
 
@@ -60,6 +61,11 @@ The current test suite covers:
   - Successful integration setup
   - Integration unload
   - Error handling during setup
+
+- **Sensor Tests** (`test_sensor.py`):
+  - Sensor entity state and attribute correctness
+  - Unit and conversion handling for different unit systems
+  - Availability handling when API data is missing or incomplete
 
 - **Coordinator Tests** (`test_coordinator.py`):
   - Successful data updates

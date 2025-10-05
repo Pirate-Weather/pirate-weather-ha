@@ -3,12 +3,13 @@ name: "Lint"
 on:
   push:
   pull_request:
-  
+
 permissions:
   contents: write
 
 jobs:
   ruff:
+    if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name != github.event.pull_request.base.repo.full_name
     name: "Ruff"
     runs-on: "ubuntu-latest"
     steps:
@@ -26,10 +27,10 @@ jobs:
 
         - name: "Format"
           run: python3 -m ruff format .
-          
+
         - name: "Check"
           run: python3 -m ruff check .
-          
+
         - name: "Auto Commit"
           uses: stefanzweifel/git-auto-commit-action@v6.0.1
           with:
