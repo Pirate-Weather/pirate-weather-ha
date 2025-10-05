@@ -79,7 +79,13 @@ async def test_coordinator_update_failure(
 
     mock_resp = AsyncMock()
     mock_resp.status = 500
-    mock_resp.raise_for_status.side_effect = Exception("API Error")
+    # raise_for_status is a synchronous method on aiohttp responses; make it
+    # a regular Mock so calling it doesn't produce an un-awaited coroutine.
+    mock_resp.raise_for_status = Mock(side_effect=Exception("API Error"))
+    # Provide a json coroutine that returns an empty dict so Forecast doesn't
+    # receive an AsyncMock as its data. This keeps behavior consistent and
+    # avoids runtime warnings if the json coroutine is awaited anywhere.
+    mock_resp.json = AsyncMock(return_value={})
 
     mock_session = AsyncMock()
     mock_session.get = Mock(return_value=AsyncContextManagerMock(mock_resp))
