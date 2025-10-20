@@ -92,7 +92,6 @@ class WeatherUpdateCoordinator(DataUpdateCoordinator):
             + "?units="
             + self.requested_units
             + "&extend=hourly"
-            + "&version=2"
             + "&lang="
             + self.language
         )
