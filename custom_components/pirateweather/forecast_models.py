@@ -47,6 +47,10 @@ class Forecast(UnicodeMixin):
         """Return the hourly weather data block."""
         return self._pirateweather_data("hourly")
 
+    def day_night(self):
+        """Return the day_night weather data block."""
+        return self._pirateweather_data("day_night")
+
     def daily(self):
         """Return the daily weather data block."""
         return self._pirateweather_data("daily")
@@ -64,8 +68,8 @@ class Forecast(UnicodeMixin):
         return self._alerts
 
     def _pirateweather_data(self, key):
-        """Fetch and return specific weather data (currently, minutely, hourly, daily)."""
-        keys = ["minutely", "currently", "hourly", "daily", "flags"]
+        """Fetch and return specific weather data (currently, minutely, hourly, daily, flags and day_night)."""
+        keys = ["minutely", "currently", "hourly", "daily", "flags", "day_night"]
         try:
             if key not in self.json:
                 keys.remove(key)
@@ -95,8 +99,8 @@ class PirateWeatherDataBlock(UnicodeMixin):
     def __init__(self, d=None):
         """Initialize the data block with summary and icon information."""
         d = d or {}
-        self.summary = d.get("summary")
-        self.icon = d.get("icon")
+        self.summary = d.get("summary", None)
+        self.icon = d.get("icon", None)
         self.data = [
             PirateWeatherDataPoint(datapoint) for datapoint in d.get("data", [])
         ]
@@ -117,6 +121,11 @@ class PirateWeatherFlagsBlock(UnicodeMixin):
         self.nearestStation = d.get("nearest-station")
         self.sources = list(d.get("sources"))
         self.sourceTimes = d.get("sourceTimes")
+        self.processTime = d.get("processTime")
+        self.ingestVersion = d.get("ingestVersion")
+        self.nearestCity = d.get("nearestCity")
+        self.nearestCountry = d.get("nearestCountry")
+        self.nearestSubNational = d.get("nearestSubNational")
 
     def __unicode__(self):
         """Return a string representation of the data block."""
