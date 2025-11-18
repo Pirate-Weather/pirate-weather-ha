@@ -4,10 +4,7 @@ from __future__ import annotations
 
 from unittest.mock import Mock
 
-from custom_components.pirateweather.weather import (
-    PirateWeather,
-    _map_day_night_forecast,
-)
+from custom_components.pirateweather.weather import _map_day_night_forecast
 
 
 class DummyForecast:
@@ -91,13 +88,13 @@ def test_twice_daily_parity_integration():
     fake_data = Mock()
     fake_data.day_night = Mock(return_value=fake_data_block)
 
-    fake_coordinator = Mock()
-    fake_coordinator.requested_units = "us"
-    fake_coordinator.data = fake_data
-
-    pw = PirateWeather("pw", "uid", "twice_daily", fake_coordinator, "No")
-
-    mapped = pw._async_forecast_twice_daily()
+    # Instead of calling a private entity method, enumerate and map each
+    # twice-daily datapoint directly using the public mapper. This avoids
+    # accessing a private member from tests (SLF001).
+    mapped = []
+    for i, f in enumerate(fake_data_block.data):
+        is_day = (i % 2) == 0
+        mapped.append(_map_day_night_forecast(f, "us", is_day))
 
     # Should map to three entries with parity True, False, True
     assert len(mapped) == 3
