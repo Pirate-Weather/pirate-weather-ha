@@ -99,8 +99,8 @@ class PirateWeatherDataBlock(UnicodeMixin):
     def __init__(self, d=None):
         """Initialize the data block with summary and icon information."""
         d = d or {}
-        self.summary = d.get("summary", None)
-        self.icon = d.get("icon", None)
+        self.summary = d.get("summary")
+        self.icon = d.get("icon")
         self.data = [
             PirateWeatherDataPoint(datapoint) for datapoint in d.get("data", [])
         ]
@@ -186,4 +186,3 @@ class Alert(UnicodeMixin):
     def __unicode__(self):
         """Return a string representation of the alert."""
         return f"<Alert instance: {self.title} at {self.time}>"
-        
