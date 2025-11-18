@@ -186,3 +186,4 @@ class Alert(UnicodeMixin):
     def __unicode__(self):
         """Return a string representation of the alert."""
         return f"<Alert instance: {self.title} at {self.time}>"
+        
