@@ -433,7 +433,7 @@ class PirateWeather(SingleCoordinatorWeatherEntity[WeatherUpdateCoordinator]):
 
     @callback
     def _async_forecast_twice_daily(self) -> list[Forecast] | None:
-        """Return the daily forecast."""
+        """Return the twice daily forecast."""
         day_night_forecast = self._weather_coordinator.data.day_night().data
         if not day_night_forecast:
             _LOGGER.debug("No twice daily forecast")
@@ -441,15 +441,12 @@ class PirateWeather(SingleCoordinatorWeatherEntity[WeatherUpdateCoordinator]):
 
         # The API returns twice-daily blocks in alternating order: day, night,
         # day, night, ... so infer daytime by index parity (even index = day).
-        mapped: list[Forecast] = []
-        for i, f in enumerate(day_night_forecast):
-            is_day = (i % 2) == 0
-            mapped.append(
-                _map_day_night_forecast(
-                    f, self._weather_coordinator.requested_units, is_day
-                )
+        return [
+            _map_day_night_forecast(
+                f, self._weather_coordinator.requested_units, (i % 2) == 0
             )
-        return mapped
+            for i, f in enumerate(day_night_forecast)
+        ]
 
     @callback
     def _async_forecast_hourly(self) -> list[Forecast] | None:
