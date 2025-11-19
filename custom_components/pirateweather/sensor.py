@@ -1014,6 +1014,14 @@ class PirateWeatherSensor(SensorEntity):
 
         self._name = description.name
 
+        # Set translation_key for sensor grouping
+        if self.forecast_hour is not None:
+            self._attr_translation_key = "hourly_sensor"
+        elif self.forecast_day is not None:
+            self._attr_translation_key = "daily_sensor"
+        else:
+            self._attr_translation_key = None
+
     @property
     def name(self):
         """Return the name of the sensor."""

@@ -12,6 +12,7 @@ from homeassistant.const import (
     CONF_SCAN_INTERVAL,
 )
 from homeassistant.core import HomeAssistant
+from homeassistant.helpers import entity_registry as er
 from pytest_homeassistant_custom_component.common import MockConfigEntry
 
 from custom_components.pirateweather.const import (
@@ -253,3 +254,64 @@ async def test_sensor_unit_system(
     assert temp_sensor is not None
     # Check unit is correct for SI
     assert temp_sensor.attributes.get("unit_of_measurement") == "°C"
+
+
+async def test_sensor_translation_key_grouping(
+    hass: HomeAssistant,
+    mock_get_clientsession,
+    mock_config_entry_data,
+) -> None:
+    """Test sensor grouping via translation_key for hourly and daily forecasts."""
+    config_data = mock_config_entry_data.copy()
+    config_data[CONF_MONITORED_CONDITIONS] = ["temperature", "humidity"]
+    config_data[PW_PLATFORM] = ["Sensor"]
+    config_data["forecast"] = [0]  # Test with 1 day (fixture has 1 day)
+    config_data["hourly_forecast"] = [0]  # Test with 1 hour (fixture has 1 hour)
+
+    entry = MockConfigEntry(
+        version=2,
+        domain=DOMAIN,
+        data=config_data,
+        unique_id="test_translation_key_unique_id",
+    )
+    entry.add_to_hass(hass)
+
+    assert await hass.config_entries.async_setup(entry.entry_id)
+    await hass.async_block_till_done()
+
+    # Get all sensor entities
+    sensor_entities = hass.states.async_all("sensor")
+
+    # Find hourly forecast sensors
+    hourly_sensors = [
+        s for s in sensor_entities
+        if "0h" in s.entity_id
+    ]
+
+    # Find daily forecast sensors
+    daily_sensors = [
+        s for s in sensor_entities
+        if "0d" in s.entity_id
+    ]
+
+    # Verify we have hourly and daily forecast sensors
+    assert len(hourly_sensors) > 0, "Should have hourly forecast sensors"
+    assert len(daily_sensors) > 0, "Should have daily forecast sensors"
+
+    # Get entity registry to check translation_key
+    entity_registry = er.async_get(hass)
+
+    # Check hourly sensors have correct translation_key
+    for sensor in hourly_sensors:
+        entity = entity_registry.async_get(sensor.entity_id)
+        if entity:
+            # translation_key should be set to "hourly_sensor"
+            assert entity.translation_key == "hourly_sensor", f"Hourly sensor {sensor.entity_id} should have translation_key='hourly_sensor'"
+
+    # Check daily sensors have correct translation_key
+    for sensor in daily_sensors:
+        entity = entity_registry.async_get(sensor.entity_id)
+        if entity:
+            # translation_key should be set to "daily_sensor"
+            assert entity.translation_key == "daily_sensor", f"Daily sensor {sensor.entity_id} should have translation_key='daily_sensor'"
+
