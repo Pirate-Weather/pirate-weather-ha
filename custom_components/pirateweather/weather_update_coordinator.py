@@ -95,6 +95,7 @@ class WeatherUpdateCoordinator(DataUpdateCoordinator):
             + "&version=2"
             + "&lang="
             + self.language
+            + "&include=day_night_forecast"
         )
         if self.models:
             exclusions = ",".join(
