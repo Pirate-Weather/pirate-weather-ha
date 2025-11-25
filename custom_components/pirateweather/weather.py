@@ -170,7 +170,7 @@ def _map_daily_forecast(forecast, unit_system) -> Forecast:
         "condition": MAP_CONDITION.get(forecast.d.get("icon")),
         "native_temperature": forecast.d.get("temperatureHigh"),
         "native_templow": forecast.d.get("temperatureLow"),
-        "native_precipitation": precip,
+        "native_precipitation": round(precip, 2),
         "precipitation_probability": round(
             forecast.d.get("precipProbability") * 100, 0
         ),
@@ -211,7 +211,7 @@ def _map_day_night_forecast(
         "wind_bearing": round(forecast.d.get("windBearing"), 0),
         "native_wind_gust_speed": round(forecast.d.get("windGust"), 2),
         "humidity": round(forecast.d.get("humidity") * 100, 2),
-        "native_precipitation": precip,
+        "native_precipitation": round(precip, 2),
         "precipitation_probability": round(
             forecast.d.get("precipProbability") * 100, 0
         ),
@@ -221,6 +221,9 @@ def _map_day_night_forecast(
 
 
 def _map_hourly_forecast(forecast) -> Forecast:
+    precip = forecast.d.get("precipAccumulation")
+    if precip is not None and unit_system not in ["us"]:
+        precip = precip * 10
     return {
         "datetime": utc_from_timestamp(forecast.d.get("time")).isoformat(),
         "condition": MAP_CONDITION.get(forecast.d.get("icon")),
@@ -232,7 +235,7 @@ def _map_hourly_forecast(forecast) -> Forecast:
         "wind_bearing": round(forecast.d.get("windBearing"), 0),
         "native_wind_gust_speed": round(forecast.d.get("windGust"), 2),
         "humidity": round(forecast.d.get("humidity") * 100, 2),
-        "native_precipitation": round(forecast.d.get("precipIntensity"), 2),
+        "native_precipitation": round(precip, 2),
         "precipitation_probability": round(
             forecast.d.get("precipProbability") * 100, 0
         ),
