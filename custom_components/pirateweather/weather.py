@@ -220,7 +220,7 @@ def _map_day_night_forecast(
     }
 
 
-def _map_hourly_forecast(forecast) -> Forecast:
+def _map_hourly_forecast(forecast, unit_system) -> Forecast:
     precip = forecast.d.get("precipAccumulation")
     if precip is not None and unit_system not in ["us"]:
         precip = precip * 10
@@ -459,4 +459,7 @@ class PirateWeather(SingleCoordinatorWeatherEntity[WeatherUpdateCoordinator]):
         if not hourly_forecast:
             return None
 
-        return [_map_hourly_forecast(f) for f in hourly_forecast]
+        return [
+            _map_hourly_forecast(f, self._weather_coordinator.requested_units)
+            for f in hourly_forecast
+        ]
