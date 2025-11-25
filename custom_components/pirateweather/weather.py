@@ -161,10 +161,16 @@ async def async_setup_platform(
     )
 
 
-def _map_daily_forecast(forecast, unit_system) -> Forecast:
+def _get_precip(forecast, unit_system: str) -> float | None:
+    """Get and convert precipitation accumulation."""
     precip = forecast.d.get("precipAccumulation")
-    if precip is not None and unit_system not in ["us"]:
-        precip = precip * 10
+    if precip is not None and unit_system != "us":
+        return precip * 10
+    return precip
+
+
+def _map_daily_forecast(forecast, unit_system) -> Forecast:
+    precip = _get_precip(forecast, unit_system)
     return {
         "datetime": utc_from_timestamp(forecast.d.get("time")).isoformat(),
         "condition": MAP_CONDITION.get(forecast.d.get("icon")),
@@ -185,9 +191,7 @@ def _map_daily_forecast(forecast, unit_system) -> Forecast:
 def _map_day_night_forecast(
     forecast, unit_system, is_day: bool | None = None
 ) -> Forecast:
-    precip = forecast.d.get("precipAccumulation")
-    if precip is not None and unit_system not in ["us"]:
-        precip = precip * 10
+    precip = _get_precip(forecast, unit_system)
     # If caller provided an `is_day` hint (we'll pass parity from the list),
     # prefer that. Otherwise fall back to a minimal inference from the icon.
     is_daytime: bool | None = is_day
@@ -220,7 +224,8 @@ def _map_day_night_forecast(
     }
 
 
-def _map_hourly_forecast(forecast) -> Forecast:
+def _map_hourly_forecast(forecast, unit_system) -> Forecast:
+    precip = _get_precip(forecast, unit_system)
     return {
         "datetime": utc_from_timestamp(forecast.d.get("time")).isoformat(),
         "condition": MAP_CONDITION.get(forecast.d.get("icon")),
@@ -232,7 +237,7 @@ def _map_hourly_forecast(forecast) -> Forecast:
         "wind_bearing": round(forecast.d.get("windBearing"), 0),
         "native_wind_gust_speed": round(forecast.d.get("windGust"), 2),
         "humidity": round(forecast.d.get("humidity") * 100, 2),
-        "native_precipitation": round(forecast.d.get("precipIntensity"), 2),
+        "native_precipitation": precip,
         "precipitation_probability": round(
             forecast.d.get("precipProbability") * 100, 0
         ),
@@ -456,4 +461,7 @@ class PirateWeather(SingleCoordinatorWeatherEntity[WeatherUpdateCoordinator]):
         if not hourly_forecast:
             return None
 
-        return [_map_hourly_forecast(f) for f in hourly_forecast]
+        return [
+            _map_hourly_forecast(f, self._weather_coordinator.requested_units)
+            for f in hourly_forecast
+        ]
