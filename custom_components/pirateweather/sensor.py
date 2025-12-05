@@ -1111,8 +1111,8 @@ class PirateWeatherSensor(SensorEntity):
                     # Convert time to string
                     if isinstance(alertsAttr, int):
                         alertsAttr = dt_util.as_local(
-                                        dt_util.utc_from_timestamp(alertsAttr)
-                                     ).isoformat()
+                            dt_util.utc_from_timestamp(alertsAttr)
+                        ).isoformat()
 
                     alerts[dkey] = alertsAttr
 
