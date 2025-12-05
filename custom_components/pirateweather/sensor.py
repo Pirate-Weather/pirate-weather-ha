@@ -6,7 +6,6 @@ from dataclasses import dataclass, field
 from typing import Literal, NamedTuple
 
 import homeassistant.helpers.config_validation as cv
-import homeassistant.helpers.template as template_helper
 import voluptuous as vol
 from homeassistant.components.sensor import (
     PLATFORM_SCHEMA,
@@ -38,6 +37,7 @@ from homeassistant.const import (
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.helpers.typing import DiscoveryInfoType, StateType
+from homeassistant.util import dt as dt_util
 
 from .const import (
     ALL_CONDITIONS,
@@ -1110,7 +1110,9 @@ class PirateWeatherSensor(SensorEntity):
 
                     # Convert time to string
                     if isinstance(alertsAttr, int):
-                        alertsAttr = template_helper.timestamp_local(alertsAttr)
+                        alertsAttr = dt_util.as_local(
+                                        dt_util.utc_from_timestamp(alertsAttr)
+                                     ).isoformat()
 
                     alerts[dkey] = alertsAttr
 
