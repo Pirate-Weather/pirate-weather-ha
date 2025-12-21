@@ -188,7 +188,7 @@ def _map_daily_forecast(forecast, unit_system) -> Forecast:
         "wind_bearing": round(forecast.d.get("windBearing"), 0),
         "native_dew_point": forecast.d.get("dewPoint"),
         "native_pressure": forecast.d.get("pressure"),
-        "uv_index": forecast.d.get("uvIndex"),
+        "uv_index": round(forecast.d.get("uvIndex"), 2),
     }
 
 
