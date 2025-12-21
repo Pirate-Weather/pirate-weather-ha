@@ -90,6 +90,7 @@ MAP_CONDITION = {
     "thunderstorm": ATTR_CONDITION_LIGHTNING,
     "tornado": ATTR_CONDITION_EXCEPTIONAL,
     "none": ATTR_CONDITION_EXCEPTIONAL,
+    "mixed": ATTR_CONDITION_SNOWY_RAINY,
 }
 
 WEATHER_UNITS = {
@@ -185,6 +186,9 @@ def _map_daily_forecast(forecast, unit_system) -> Forecast:
         "native_wind_speed": round(forecast.d.get("windSpeed"), 2),
         "native_wind_gust_speed": round(forecast.d.get("windGust"), 2),
         "wind_bearing": round(forecast.d.get("windBearing"), 0),
+        "native_dew_point": forecast.d.get("dewPoint"),
+        "native_pressure": forecast.d.get("pressure"),
+        "uv_index": round(forecast.d.get("uvIndex"), 2),
     }
 
 

@@ -4,7 +4,7 @@ permissions:
   contents: write # only for delete-branch option
   issues: write
   pull-requests: write
-  
+
 on:
   schedule:
   - cron: "0 0/6 * * *"
@@ -13,7 +13,7 @@ jobs:
   stale:
 
     runs-on: ubuntu-latest
-    
+
     steps:
     - uses: actions/stale@v10.1.1
       with:
@@ -31,11 +31,11 @@ jobs:
         days-before-stale: 90
         days-before-close: 7
         enable-statistics: 'true'
-        
+
   lock:
     runs-on: ubuntu-latest
     steps:
-      - uses: dessant/lock-threads@v5.0.1
+      - uses: dessant/lock-threads@v6.0.0
         with:
           issue-inactive-days: '60'
           pr-inactive-days: '60'

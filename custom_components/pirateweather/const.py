@@ -141,6 +141,10 @@ ALL_CONDITIONS = {
     "current_day_liquid": "Current Day Liquid Accumulation",
     "current_day_snow": "Current Day Snow Accumulation",
     "current_day_ice": "Current Day Ice Accumulation",
+    "cape": "Convective Available Potential Energy",
+    "cape_max": "Convective Available Potential Energy Max",
+    "solar": "Downward Short-Wave Radiation Flux",
+    "solar_max": "Downward Short-Wave Radiation Flux Max",
 }
 
 LANGUAGES = [
