@@ -17,10 +17,10 @@ jobs:
         python-version: ["3.13"]
     steps:
       - name: "Checkout the repository"
-        uses: "actions/checkout@v6.0.1"
+        uses: "actions/checkout@v6.0.2"
 
       - name: "Set up Python ${{ matrix.python-version }}"
-        uses: actions/setup-python@v6.1.0
+        uses: actions/setup-python@v6.2.0
         with:
           python-version: ${{ matrix.python-version }}
           cache: "pip"
