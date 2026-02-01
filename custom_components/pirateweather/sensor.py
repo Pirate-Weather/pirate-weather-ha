@@ -1401,7 +1401,10 @@ class PirateWeatherSensor(SensorEntity):
             "ice_intensity_max",
         ]:
             # Convert snow intensity from cm/h to mm/h for non-US units
-            if self.type in ["snow_intensity", "snow_intensity_max"] and self.unit_system != "us":
+            if (
+                self.type in ["snow_intensity", "snow_intensity_max"]
+                and self.unit_system != "us"
+            ):
                 state = state * 10
             outState = round(state, roundingPrecip)
 
