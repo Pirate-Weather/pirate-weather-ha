@@ -24,9 +24,9 @@
                     "pw_platform": "Weather Entity and/or Sensor Entity. Sensor will create entities for each condition at each time. If unsure, only select Weather!",
                     "pw_round": "Round values to the nearest integer. Ensure that the selected units match the system units.",
                     "scan_interval": "Seconds to wait between updates. Reducing this below 900 seconds (15 minutes) is not recomended.", 
-                    "endpoint": "Endpoint to use dev or local source, with https://. Default is https://api.pirateweather.net"                                        
+                    "endpoint": "Endpoint to use dev or local source, with https://. Default is api.pirateweather.net"                                        
                 },
-                "description": "Set up Pirate Weather integration. To generate API key go to https://pirateweather.net",
+                "description": "Set up Pirate Weather integration. To generate API key visit pirateweather.net",
                 "data_description": {
                   "forecast": "ex. '0,1,4' (without quotes)",
                   "hourly_forecast": "ex. '0,1,4' (without quotes)"
@@ -52,9 +52,9 @@
                     "monitored_conditions": "Monitored conditions to create sensors for. Only used if sensors are requested.\n NOTE: Removing sensors will produce orphaned entities that need to be deleted.",
                     "pw_platform": "Weather Entity and/or Sensor Entity. Sensor will create entities for each condition at each time. If unsure, only select Weather!",
                     "pw_round": "Round values to the nearest integer. Ensure that the selected units match the system units.", 
-                    "endpoint": "Endpoint to use dev or local source, with https://. Default is https://api.pirateweather.net"       
+                    "endpoint": "Endpoint to use dev or local source, with https://. Default is api.pirateweather.net"       
                 },
-                "description": "Set up Pirate Weather integration. To generate API key go to https://pirateweather.net",
+                "description": "Set up Pirate Weather integration. To generate API key visit pirateweather.net",
                 "data_description": {
                   "forecast": "ex. '0,1,4'.\n To remove existing sensors, type 'None' (without quotes).",
                   "hourly_forecast": "ex. '0,1,4'.\n To remove existing sensors, type 'None' (without quotes)."
