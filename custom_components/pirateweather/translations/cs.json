@@ -24,9 +24,9 @@
                     "pw_platform": "Entita počasí a/nebo entita senzoru. Senzor vytvoří entity pro každou podmínku v každém čase. Pokud si nejste jisti, vyberte pouze Počasí!",
                     "pw_round": "Zaokrouhlit hodnoty na nejbližší celé číslo. Ujistěte se, že vybrané jednotky odpovídají systémovým jednotkám.",
                     "scan_interval": "Sekundy čekání mezi aktualizacemi. Snížení této hodnoty pod 900 sekund (15 minut) se nedoporučuje.", 
-                    "endpoint": "Koncový bod pro použití vývojářského nebo lokálního zdroje s https://. Výchozí nastavení je https://api.pirateweather.net"                                         
+                    "endpoint": "Koncový bod pro použití vývojářského nebo lokálního zdroje s https://. Výchozí nastavení je api.pirateweather.net"                                         
                 },
-                "description": "Nastavte integraci Pirate Weather. Pro generování API klíče jděte na https://pirateweather.net",
+                "description": "Nastavte integraci Pirate Weather. Pro generování API klíče jděte na pirateweather.net",
                 "data_description": {
                   "forecast": "např. '0,1,4' (bez uvozovek)",
                   "hourly_forecast": "např. '0,1,4' (bez uvozovek)"
@@ -51,9 +51,9 @@
                     "monitored_conditions": "Monitorované podmínky pro vytváření senzorů. Používá se pouze pokud jsou požadovány senzory.\n POZNÁMKA: Odebrání senzorů způsobí, že vzniknou nedostupné entity, které je potřeba smazat.",
                     "pw_platform": "Entita Počasí a/nebo Entita Senzoru. Senzor vytvoří entity pro každou podmínku v každém čase. Pokud si nejste jisti, vyberte pouze Počasí!",
                     "pw_round": "Zaokrouhlit hodnoty na nejbližší celé číslo. Ujistěte se, že vybrané jednotky odpovídají systémovým jednotkám.", 
-                    "endpoint": "Koncový bod pro použití vývojářského nebo lokálního zdroje s https://. Výchozí nastavení je https://api.pirateweather.net"
+                    "endpoint": "Koncový bod pro použití vývojářského nebo lokálního zdroje s https://. Výchozí nastavení je api.pirateweather.net"
                 },
-                "description": "Nastavte integraci Pirate Weather. Pro vygenerování API klíče jděte na https://pirateweather.net",
+                "description": "Nastavte integraci Pirate Weather. Pro vygenerování API klíče jděte na pirateweather.net",
                 "data_description": {
                   "forecast": "např. '0,1,4'.\n Pro odebrání existujících senzorů napište 'None' (bez uvozovek).",
                   "hourly_forecast": "např. '0,1,4'.\n Pro odebrání existujících senzorů napište 'None' (bez uvozovek)."

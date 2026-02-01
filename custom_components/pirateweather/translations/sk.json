@@ -24,9 +24,9 @@
           "pw_platform": "Entita počasia a/alebo entita senzoru. Senzor vytvorí entity pre každú podmienku v každom čase. Ak si nie ste istí, vyberte iba Počasie!",
           "pw_round": "Zaokrúhliť hodnoty na najbližšie celé číslo. Uistite sa, že vybrané jednotky zodpovedajú systémovým jednotkám.",
           "scan_interval": "Sekundy čakania medzi aktualizáciami. Zníženie tejto hodnoty pod 900 sekúnd (15 minút) sa neodporúča.", 
-          "endpoint": "Koncový bod na použitie vývojového alebo lokálneho zdroja s https://. Predvolená hodnota je https://api.pirateweather.net"
+          "endpoint": "Koncový bod na použitie vývojového alebo lokálneho zdroja s https://. Predvolená hodnota je api.pirateweather.net"
         },
-        "description": "Nastavte integráciu Pirate Weather. Pre generovanie API kľúča choďte na https://pirateweather.net",
+        "description": "Nastavte integráciu Pirate Weather. Pre generovanie API kľúča choďte na pirateweather.net",
         "data_description": {
           "forecast": "napr. '0,1,4' (bez úvodzoviek)",
           "hourly_forecast": "napr. '0,1,4' (bez úvodzoviek)"
@@ -51,9 +51,9 @@
           "monitored_conditions": "Monitorované podmienky pre vytváranie senzorov. Používa sa iba ak sú požadované senzory.\n POZNÁMKA: Odstránenie senzorov spôsobí, že vzniknú nedostupné entity, ktoré je potrebné vymazať.",
           "pw_platform": "Entita Počasie a/alebo Entita Senzoru. Senzor vytvorí entity pre každú podmienku v každom čase. Ak si nie ste istí, vyberte iba Počasie!",
           "pw_round": "Zaokrúhliť hodnoty na najbližšie celé číslo. Uistite sa, že vybrané jednotky zodpovedajú systémovým jednotkám.", 
-          "endpoint": "Koncový bod na použitie vývojového alebo lokálneho zdroja s https://. Predvolená hodnota je https://api.pirateweather.net"
+          "endpoint": "Koncový bod na použitie vývojového alebo lokálneho zdroja s https://. Predvolená hodnota je api.pirateweather.net"
         },
-        "description": "Nastavte integráciu Pirate Weather. Pre vygenerovanie API kľúča choďte na https://pirateweather.net",
+        "description": "Nastavte integráciu Pirate Weather. Pre vygenerovanie API kľúča choďte na pirateweather.net",
         "data_description": {
           "forecast": "napr. '0,1,4'.\n Pre odstránenie existujúcich senzorov napíšte 'None' (bez úvodzoviek).",
           "hourly_forecast": "napr. '0,1,4'.\n Pre odstránenie existujúcich senzorov napíšte 'None' (bez úvodzoviek)."
