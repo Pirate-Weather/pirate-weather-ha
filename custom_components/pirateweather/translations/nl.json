@@ -24,9 +24,13 @@
                     "pw_platform": "Weer Entiteit en/of Sensor Entiteit. Sensor maakt op elk moment entiteiten voor elke voorwaarde. Als u het niet zeker weet, selecteert u alleen Weer!",
                     "pw_round": "Rond waarden af ​​op het dichtstbijzijnde gehele getal. Zorg ervoor dat de geselecteerde eenheden overeenkomen met de systeemeenheden.",
                     "scan_interval": "Seconden wachten tussen updates. Het wordt niet aanbevolen om dit onder de 900 seconden (15 minuten) te zetten."    , 
-                    "endpoint": "Eindpunt voor gebruik van dev of lokale bron, met https://. Standaard is dit https://api.pirateweather.net"                                     
+                    "endpoint": "Eindpunt voor gebruik van dev of lokale bron, met https://. Standaard is dit [api_url]"                                     
                 },
-                "description": "Stel Pirate Weather-integratie in. Ga naar  https://pirateweather.net om een ​​API-sleutel te genereren.",
+                "description": "Stel Pirate Weather-integratie in. Ga naar [website_url] om een ​​API-sleutel te genereren.",
+                "description_placeholders": {
+                    "api_url": "https://api.pirateweather.net",
+                    "website_url": "https://pirateweather.net"
+                },
                 "data_description": {
                   "forecast": "bijv. '0,1,4' (zonder aanhalingstekens)",
                   "hourly_forecast": "bijv. '0,1,4' (zonder aanhalingstekens)"
@@ -52,9 +56,13 @@
                     "pw_platform": "Weer Entiteit en/of Sensor Entiteit. Sensor maakt op elk moment entiteiten voor elke voorwaarde. Als u het niet zeker weet, selecteert u alleen Weer!",
                     "pw_round": "Rond waarden af ​​op het dichtstbijzijnde gehele getal. Zorg ervoor dat de geselecteerde eenheden overeenkomen met de systeemeenheden.",
                     "scan_interval": "Seconden wachten tussen updates. Het wordt niet aanbevolen om dit onder de 900 seconden (15 minuten) te zetten.", 
-                    "endpoint": "Eindpunt voor gebruik van dev of lokale bron, met https://. Standaard is dit https://api.pirateweather.net"                                         
+                    "endpoint": "Eindpunt voor gebruik van dev of lokale bron, met https://. Standaard is dit [api_url]"                                         
                 },
-                "description": "Stel Pirate Weather-integratie in. Ga naar  https://pirateweather.net om een ​​API-sleutel te genereren.",
+                "description": "Stel Pirate Weather-integratie in. Ga naar [website_url] om een ​​API-sleutel te genereren.",
+                "description_placeholders": {
+                    "api_url": "https://api.pirateweather.net",
+                    "website_url": "https://pirateweather.net"
+                },
                 "data_description": {
                   "forecast": "bijv. '0,1,4' (zonder aanhalingstekens)",
                   "hourly_forecast": "bijv. '0,1,4.\n om bestaande sensoren te verwijderen, type 'None' (zonder aanhalingstekens)"
