@@ -1,4 +1,4 @@
 colorlog==6.10.1
 homeassistant==2026.2.3
 pip>=21.0,<26.1
-ruff==0.15.2
+ruff==0.15.3
