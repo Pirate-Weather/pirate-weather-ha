@@ -77,7 +77,7 @@ class WeatherUpdateCoordinator(DataUpdateCoordinator):
             requestLatitude = self.latitude
 
         if self.longitude == 0.0:
-            requestLongitude = self.hass.config.latitude
+            requestLongitude = self.hass.config.longitude
         else:
             requestLongitude = self.longitude
 
