@@ -29,7 +29,6 @@ from homeassistant.const import (
     UV_INDEX,
     UnitOfIrradiance,
     UnitOfLength,
-    UnitOfPrecipitationDepth,
     UnitOfPressure,
     UnitOfSpeed,
     UnitOfTemperature,
