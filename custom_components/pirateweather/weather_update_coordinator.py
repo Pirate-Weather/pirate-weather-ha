@@ -81,6 +81,8 @@ class WeatherUpdateCoordinator(DataUpdateCoordinator):
         else:
             requestLongitude = self.longitude
 
+        _LOGGER.debug("Request coordinates: %s, %s", requestLatitude, requestLongitude)
+
         forecastString = (
             self.endpoint
             + "/forecast/"
