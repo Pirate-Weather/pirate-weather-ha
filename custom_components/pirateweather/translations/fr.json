@@ -1,0 +1,65 @@
+{
+    "config": {
+        "abort": {
+            "already_configured": "La localisation est déjà configurée"
+        },
+        "error": {
+            "cannot_connect": "Échec de la connexion",
+            "invalid_api_key": "Clé API invalide"
+        },
+        "step": {
+            "user": {
+                "data": {
+                    "api_key": "Clé API",
+                    "language": "Langue",
+                    "latitude": "Latitude. Définir à 0 pour utiliser la localisation actuelle",
+                    "longitude": "Longitude. Définir à 0 pour utiliser la localisation actuelle",
+                    "mode": "Mode de prévision pour l'entité Météo",
+                    "name": "Nom de l'intégration",
+                    "units": "Unités.",
+                    "models": "Modèles météo à exclure (CSV)",
+                    "forecast": "Capteurs de prévisions quotidiennes au format CSV de 0 à 7 (ex. '0,1,3'). Uniquement utilisé si les capteurs sont demandés.",
+                    "hourly_forecast": "Capteurs de prévisions horaires au format CSV de 0 à 168 (ex. '0,1,10'). Uniquement utilisé si les capteurs sont demandés.",
+                    "monitored_conditions": "Conditions surveillées pour créer des capteurs. Uniquement utilisé si les capteurs sont demandés.",
+                    "pw_platform": "Entité Météo et/ou Entité Capteur. Le capteur créera des entités pour chaque condition à chaque heure. Si vous n'êtes pas sûr, sélectionnez uniquement Météo !",
+                    "pw_round": "Arrondir les valeurs à l'entier le plus proche. Assurez-vous que les unités sélectionnées correspondent aux unités du système.",
+                    "scan_interval": "Secondes à attendre entre les mises à jour. Réduire cela en dessous de 900 secondes (15 minutes) n'est pas recommandé.", 
+                    "endpoint": "Point de terminaison à utiliser pour la source dev ou locale, avec https://. La valeur par défaut est api.pirateweather.net"
+                },
+                "description": "Configurer l'intégration Pirate Weather. Pour générer une clé API, visitez pirateweather.net",
+                "data_description": {
+                  "forecast": "ex. '0,1,4' (sans guillemets)",
+                  "hourly_forecast": "ex. '0,1,4' (sans guillemets)"
+                }                
+            }
+        }
+    },
+    "options": {
+        "step": {
+            "init": {
+                "data": {
+                    "api_key": "Clé API",
+                    "language": "Langue",
+                    "latitude": "Latitude. Définir à 0 pour utiliser la localisation actuelle",
+                    "longitude": "Longitude. Définir à 0 pour utiliser la localisation actuelle",
+                    "scan_interval": "Secondes à attendre entre les mises à jour. Réduire cela en dessous de 900 secondes (15 minutes) n'est pas recommandé.",
+                    "mode": "Mode de prévision pour l'entité Météo",
+                    "name": "Nom de l'intégration",
+                    "units": "Unités.",
+                    "models": "Modèles météo à exclure (CSV)",
+                    "forecast": "Capteurs de prévisions quotidiennes au format CSV de 0 à 7 (ex. '0,1,3'). Uniquement utilisé si les capteurs sont demandés.\n NOTE: La suppression de capteurs produira des entités orphelines qui devront être supprimées.",
+                    "hourly_forecast": "Capteurs de prévisions horaires au format CSV de 0 à 168 (ex. '0,1,10'). Uniquement utilisé si les capteurs sont demandés.\n NOTE: La suppression de capteurs produira des entités orphelines qui devront être supprimées.",
+                    "monitored_conditions": "Conditions surveillées pour créer des capteurs. Uniquement utilisé si les capteurs sont demandés.\n NOTE: La suppression de capteurs produira des entités orphelines qui devront être supprimées.",
+                    "pw_platform": "Entité Météo et/ou Entité Capteur. Le capteur créera des entités pour chaque condition à chaque heure. Si vous n'êtes pas sûr, sélectionnez uniquement Météo !",
+                    "pw_round": "Arrondir les valeurs à l'entier le plus proche. Assurez-vous que les unités sélectionnées correspondent aux unités du système.", 
+                    "endpoint": "Point de terminaison à utiliser pour la source dev ou locale, avec https://. La valeur par défaut est api.pirateweather.net"
+                },
+                "description": "Configurer l'intégration Pirate Weather. Pour générer une clé API, visitez pirateweather.net",
+                "data_description": {
+                  "forecast": "ex. '0,1,4'.\n Pour supprimer les capteurs existants, tapez 'None' (sans guillemets).",
+                  "hourly_forecast": "ex. '0,1,4'.\n Pour supprimer les capteurs existants, tapez 'None' (sans guillemets)."
+                }         
+            }
+        }
+    }
+}
