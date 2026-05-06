@@ -107,7 +107,7 @@ class WeatherUpdateCoordinator(DataUpdateCoordinator):
                 self.longitude if self.longitude != 0.0 else self.hass.config.longitude
             )
 
-        _LOGGER.debug("Request coordinates: %s, %s", requestLatitude, requestLongitude)
+        _LOGGER.debug("Fetching Pirate Weather data")
 
         forecastString = (
             self.endpoint
