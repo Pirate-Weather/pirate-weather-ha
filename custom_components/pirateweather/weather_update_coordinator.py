@@ -87,10 +87,8 @@ class WeatherUpdateCoordinator(DataUpdateCoordinator):
                 requestLatitude = state.attributes["latitude"]
                 requestLongitude = state.attributes["longitude"]
                 _LOGGER.debug(
-                    "Using device tracker %s location: %s, %s",
+                    "Using device tracker %s GPS location for weather request",
                     self.tracker_entity,
-                    requestLatitude,
-                    requestLongitude,
                 )
             else:
                 _LOGGER.warning(

@@ -156,7 +156,29 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     if tracker_entity:
 
         async def _async_tracker_state_listener(event):
-            """Handle device tracker state changes to refresh weather data."""
+            """Handle device tracker state changes to refresh weather data.
+
+            Only triggers a refresh when the GPS coordinates have actually changed
+            to avoid unnecessary API calls from non-location state updates.
+            """
+            new_state = event.data.get("new_state")
+            old_state = event.data.get("old_state")
+
+            if new_state is None:
+                return
+
+            new_lat = new_state.attributes.get("latitude")
+            new_lon = new_state.attributes.get("longitude")
+
+            if new_lat is None or new_lon is None:
+                return
+
+            if old_state is not None:
+                old_lat = old_state.attributes.get("latitude")
+                old_lon = old_state.attributes.get("longitude")
+                if new_lat == old_lat and new_lon == old_lon:
+                    return
+
             await weather_coordinator.async_request_refresh()
 
         tracker_unsubscribe = async_track_state_change_event(
