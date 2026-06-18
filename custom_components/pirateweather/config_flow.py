@@ -24,6 +24,7 @@ from homeassistant.const import (
     CONF_SCAN_INTERVAL,
 )
 from homeassistant.core import callback
+from homeassistant.helpers import selector
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
 
 from .const import (
@@ -31,6 +32,7 @@ from .const import (
     CONF_ENDPOINT,
     CONF_LANGUAGE,
     CONF_MODELS,
+    CONF_TRACKER_ENTITY,
     CONF_UNITS,
     CONFIG_FLOW_VERSION,
     DEFAULT_ENDPOINT,
@@ -99,6 +101,11 @@ class PirateWeatherConfigFlow(ConfigFlow, domain=DOMAIN):
                     ["si", "us", "ca", "uk"]
                 ),
                 vol.Optional(CONF_ENDPOINT, default=DEFAULT_ENDPOINT): str,
+                vol.Optional(CONF_TRACKER_ENTITY): selector.EntitySelector(
+                    selector.EntitySelectorConfig(
+                        domain="device_tracker", multiple=False
+                    )
+                ),
             }
         )
 
@@ -109,6 +116,7 @@ class PirateWeatherConfigFlow(ConfigFlow, domain=DOMAIN):
             forecastPlatform = user_input[PW_PLATFORM]
             entityNamee = user_input[CONF_NAME]
             endpoint = user_input[CONF_ENDPOINT]
+            tracker_entity = user_input.get(CONF_TRACKER_ENTITY)
 
             # Convert scan interval to timedelta
             if isinstance(user_input[CONF_SCAN_INTERVAL], str):
@@ -123,16 +131,24 @@ class PirateWeatherConfigFlow(ConfigFlow, domain=DOMAIN):
                 ].total_seconds()
 
             # Unique value includes the location and forcastHours/ forecastDays to seperate WeatherEntity/ Sensor
-            # await self.async_set_unique_id(f"pw-{latitude}-{longitude}-{forecastDays}-{forecastHours}-{forecastMode}-{entityNamee}")
-            await self.async_set_unique_id(
-                f"pw-{latitude}-{longitude}-{forecastPlatform}-{forecastMode}-{entityNamee}"
-            )
+            if tracker_entity:
+                await self.async_set_unique_id(
+                    f"pw-tracker-{tracker_entity}-{forecastPlatform}-{forecastMode}-{entityNamee}"
+                )
+            else:
+                await self.async_set_unique_id(
+                    f"pw-{latitude}-{longitude}-{forecastPlatform}-{forecastMode}-{entityNamee}"
+                )
 
             self._abort_if_unique_id_configured()
 
+            # Use HA home location as fallback for API validation when lat/lon are 0
+            check_lat = latitude if latitude != 0 else self.hass.config.latitude
+            check_lon = longitude if longitude != 0 else self.hass.config.longitude
+
             try:
                 api_status = await _is_pw_api_online(
-                    self.hass, user_input[CONF_API_KEY], latitude, longitude, endpoint
+                    self.hass, user_input[CONF_API_KEY], check_lat, check_lon, endpoint
                 )
 
                 if api_status == 403:
@@ -216,6 +232,15 @@ class PirateWeatherOptionsFlow(OptionsFlow):
         )
 
     def _get_options_schema(self):
+        tracker_entity = self.config_entry.options.get(
+            CONF_TRACKER_ENTITY,
+            self.config_entry.data.get(CONF_TRACKER_ENTITY),
+        )
+        tracker_key = (
+            vol.Optional(CONF_TRACKER_ENTITY, default=tracker_entity)
+            if tracker_entity
+            else vol.Optional(CONF_TRACKER_ENTITY)
+        )
         return vol.Schema(
             {
                 vol.Optional(
@@ -323,6 +348,11 @@ class PirateWeatherOptionsFlow(OptionsFlow):
                         ),
                     ),
                 ): str,
+                tracker_key: selector.EntitySelector(
+                    selector.EntitySelectorConfig(
+                        domain="device_tracker", multiple=False
+                    )
+                ),
             }
         )
 

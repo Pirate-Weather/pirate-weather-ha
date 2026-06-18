@@ -18,10 +18,12 @@ from homeassistant.const import (
     CONF_SCAN_INTERVAL,
 )
 from homeassistant.core import HomeAssistant
+from homeassistant.helpers.event import async_track_state_change_event
 
 from .const import (
     CONF_ENDPOINT,
     CONF_MODELS,
+    CONF_TRACKER_ENTITY,
     CONF_UNITS,
     DEFAULT_ENDPOINT,
     DEFAULT_SCAN_INTERVAL,
@@ -32,6 +34,7 @@ from .const import (
     PW_PLATFORM,
     PW_PLATFORMS,
     PW_ROUND,
+    TRACKER_UNSUBSCRIBE,
     UPDATE_LISTENER,
 )
 
@@ -62,6 +65,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     language = _get_config_value(entry, CONF_LANGUAGE)
     endpoint = _get_config_value(entry, CONF_ENDPOINT)
     models = _get_config_value(entry, CONF_MODELS)
+    tracker_entity = _get_config_value(entry, CONF_TRACKER_ENTITY)
 
     # If scan_interval config value is not configured fall back to the entry data config value
     if not scan_interval:
@@ -121,6 +125,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         hass,
         entry,
         models,
+        tracker_entity,
     )
     hass.data[DOMAIN][unique_location] = weather_coordinator
 
@@ -144,7 +149,42 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         CONF_LANGUAGE: language,
         CONF_ENDPOINT: endpoint,
         CONF_MODELS: models,
+        CONF_TRACKER_ENTITY: tracker_entity,
     }
+
+    # Register state change listener for device tracker to update weather on location change
+    if tracker_entity:
+
+        async def _async_tracker_state_listener(event):
+            """Handle device tracker state changes to refresh weather data.
+
+            Only triggers a refresh when the GPS coordinates have actually changed
+            to avoid unnecessary API calls from non-location state updates.
+            """
+            new_state = event.data.get("new_state")
+            old_state = event.data.get("old_state")
+
+            if new_state is None:
+                return
+
+            new_lat = new_state.attributes.get("latitude")
+            new_lon = new_state.attributes.get("longitude")
+
+            if new_lat is None or new_lon is None:
+                return
+
+            if old_state is not None:
+                old_lat = old_state.attributes.get("latitude")
+                old_lon = old_state.attributes.get("longitude")
+                if new_lat == old_lat and new_lon == old_lon:
+                    return
+
+            await weather_coordinator.async_request_refresh()
+
+        tracker_unsubscribe = async_track_state_change_event(
+            hass, [tracker_entity], _async_tracker_state_listener
+        )
+        hass.data[DOMAIN][entry.entry_id][TRACKER_UNSUBSCRIBE] = tracker_unsubscribe
 
     # Setup platforms
     # If both platforms
@@ -194,6 +234,10 @@ async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     if unload_ok:
         update_listener = hass.data[DOMAIN][entry.entry_id][UPDATE_LISTENER]
         update_listener()
+
+        # Unsubscribe from device tracker state changes if configured
+        if TRACKER_UNSUBSCRIBE in hass.data[DOMAIN][entry.entry_id]:
+            hass.data[DOMAIN][entry.entry_id][TRACKER_UNSUBSCRIBE]()
 
         hass.data[DOMAIN].pop(entry.entry_id)
 

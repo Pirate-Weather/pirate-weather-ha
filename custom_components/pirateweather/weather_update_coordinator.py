@@ -33,6 +33,7 @@ class WeatherUpdateCoordinator(DataUpdateCoordinator):
         hass,
         config_entry: ConfigEntry,
         models: str | None,
+        tracker_entity: str | None = None,
     ):
         """Initialize coordinator."""
         self._api_key = api_key
@@ -43,6 +44,7 @@ class WeatherUpdateCoordinator(DataUpdateCoordinator):
         self.endpoint = endpoint
         self.requested_units = units or "si"
         self.models = models
+        self.tracker_entity = tracker_entity
 
         self.data = None
         self.currently = None
@@ -71,17 +73,41 @@ class WeatherUpdateCoordinator(DataUpdateCoordinator):
     async def _get_pw_weather(self):
         """Poll weather data from PW."""
 
-        if self.latitude == 0.0:
-            requestLatitude = self.hass.config.latitude
-        else:
-            requestLatitude = self.latitude
+        requestLatitude = None
+        requestLongitude = None
 
-        if self.longitude == 0.0:
-            requestLongitude = self.hass.config.longitude
-        else:
-            requestLongitude = self.longitude
+        # Use device tracker GPS coordinates when configured
+        if self.tracker_entity:
+            state = self.hass.states.get(self.tracker_entity)
+            if (
+                state is not None
+                and "latitude" in state.attributes
+                and "longitude" in state.attributes
+            ):
+                requestLatitude = state.attributes["latitude"]
+                requestLongitude = state.attributes["longitude"]
+                _LOGGER.debug(
+                    "Using device tracker %s GPS location for weather request",
+                    self.tracker_entity,
+                )
+            else:
+                _LOGGER.warning(
+                    "Device tracker %s not available or missing GPS coordinates, "
+                    "falling back to configured location",
+                    self.tracker_entity,
+                )
 
-        _LOGGER.debug("Request coordinates: %s, %s", requestLatitude, requestLongitude)
+        # Fall back to manually configured or HA home location
+        if requestLatitude is None:
+            requestLatitude = (
+                self.latitude if self.latitude != 0.0 else self.hass.config.latitude
+            )
+        if requestLongitude is None:
+            requestLongitude = (
+                self.longitude if self.longitude != 0.0 else self.hass.config.longitude
+            )
+
+        _LOGGER.debug("Fetching Pirate Weather data")
 
         forecastString = (
             self.endpoint
