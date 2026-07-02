@@ -29,7 +29,7 @@ jobs:
           run: python3 -m ruff format .
 
         - name: "Check"
-          run: python3 -m ruff check .
+          run: python3 -m ruff check . --fix
 
         - name: "Auto Commit"
           uses: stefanzweifel/git-auto-commit-action@v7.2.0
