@@ -1,8 +1,8 @@
 """Weather data coordinator for the Pirate Weather service."""
 
+import asyncio
 import logging
 
-import async_timeout
 from aiohttp import ClientError
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
@@ -61,7 +61,7 @@ class WeatherUpdateCoordinator(DataUpdateCoordinator):
     async def _async_update_data(self):
         """Update the data."""
         data = {}
-        async with async_timeout.timeout(60):
+        async with asyncio.timeout(60):
             try:
                 data = await self._get_pw_weather()
             except ClientError as err:
