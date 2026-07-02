@@ -1,8 +1,8 @@
 """Weather data coordinator for the Pirate Weather service."""
 
+import asyncio
 import logging
 
-import asyncio
 from aiohttp import ClientError
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
