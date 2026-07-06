@@ -10,6 +10,7 @@ updates:
     schedule:
       interval: "weekly"
       time: "13:00"
+      day: "monday"
       timezone: "America/Toronto"
     groups:
       pytest:
@@ -32,6 +33,7 @@ updates:
     schedule:
       interval: "weekly"
       time: "13:10"
+      day: "monday"
       timezone: "America/Toronto"
     groups:
       non-major-versions: # the name of the group
