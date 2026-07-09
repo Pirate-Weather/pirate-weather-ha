@@ -35,6 +35,7 @@ from homeassistant.const import (
     UnitOfVolumetricFlux,
 )
 from homeassistant.core import HomeAssistant
+from homeassistant.helpers.device_registry import DeviceEntryType, DeviceInfo
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.helpers.typing import DiscoveryInfoType, StateType
 from homeassistant.util import dt as dt_util
@@ -44,6 +45,7 @@ from .const import (
     DEFAULT_SCAN_INTERVAL,
     DOMAIN,
     ENTRY_WEATHER_COORDINATOR,
+    MANUFACTURER,
     PW_PLATFORM,
     PW_PLATFORMS,
     PW_PREVPLATFORM,
@@ -1029,6 +1031,7 @@ async def async_setup_entry(
     conditions = domain_data[CONF_MONITORED_CONDITIONS]
     forecast_days = domain_data[CONF_FORECAST]
     forecast_hours = domain_data[CONF_HOURLY_FORECAST]
+    service_id = config_entry.unique_id or config_entry.entry_id
 
     # Round Output
     outputRound = domain_data[PW_ROUND]
@@ -1060,6 +1063,7 @@ async def async_setup_entry(
                     description=sensorDescription,
                     requestUnits=requestUnits,
                     outputRound=outputRound,
+                    service_id=service_id,
                 )
             )
 
@@ -1079,6 +1083,7 @@ async def async_setup_entry(
                         description=sensorDescription,
                         requestUnits=requestUnits,
                         outputRound=outputRound,
+                        service_id=service_id,
                     )
                 )
 
@@ -1098,6 +1103,7 @@ async def async_setup_entry(
                         description=sensorDescription,
                         requestUnits=requestUnits,
                         outputRound=outputRound,
+                        service_id=service_id,
                     )
                 )
 
@@ -1122,6 +1128,7 @@ class PirateWeatherSensor(SensorEntity):
         description: PirateWeatherSensorEntityDescription,
         requestUnits: str,
         outputRound: str,
+        service_id: str,
     ) -> None:
         """Initialize the sensor."""
         self.client_name = name
@@ -1133,13 +1140,12 @@ class PirateWeatherSensor(SensorEntity):
 
         self._attr_unique_id = unique_id
         self._attr_name = name
-
-        # self._attr_device_info = DeviceInfo(
-        #    entry_type=DeviceEntryType.SERVICE,
-        #    identifiers={(DOMAIN, unique_id)},
-        #    manufacturer=MANUFACTURER,
-        #    name=DEFAULT_NAME,
-        # )
+        self._attr_device_info = DeviceInfo(
+            entry_type=DeviceEntryType.SERVICE,
+            identifiers={(DOMAIN, service_id)},
+            manufacturer=MANUFACTURER,
+            name=name,
+        )
 
         self.forecast_day = forecast_day
         self.forecast_hour = forecast_hour

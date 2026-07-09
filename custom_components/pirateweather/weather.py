@@ -39,6 +39,7 @@ from homeassistant.const import (
     UnitOfTemperature,
 )
 from homeassistant.core import HomeAssistant, callback
+from homeassistant.helpers.device_registry import DeviceEntryType, DeviceInfo
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.helpers.typing import DiscoveryInfoType
 from homeassistant.util.dt import utc_from_timestamp
@@ -50,6 +51,7 @@ from .const import (
     DOMAIN,
     ENTRY_WEATHER_COORDINATOR,
     FORECAST_MODES,
+    MANUFACTURER,
     PW_PLATFORM,
     PW_PLATFORMS,
     PW_PREVPLATFORM,
@@ -262,12 +264,13 @@ async def async_setup_entry(
     forecast_mode = domain_data[CONF_MODE]
 
     unique_id = f"{config_entry.unique_id}"
+    service_id = config_entry.unique_id or config_entry.entry_id
 
     # Round Output
     outputRound = domain_data[PW_ROUND]
 
     pw_weather = PirateWeather(
-        name, unique_id, forecast_mode, weather_coordinator, outputRound
+        name, unique_id, forecast_mode, weather_coordinator, outputRound, service_id
     )
 
     async_add_entities([pw_weather], False)
@@ -292,10 +295,17 @@ class PirateWeather(SingleCoordinatorWeatherEntity[WeatherUpdateCoordinator]):
         forecast_mode: str,
         weather_coordinator: WeatherUpdateCoordinator,
         outputRound: str,
+        service_id: str,
     ) -> None:
         """Initialize the sensor."""
         super().__init__(weather_coordinator)
         self._attr_name = name
+        self._attr_device_info = DeviceInfo(
+            entry_type=DeviceEntryType.SERVICE,
+            identifiers={(DOMAIN, service_id)},
+            manufacturer=MANUFACTURER,
+            name=name,
+        )
         self._weather_coordinator = weather_coordinator
         self._name = name
         self._mode = forecast_mode
