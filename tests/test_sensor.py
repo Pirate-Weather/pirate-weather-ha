@@ -120,7 +120,7 @@ async def test_sensor_v2_fields(
     config_data[CONF_MONITORED_CONDITIONS] = [
         "smoke",
         "fire_index",
-        "feels_like",
+        "air_quality_index",
         "current_day_liquid",
         "current_day_snow",
         "current_day_ice",
@@ -147,9 +147,10 @@ async def test_sensor_v2_fields(
     if fire_index_sensor:
         assert float(fire_index_sensor.state) == 7.33
 
-    feels_like_sensor = hass.states.get("sensor.pirateweather_feels_like")
-    if feels_like_sensor:
-        assert float(feels_like_sensor.state) == 64.6
+    aqi_sensor = hass.states.get("sensor.pirateweather_air_quality_index")
+    assert aqi_sensor is not None
+    assert float(aqi_sensor.state) == 42
+    assert aqi_sensor.attributes.get("device_class") == "aqi"
 
 
 async def test_sensor_forecast_daily(

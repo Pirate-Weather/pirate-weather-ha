@@ -631,6 +631,15 @@ SENSOR_TYPES: dict[str, PirateWeatherSensorEntityDescription] = {
         icon="mdi:weather-sunny",
         forecast_mode=["currently", "hourly", "daily"],
     ),
+    "air_quality_index": PirateWeatherSensorEntityDescription(
+        key="air_quality_index",
+        name="Air Quality Index",
+        device_class=SensorDeviceClass.AQI,
+        state_class=SensorStateClass.MEASUREMENT,
+        suggested_display_precision=0,
+        icon="mdi:air-filter",
+        forecast_mode=["currently", "hourly", "daily"],
+    ),
     "cape": PirateWeatherSensorEntityDescription(
         key="cape",
         name="Convective Available Potential Energy",
@@ -1370,6 +1379,7 @@ class PirateWeatherSensor(SensorEntity):
             "fire_index",
             "fire_index_max",
             "uv_index",
+            "air_quality_index",
             "wind_speed",
             "wind_gust",
             "visibility",
