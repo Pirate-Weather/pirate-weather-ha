@@ -1140,12 +1140,12 @@ class PirateWeatherSensor(SensorEntity):
 
         self._attr_unique_id = unique_id
         self._attr_name = name
-        self._attr_device_info = {
-            "entry_type": DeviceEntryType.SERVICE,
-            "identifiers": {(DOMAIN, service_id)},
-            "manufacturer": MANUFACTURER,
-            "name": name,
-        }
+        self._attr_device_info = DeviceInfo(
+            entry_type=DeviceEntryType.SERVICE,
+            identifiers={(DOMAIN, service_id)},
+            manufacturer=MANUFACTURER,
+            name=name,
+        )
 
         self.forecast_day = forecast_day
         self.forecast_hour = forecast_hour
