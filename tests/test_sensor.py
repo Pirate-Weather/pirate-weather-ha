@@ -12,6 +12,8 @@ from homeassistant.const import (
     CONF_SCAN_INTERVAL,
 )
 from homeassistant.core import HomeAssistant
+from homeassistant.helpers import device_registry as dr
+from homeassistant.helpers.device_registry import DeviceEntryType
 from pytest_homeassistant_custom_component.common import MockConfigEntry
 
 from custom_components.pirateweather.const import (
@@ -64,6 +66,13 @@ async def test_sensor_setup(
 
     assert temp_sensor is not None
     assert humidity_sensor is not None
+
+    device_registry = dr.async_get(hass)
+    service_device = device_registry.async_get_device(
+        identifiers={(DOMAIN, "test_sensor_unique_id")}
+    )
+    assert service_device is not None
+    assert service_device.entry_type is DeviceEntryType.SERVICE
 
 
 async def test_sensor_values(

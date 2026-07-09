@@ -18,6 +18,8 @@ from homeassistant.const import (
     CONF_SCAN_INTERVAL,
 )
 from homeassistant.core import HomeAssistant
+from homeassistant.helpers import device_registry as dr
+from homeassistant.helpers.device_registry import DeviceEntryType
 
 from .const import (
     CONF_ENDPOINT,
@@ -28,6 +30,7 @@ from .const import (
     DOMAIN,
     ENTRY_NAME,
     ENTRY_WEATHER_COORDINATOR,
+    MANUFACTURER,
     PLATFORMS,
     PW_PLATFORM,
     PW_PLATFORMS,
@@ -145,6 +148,15 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         CONF_ENDPOINT: endpoint,
         CONF_MODELS: models,
     }
+
+    device_registry = dr.async_get(hass)
+    device_registry.async_get_or_create(
+        config_entry_id=entry.entry_id,
+        entry_type=DeviceEntryType.SERVICE,
+        identifiers={(DOMAIN, entry.unique_id or entry.entry_id)},
+        manufacturer=MANUFACTURER,
+        name=name,
+    )
 
     # Setup platforms
     # If both platforms
