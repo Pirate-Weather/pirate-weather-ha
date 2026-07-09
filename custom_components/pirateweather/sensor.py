@@ -634,6 +634,7 @@ SENSOR_TYPES: dict[str, PirateWeatherSensorEntityDescription] = {
     "air_quality_index": PirateWeatherSensorEntityDescription(
         key="air_quality_index",
         name="Air Quality Index",
+        device_class=SensorDeviceClass.AQI,
         state_class=SensorStateClass.MEASUREMENT,
         suggested_display_precision=0,
         icon="mdi:air-filter",
