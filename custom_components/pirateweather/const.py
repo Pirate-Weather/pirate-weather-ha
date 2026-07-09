@@ -112,6 +112,7 @@ ALL_CONDITIONS = {
     "apparent_temperature_low": "Apparent Temperature Low",
     "precip_intensity_max": "Precip Intensity Max",
     "uv_index": "UV Index",
+    "air_quality_index": "Air Quality Index",
     "moon_phase": "Moon Phase",
     "sunrise_time": "Sunrise Time",
     "sunset_time": "Sunset Time",
