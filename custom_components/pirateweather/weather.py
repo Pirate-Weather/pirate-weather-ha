@@ -300,12 +300,12 @@ class PirateWeather(SingleCoordinatorWeatherEntity[WeatherUpdateCoordinator]):
         """Initialize the sensor."""
         super().__init__(weather_coordinator)
         self._attr_name = name
-        self._attr_device_info = {
-            "entry_type": DeviceEntryType.SERVICE,
-            "identifiers": {(DOMAIN, service_id)},
-            "manufacturer": MANUFACTURER,
-            "name": name,
-        }
+        self._attr_device_info = DeviceInfo(
+            entry_type=DeviceEntryType.SERVICE,
+            identifiers={(DOMAIN, service_id)},
+            manufacturer=MANUFACTURER,
+            name=name,
+        )
         self._weather_coordinator = weather_coordinator
         self._name = name
         self._mode = forecast_mode
