@@ -26,8 +26,8 @@ class Forecast(UnicodeMixin):
         self.json = data
 
         self._alerts = []
-        for alertJSON in self.json.get("alerts", []):
-            self._alerts.append(Alert(alertJSON))
+        for alert_json in self.json.get("alerts", []):
+            self._alerts.append(Alert(alert_json))
 
     def update(self):
         """Update the forecast data by making a new request to the same URL."""
@@ -135,9 +135,9 @@ class PirateWeatherFlagsBlock(UnicodeMixin):
 class PirateWeatherDataPoint(UnicodeMixin):
     """Represent a single data point in a weather forecast, such as an hourly or daily data point."""
 
-    def __init__(self, d={}):
+    def __init__(self, d=None):
         """Initialize the data point with timestamp and weather information."""
-        self.d = d
+        self.d = d or {}
 
         try:
             self.time = datetime.datetime.fromtimestamp(int(d["time"]))
