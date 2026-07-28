@@ -21,7 +21,7 @@ ATTRIBUTION = "Powered by Pirate Weather"
 class WeatherUpdateCoordinator(DataUpdateCoordinator):
     """Weather data update coordinator."""
 
-    def __init__( # noqa: PLR0917
+    def __init__(  # noqa: PLR0917
         self,
         api_key,
         latitude,
@@ -81,7 +81,9 @@ class WeatherUpdateCoordinator(DataUpdateCoordinator):
         else:
             request_longitude = self.longitude
 
-        _LOGGER.debug("Request coordinates: %s, %s", request_latitude, request_longitude)
+        _LOGGER.debug(
+            "Request coordinates: %s, %s", request_latitude, request_longitude
+        )
 
         forecast_string = (
             self.endpoint

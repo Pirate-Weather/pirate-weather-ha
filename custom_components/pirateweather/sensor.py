@@ -1117,7 +1117,7 @@ class PirateWeatherSensor(SensorEntity):
     _attr_attribution = ATTRIBUTION
     entity_description: PirateWeatherSensorEntityDescription
 
-    def __init__( # noqa: PLR0917
+    def __init__(  # noqa: PLR0917
         self,
         weather_coordinator: WeatherUpdateCoordinator,
         condition: str,

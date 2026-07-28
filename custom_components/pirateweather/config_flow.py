@@ -328,7 +328,9 @@ class PirateWeatherOptionsFlow(OptionsFlow):
 
 
 async def _is_pw_api_online(hass, api_key, lat, lon, endpoint):
-    forecast_string = endpoint + "/forecast/" + api_key + "/" + str(lat) + "," + str(lon)
+    forecast_string = (
+        endpoint + "/forecast/" + api_key + "/" + str(lat) + "," + str(lon)
+    )
 
     session = async_get_clientsession(hass)
     async with session.get(forecast_string) as resp:

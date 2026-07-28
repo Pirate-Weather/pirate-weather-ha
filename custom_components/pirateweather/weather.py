@@ -288,7 +288,7 @@ class PirateWeather(SingleCoordinatorWeatherEntity[WeatherUpdateCoordinator]):
         | WeatherEntityFeature.FORECAST_HOURLY
     )
 
-    def __init__( # noqa: PLR0917
+    def __init__(  # noqa: PLR0917
         self,
         name: str,
         unique_id,
