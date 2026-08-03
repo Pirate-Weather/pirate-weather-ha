@@ -267,10 +267,10 @@ async def async_setup_entry(
     service_id = config_entry.unique_id or config_entry.entry_id
 
     # Round Output
-    outputRound = domain_data[PW_ROUND]
+    output_round = domain_data[PW_ROUND]
 
     pw_weather = PirateWeather(
-        name, unique_id, forecast_mode, weather_coordinator, outputRound, service_id
+        name, unique_id, forecast_mode, weather_coordinator, output_round, service_id
     )
 
     async_add_entities([pw_weather], False)
@@ -288,13 +288,13 @@ class PirateWeather(SingleCoordinatorWeatherEntity[WeatherUpdateCoordinator]):
         | WeatherEntityFeature.FORECAST_HOURLY
     )
 
-    def __init__(
+    def __init__(  # noqa: PLR0917
         self,
         name: str,
         unique_id,
         forecast_mode: str,
         weather_coordinator: WeatherUpdateCoordinator,
-        outputRound: str,
+        output_round: str,
         service_id: str,
     ) -> None:
         """Initialize the sensor."""
@@ -315,7 +315,7 @@ class PirateWeather(SingleCoordinatorWeatherEntity[WeatherUpdateCoordinator]):
         self._ds_hourly = self._weather_coordinator.data.hourly()
         self._ds_daily = self._weather_coordinator.data.daily()
 
-        self.outputRound = outputRound
+        self.output_round = output_round
 
         units = WEATHER_UNITS.get(
             self._weather_coordinator.requested_units, WEATHER_UNITS["si"]
@@ -369,11 +369,13 @@ class PirateWeather(SingleCoordinatorWeatherEntity[WeatherUpdateCoordinator]):
     @property
     def cloud_coverage(self):
         """Return the cloud coverage."""
-        cloudCover = (
-            self._weather_coordinator.data.currently().d.get("cloudCover") * 100.0
-        )
+        cloud_cover = self._weather_coordinator.data.currently().d.get("cloudCover")
 
-        return round(cloudCover, 2) if cloudCover != -999 else None
+        return (
+            round(cloud_cover * 100, 2)
+            if cloud_cover is not None and cloud_cover != -999
+            else None
+        )
 
     @property
     def humidity(self):
@@ -399,16 +401,16 @@ class PirateWeather(SingleCoordinatorWeatherEntity[WeatherUpdateCoordinator]):
     @property
     def native_wind_gust_speed(self):
         """Return the wind gust speed."""
-        windGust = self._weather_coordinator.data.currently().d.get("windGust")
+        wind_gust = self._weather_coordinator.data.currently().d.get("windGust")
 
-        return round(windGust, 2) if windGust != -999 else None
+        return round(wind_gust, 2) if wind_gust != -999 else None
 
     @property
     def wind_bearing(self):
         """Return the wind bearing."""
-        windBearing = self._weather_coordinator.data.currently().d.get("windBearing")
+        wind_bearing = self._weather_coordinator.data.currently().d.get("windBearing")
 
-        return windBearing if windBearing != -999 else None
+        return wind_bearing if wind_bearing != -999 else None
 
     @property
     def ozone(self):

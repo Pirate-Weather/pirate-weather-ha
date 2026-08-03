@@ -105,9 +105,9 @@ class PirateWeatherConfigFlow(ConfigFlow, domain=DOMAIN):
         if user_input is not None:
             latitude = user_input[CONF_LATITUDE]
             longitude = user_input[CONF_LONGITUDE]
-            forecastMode = "daily"
-            forecastPlatform = user_input[PW_PLATFORM]
-            entityNamee = user_input[CONF_NAME]
+            forecast_mode = "daily"
+            forecast_platform = user_input[PW_PLATFORM]
+            entity_name = user_input[CONF_NAME]
             endpoint = user_input[CONF_ENDPOINT]
 
             # Convert scan interval to timedelta
@@ -125,7 +125,7 @@ class PirateWeatherConfigFlow(ConfigFlow, domain=DOMAIN):
             # Unique value includes the location and forcastHours/ forecastDays to seperate WeatherEntity/ Sensor
             # await self.async_set_unique_id(f"pw-{latitude}-{longitude}-{forecastDays}-{forecastHours}-{forecastMode}-{entityNamee}")
             await self.async_set_unique_id(
-                f"pw-{latitude}-{longitude}-{forecastPlatform}-{forecastMode}-{entityNamee}"
+                f"pw-{latitude}-{longitude}-{forecast_platform}-{forecast_mode}-{entity_name}"
             )
 
             self._abort_if_unique_id_configured()
@@ -328,8 +328,10 @@ class PirateWeatherOptionsFlow(OptionsFlow):
 
 
 async def _is_pw_api_online(hass, api_key, lat, lon, endpoint):
-    forecastString = endpoint + "/forecast/" + api_key + "/" + str(lat) + "," + str(lon)
+    forecast_string = (
+        endpoint + "/forecast/" + api_key + "/" + str(lat) + "," + str(lon)
+    )
 
     session = async_get_clientsession(hass)
-    async with session.get(forecastString) as resp:
+    async with session.get(forecast_string) as resp:
         return resp.status
