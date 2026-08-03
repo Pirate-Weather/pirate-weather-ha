@@ -137,7 +137,7 @@ class PirateWeatherDataPoint(UnicodeMixin):
 
     def __init__(self, d=None):
         """Initialize the data point with timestamp and weather information."""
-        self.d = d or {}
+        d = d or {}
 
         try:
             self.time = datetime.datetime.fromtimestamp(int(d["time"]))
