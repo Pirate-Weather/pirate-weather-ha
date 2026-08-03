@@ -137,22 +137,22 @@ class PirateWeatherDataPoint(UnicodeMixin):
 
     def __init__(self, d=None):
         """Initialize the data point with timestamp and weather information."""
-        d = d or {}
+        self.d = d or {}
 
         try:
-            self.time = datetime.datetime.fromtimestamp(int(d["time"]))
-            self.utime = d["time"]
+            self.time = datetime.datetime.fromtimestamp(int(self.d["time"]))
+            self.utime = self.d["time"]
         except KeyError:
             pass
 
         try:
-            sr_time = int(d["sunriseTime"])
+            sr_time = int(self.d["sunriseTime"])
             self.sunriseTime = datetime.datetime.fromtimestamp(sr_time)
         except KeyError:
             self.sunriseTime = None
 
         try:
-            ss_time = int(d["sunsetTime"])
+            ss_time = int(self.d["sunsetTime"])
             self.sunsetTime = datetime.datetime.fromtimestamp(ss_time)
         except KeyError:
             self.sunsetTime = None

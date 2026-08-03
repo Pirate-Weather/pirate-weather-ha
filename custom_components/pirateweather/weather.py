@@ -371,7 +371,11 @@ class PirateWeather(SingleCoordinatorWeatherEntity[WeatherUpdateCoordinator]):
         """Return the cloud coverage."""
         cloud_cover = self._weather_coordinator.data.currently().d.get("cloudCover")
 
-        return round(cloud_cover * 100, 2) if cloud_cover != -999 else None
+        return (
+            round(cloud_cover * 100, 2)
+            if cloud_cover is not None and cloud_cover != -999
+            else None
+        )
 
     @property
     def humidity(self):
