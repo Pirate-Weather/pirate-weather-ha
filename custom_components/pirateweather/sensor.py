@@ -1342,7 +1342,7 @@ class PirateWeatherSensor(SensorEntity):
             self._icon = getattr(data, "icon", "")
 
         # If output rounding is requested, round to nearest integer
-        if self.outputRound == "Yes":
+        if self.output_round == "Yes":
             rounding_val = 0
             rounding_precip = 2
         else:
