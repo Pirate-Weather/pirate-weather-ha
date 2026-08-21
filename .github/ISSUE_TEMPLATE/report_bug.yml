@@ -54,6 +54,13 @@ body:
       required: true
 
   - type: textarea
+    id: error-logs
+    attributes:
+      label: Error Logs
+      description: Any relevant error logs. You can find this by going to **Settings > System > Logs.**
+      render: shell
+
+  - type: textarea
     id: other-details
     attributes:
       label: Other details
@@ -70,7 +77,7 @@ body:
           required: true
         - label: I have updated the Pirate Weather Integration to the latest version.
           required: true
-        - label: I have gone through the [documentation](https://pirateweather.net/en/latest/ha/) before opening this issue.
+        - label: I have gone through the [documentation](https://docs.pirateweather.net/en/latest/ha/) before opening this issue.
           required: true
         - label: I have searched this repository and [API Repository](https://github.com/alexander0042/pirate-weather-ha) to see if the issue has already been reported.
           required: true

@@ -33,7 +33,7 @@ body:
       options:
         - label: I have searched this repository and [API Repository](https://github.com/Pirate-Weather/pirateweather/) to see if the feature has already been requested.
           required: true
-        - label: This featre request is sepecific to the HA Integration.
+        - label: This feature request is sepecific to the HA Integration.
           required: true
         - label: I have written an informative title.
           required: true
