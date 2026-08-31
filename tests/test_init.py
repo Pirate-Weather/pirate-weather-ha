@@ -29,8 +29,8 @@ async def test_setup_entry(
     assert mock_config_entry.entry_id in hass.data[DOMAIN]
 
     device_registry = dr.async_get(hass)
-    service_device = device_registry.async_get_device(
-        identifiers={(DOMAIN, "test_unique_id")}
+    service_device = device_registry.async_get_device_by_identifier(
+        (DOMAIN, "test_unique_id"), mock_config_entry.entry_id
     )
     assert service_device is not None
     assert service_device.entry_type is DeviceEntryType.SERVICE
