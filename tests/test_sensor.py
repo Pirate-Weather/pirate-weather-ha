@@ -68,8 +68,8 @@ async def test_sensor_setup(
     assert humidity_sensor is not None
 
     device_registry = dr.async_get(hass)
-    service_device = device_registry.async_get_device(
-        identifiers={(DOMAIN, "test_sensor_unique_id")}
+    service_device = device_registry.async_get_device_by_identifier(
+        (DOMAIN, "test_sensor_unique_id"), entry.entry_id
     )
     assert service_device is not None
     assert service_device.entry_type is DeviceEntryType.SERVICE
