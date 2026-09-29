@@ -28,4 +28,4 @@ This integration allows for any Home Assistant setup that uses Dark Sky to conti
 ## Documentation
 Since this integration returns the same type of data as the default Dark Sky integration, the parameter documentation is the same as described at <https://web.archive.org/web/20230128172320/https://www.home-assistant.io/integrations/weather.darksky/> for the weather card and here: <https://web.archive.org/web/20230326100953/https://www.home-assistant.io/integrations/darksky> for the sensor.
 
-To view the full integration documentation and installation instructions visit [https://pirateweather.net/en/latest/ha/](https://pirateweather.net/en/latest/ha/).
+To view the full integration documentation and installation instructions visit https://docs.pirateweather.net/en/latest/ha/
