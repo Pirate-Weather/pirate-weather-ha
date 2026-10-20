@@ -144,7 +144,10 @@ async def test_options_api_key_reload(
     result = await hass.config_entries.options.async_init(mock_config_entry.entry_id)
     await hass.config_entries.options.async_configure(
         result["flow_id"],
-        user_input={**result["data_schema"]({}), CONF_API_KEY: "replacement_key"},
+        user_input={
+            **result["data_schema"]({"advanced": {}}),
+            CONF_API_KEY: "replacement_key",
+        },
     )
     await hass.async_block_till_done()
 

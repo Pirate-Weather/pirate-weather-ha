@@ -25,6 +25,7 @@ from homeassistant.const import (
     CONF_SCAN_INTERVAL,
 )
 from homeassistant.core import callback
+from homeassistant.data_entry_flow import section
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
 from homeassistant.helpers.selector import (
     Selector,
@@ -61,6 +62,8 @@ _LOGGER = logging.getLogger(__name__)
 
 CONF_FORECAST = "forecast"
 CONF_HOURLY_FORECAST = "hourly_forecast"
+_ADVANCED = "advanced"
+_ADVANCED_SETTINGS = (CONF_MODELS, PW_ROUND, CONF_ENDPOINT, CONF_UNITS)
 _BOTH_PLATFORMS = "Both"
 _SENSOR_SETTINGS = {
     CONF_FORECAST: "",
@@ -81,6 +84,27 @@ def _forecast_selection(value: Any) -> str:
     if isinstance(value, list):
         return ",".join(str(item) for item in value)
     return str(value)
+
+
+def _with_advanced_section(schema: vol.Schema) -> vol.Schema:
+    """Group advanced fields in a native, initially collapsed form section."""
+    fields = {
+        key: value
+        for key, value in schema.schema.items()
+        if key not in _ADVANCED_SETTINGS
+    }
+    advanced = {
+        key: value for key, value in schema.schema.items() if key in _ADVANCED_SETTINGS
+    }
+    fields[vol.Required(_ADVANCED)] = section(vol.Schema(advanced), {"collapsed": True})
+    return vol.Schema(fields)
+
+
+def _flatten_form_values(values: dict) -> dict:
+    """Keep saved settings flat while accepting the section's nested input."""
+    values = dict(values)
+    values.update(values.pop(_ADVANCED, {}))
+    return values
 
 
 class _PlatformSelector(SelectSelector):
@@ -134,6 +158,9 @@ def _form_values(user_input: dict | None) -> dict | None:
     for key in (CONF_FORECAST, CONF_HOURLY_FORECAST):
         if key in values:
             values[key] = _forecast_selection(values[key])
+    values[_ADVANCED] = {
+        key: values.pop(key) for key in _ADVANCED_SETTINGS if key in values
+    }
     return values
 
 
@@ -196,7 +223,10 @@ class PirateWeatherConfigFlow(ConfigFlow, domain=DOMAIN):
             }
         )
 
+        schema = _with_advanced_section(schema)
+
         if user_input is not None:
+            user_input = _flatten_form_values(user_input)
             latitude = user_input[CONF_LATITUDE]
             longitude = user_input[CONF_LONGITUDE]
             forecast_mode = "daily"
@@ -305,6 +335,7 @@ class PirateWeatherOptionsFlow(OptionsFlow):
         """Manage the options."""
         errors = {}
         if user_input is not None:
+            user_input = _flatten_form_values(user_input)
             if PW_PLATFORMS[0] not in user_input[PW_PLATFORM]:
                 # Hidden fields may be omitted or cleared by the frontend.
                 # Retain saved selections when users turn sensors off.
@@ -350,7 +381,7 @@ class PirateWeatherOptionsFlow(OptionsFlow):
         )
 
     def _get_options_schema(self):
-        return vol.Schema(
+        schema = vol.Schema(
             {
                 vol.Required(
                     CONF_API_KEY,
@@ -456,7 +487,7 @@ class PirateWeatherOptionsFlow(OptionsFlow):
                     PW_ROUND,
                     default=self.config_entry.options.get(
                         PW_ROUND,
-                        self.config_entry.options.get(PW_ROUND, "No"),
+                        self.config_entry.data.get(PW_ROUND, "No"),
                     ),
                 ): vol.In(["Yes", "No"]),
                 vol.Optional(
@@ -470,6 +501,7 @@ class PirateWeatherOptionsFlow(OptionsFlow):
                 ): str,
             }
         )
+        return _with_advanced_section(schema)
 
 
 async def _is_pw_api_online(hass, api_key, lat, lon, endpoint):

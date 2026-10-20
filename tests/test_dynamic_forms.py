@@ -83,6 +83,7 @@ async def test_platform_selection_saved_as_list(
     values = {
         CONF_API_KEY: mock_config_entry.data[CONF_API_KEY],
         PW_PLATFORM: selection,
+        "advanced": {},
     }
     if selection != "Weather":
         values.update(SENSOR_SETTINGS)
@@ -117,7 +118,7 @@ async def test_hidden_sensor_settings_preserved(
     unique_id = mock_config_entry.unique_id
     manager = hass.config_entries.options
     result = await manager.async_init(mock_config_entry.entry_id)
-    values = {PW_PLATFORM: "Weather"}
+    values = {PW_PLATFORM: "Weather", "advanced": {}}
     if clear_hidden_fields:
         values.update(
             {
@@ -132,7 +133,7 @@ async def test_hidden_sensor_settings_preserved(
         assert mock_config_entry.options[key] == value
 
     result = await manager.async_init(mock_config_entry.entry_id)
-    defaults = result["data_schema"]({})
+    defaults = result["data_schema"]({"advanced": {}})
     for key, value in SENSOR_SETTINGS.items():
         assert defaults[key] == value
     result = await manager.async_configure(
@@ -151,7 +152,7 @@ async def test_validation_error_retains_sensor_form_values(hass, mock_config_ent
     result = await hass.config_entries.options.async_init(mock_config_entry.entry_id)
     result = await hass.config_entries.options.async_configure(
         result["flow_id"],
-        {CONF_API_KEY: " ", PW_PLATFORM: "Both", **SENSOR_SETTINGS},
+        {CONF_API_KEY: " ", PW_PLATFORM: "Both", "advanced": {}, **SENSOR_SETTINGS},
     )
     assert result["type"] is FlowResultType.FORM
     assert result["errors"] == {CONF_API_KEY: "invalid_api_key"}
@@ -199,6 +200,7 @@ async def test_legacy_platforms_and_forecasts_in_options(
         result["flow_id"],
         {
             PW_PLATFORM: "Both",
+            "advanced": {},
             CONF_FORECAST: fields[CONF_FORECAST]["default"],
             CONF_HOURLY_FORECAST: fields[CONF_HOURLY_FORECAST]["default"],
         },
