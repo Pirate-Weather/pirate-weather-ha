@@ -48,6 +48,7 @@ async def test_sensor_setup(
     entry = MockConfigEntry(
         version=2,
         domain=DOMAIN,
+        title="PirateWeather",
         data=config_data,
         unique_id="test_sensor_unique_id",
     )
@@ -95,6 +96,7 @@ async def test_sensor_values(
     entry = MockConfigEntry(
         version=2,
         domain=DOMAIN,
+        title="PirateWeather",
         data=config_data,
         unique_id="test_sensor_values_unique_id",
     )
@@ -139,6 +141,7 @@ async def test_sensor_v2_fields(
     entry = MockConfigEntry(
         version=2,
         domain=DOMAIN,
+        title="PirateWeather",
         data=config_data,
         unique_id="test_sensor_v2_unique_id",
     )
@@ -177,6 +180,7 @@ async def test_sensor_forecast_daily(
     entry = MockConfigEntry(
         version=2,
         domain=DOMAIN,
+        title="PirateWeather",
         data=config_data,
         unique_id="test_sensor_forecast_unique_id",
     )
@@ -209,6 +213,7 @@ async def test_sensor_attributes(
     entry = MockConfigEntry(
         version=2,
         domain=DOMAIN,
+        title="PirateWeather",
         data=config_data,
         unique_id="test_sensor_attrs_unique_id",
     )
@@ -251,6 +256,7 @@ async def test_sensor_unit_system(
     entry = MockConfigEntry(
         version=2,
         domain=DOMAIN,
+        title="PirateWeather",
         data=config_data,
         unique_id="test_sensor_si_unique_id",
     )

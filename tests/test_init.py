@@ -4,14 +4,16 @@ from __future__ import annotations
 
 from unittest.mock import AsyncMock, Mock, patch
 
+import pytest
 from aiohttp import ClientError
 from homeassistant.config_entries import ConfigEntryState
-from homeassistant.const import CONF_API_KEY
+from homeassistant.const import CONF_API_KEY, CONF_MONITORED_CONDITIONS, CONF_NAME
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers import device_registry as dr
 from homeassistant.helpers.device_registry import DeviceEntryType
+from homeassistant.helpers.entity_registry import async_get as async_get_entity_registry
 
-from custom_components.pirateweather.const import DOMAIN
+from custom_components.pirateweather.const import DEFAULT_NAME, DOMAIN, PW_PLATFORM
 
 
 async def test_setup_entry(
@@ -56,6 +58,74 @@ async def test_unload_entry(
 
     assert mock_config_entry.state is ConfigEntryState.NOT_LOADED
     assert mock_config_entry.entry_id not in hass.data.get(DOMAIN, {})
+
+
+@pytest.mark.parametrize(
+    ("legacy_name", "title", "expected_name"),
+    [
+        (None, "", DEFAULT_NAME),
+        (None, "Home forecast", "Home forecast"),
+        ("Ignored legacy name", "Home forecast", "Home forecast"),
+    ],
+)
+async def test_setup_uses_entry_title(
+    hass: HomeAssistant,
+    mock_get_clientsession,
+    mock_config_entry,
+    *,
+    legacy_name,
+    title,
+    expected_name,
+) -> None:
+    """Stored names are ignored and both platforms keep their entity IDs on reload."""
+    mock_config_entry.add_to_hass(hass)
+    data = {
+        key: value for key, value in mock_config_entry.data.items() if key != CONF_NAME
+    }
+    if legacy_name is not None:
+        data[CONF_NAME] = legacy_name
+    data[PW_PLATFORM] = ["Sensor", "Weather"]
+    data[CONF_MONITORED_CONDITIONS] = ["temperature"]
+    hass.config_entries.async_update_entry(
+        mock_config_entry,
+        data=data,
+        title=title,
+        options={CONF_NAME: "Ignored legacy options name"},
+    )
+    registry = async_get_entity_registry(hass)
+    for platform, unique_id, object_id in (
+        ("weather", "test_unique_id", "legacy_forecast"),
+        ("sensor", "test_unique_id-sensor-temperature", "legacy_temperature"),
+    ):
+        registry.async_get_or_create(
+            platform,
+            DOMAIN,
+            unique_id,
+            suggested_object_id=object_id,
+            config_entry=mock_config_entry,
+        )
+    assert await hass.config_entries.async_setup(mock_config_entry.entry_id)
+    await hass.async_block_till_done()
+    assert hass.data[DOMAIN][mock_config_entry.entry_id][CONF_NAME] == expected_name
+    entities_before = {
+        entity.unique_id: entity.entity_id
+        for entity in registry.entities.values()
+        if entity.config_entry_id == mock_config_entry.entry_id
+    }
+    assert len(entities_before) == 2
+    assert set(entities_before.values()) == {
+        "weather.legacy_forecast",
+        "sensor.legacy_temperature",
+    }
+    assert await hass.config_entries.async_reload(mock_config_entry.entry_id)
+    await hass.async_block_till_done()
+    entities_after = {
+        entity.unique_id: entity.entity_id
+        for entity in registry.entities.values()
+        if entity.config_entry_id == mock_config_entry.entry_id
+    }
+    assert entities_after == entities_before
+    assert mock_config_entry.unique_id == "test_unique_id"
 
 
 async def test_options_api_key_reload(

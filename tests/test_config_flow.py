@@ -16,6 +16,7 @@ from custom_components.pirateweather.const import (
     DEFAULT_ENDPOINT,
     DEFAULT_NAME,
     DOMAIN,
+    PW_PLATFORM,
 )
 
 
@@ -32,6 +33,7 @@ async def test_form(
     )
     assert result["type"] is FlowResultType.FORM
     assert result["errors"] == {}
+    assert CONF_NAME not in result["data_schema"].schema
 
     result2 = await hass.config_entries.flow.async_configure(
         result["flow_id"],
@@ -39,7 +41,6 @@ async def test_form(
             CONF_API_KEY: mock_api_key,
             CONF_LATITUDE: mock_latitude,
             CONF_LONGITUDE: mock_longitude,
-            CONF_NAME: DEFAULT_NAME,
             CONF_ENDPOINT: DEFAULT_ENDPOINT,
         },
     )
@@ -51,7 +52,7 @@ async def test_form(
     assert result2["data"][CONF_API_KEY] == mock_api_key
     assert result2["data"][CONF_LATITUDE] == mock_latitude
     assert result2["data"][CONF_LONGITUDE] == mock_longitude
-    assert result2["data"][CONF_NAME] == DEFAULT_NAME
+    assert CONF_NAME not in result2["data"]
     assert result2["data"][CONF_ENDPOINT] == DEFAULT_ENDPOINT
 
 
@@ -93,7 +94,6 @@ async def test_form_invalid_api_key(
                 CONF_API_KEY: "invalid_key",
                 CONF_LATITUDE: mock_latitude,
                 CONF_LONGITUDE: mock_longitude,
-                CONF_NAME: DEFAULT_NAME,
                 CONF_ENDPOINT: DEFAULT_ENDPOINT,
             },
         )
@@ -123,7 +123,6 @@ async def test_form_duplicate(
             CONF_API_KEY: mock_api_key,
             CONF_LATITUDE: mock_latitude,
             CONF_LONGITUDE: mock_longitude,
-            CONF_NAME: DEFAULT_NAME,
             CONF_ENDPOINT: DEFAULT_ENDPOINT,
         },
     )
@@ -142,7 +141,6 @@ async def test_form_duplicate(
             CONF_API_KEY: mock_api_key,
             CONF_LATITUDE: mock_latitude,
             CONF_LONGITUDE: mock_longitude,
-            CONF_NAME: DEFAULT_NAME,
             CONF_ENDPOINT: DEFAULT_ENDPOINT,
         },
     )
@@ -161,9 +159,79 @@ async def test_options_flow(
     result = await hass.config_entries.options.async_init(mock_config_entry.entry_id)
     assert result["type"] is FlowResultType.FORM
     assert result["step_id"] == "init"
+    assert CONF_NAME not in result["data_schema"].schema
     assert (
         result["data_schema"]({})[CONF_API_KEY] == mock_config_entry.data[CONF_API_KEY]
     )
+
+
+async def test_form_duplicate_legacy_name(
+    hass: HomeAssistant, mock_config_entry
+) -> None:
+    """A legacy name-based unique ID still prevents duplicate setup."""
+    mock_config_entry.add_to_hass(hass)
+    hass.config_entries.async_update_entry(
+        mock_config_entry,
+        title="Home forecast",
+        data={**mock_config_entry.data, CONF_NAME: "Home forecast"},
+        unique_id="pw-legacy-id-with-custom-name",
+    )
+    result = await hass.config_entries.flow.async_init(
+        DOMAIN, context={"source": config_entries.SOURCE_USER}
+    )
+    result = await hass.config_entries.flow.async_configure(
+        result["flow_id"],
+        {
+            key: mock_config_entry.data[key]
+            for key in (CONF_API_KEY, CONF_LATITUDE, CONF_LONGITUDE, PW_PLATFORM)
+        },
+    )
+    assert result["type"] is FlowResultType.ABORT
+    assert result["reason"] == "already_configured"
+    assert mock_config_entry.unique_id == "pw-legacy-id-with-custom-name"
+
+
+@pytest.mark.parametrize("legacy_name", [None, "Legacy YAML name"])
+async def test_import_without_name(
+    hass: HomeAssistant,
+    mock_get_clientsession_config_flow,
+    mock_config_entry_data,
+    legacy_name,
+) -> None:
+    """YAML imports ignore legacy names and create automatically named entries."""
+    data = {
+        key: value for key, value in mock_config_entry_data.items() if key != CONF_NAME
+    }
+    if legacy_name is not None:
+        data[CONF_NAME] = legacy_name
+    result = await hass.config_entries.flow.async_init(
+        DOMAIN, context={"source": config_entries.SOURCE_IMPORT}, data=data
+    )
+    assert result["type"] is FlowResultType.CREATE_ENTRY
+    assert result["title"] == DEFAULT_NAME
+    assert CONF_NAME not in result["data"]
+
+
+async def test_options_ignores_legacy_name(
+    hass: HomeAssistant, mock_get_clientsession_config_flow, mock_config_entry
+) -> None:
+    """Saving options drops a legacy name without renaming or reidentifying the entry."""
+    mock_config_entry.add_to_hass(hass)
+    hass.config_entries.async_update_entry(
+        mock_config_entry,
+        title="Home forecast",
+        options={CONF_NAME: "Unused options name"},
+    )
+    unique_id = mock_config_entry.unique_id
+    result = await hass.config_entries.options.async_init(mock_config_entry.entry_id)
+    assert CONF_NAME not in result["data_schema"].schema
+    result = await hass.config_entries.options.async_configure(
+        result["flow_id"], result["data_schema"]({})
+    )
+    assert result["type"] is FlowResultType.CREATE_ENTRY
+    assert CONF_NAME not in mock_config_entry.options
+    assert mock_config_entry.title == "Home forecast"
+    assert mock_config_entry.unique_id == unique_id
 
 
 async def test_options_flow_change_api_key(
