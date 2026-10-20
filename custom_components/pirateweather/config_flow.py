@@ -25,6 +25,11 @@ from homeassistant.const import (
 )
 from homeassistant.core import callback
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
+from homeassistant.helpers.selector import (
+    TextSelector,
+    TextSelectorConfig,
+    TextSelectorType,
+)
 
 from .const import (
     ALL_CONDITIONS,
@@ -200,24 +205,51 @@ class PirateWeatherOptionsFlow(OptionsFlow):
 
     async def async_step_init(self, user_input: dict | None = None) -> ConfigFlowResult:
         """Manage the options."""
+        errors = {}
         if user_input is not None:
-            # if self.config_entry.options:
-            #  user_input[PW_PREVPLATFORM] = self.config_entry.options[PW_PLATFORM]
-            # else:
-            # user_input[PW_PREVPLATFORM] = self.hass.data[DOMAIN][entry.entry_id][PW_PLATFORM]
-            # self.hass.data[DOMAIN][entry.entry_id][PW_PREVPLATFORM] = self.hass.data[DOMAIN][entry.entry_id][PW_PLATFORM]
-            # user_input[PW_PREVPLATFORM] = self.hass.data[DOMAIN][entry.entry_id][PW_PLATFORM]
-            # _LOGGER.warning('async_step_init_Options')
-            return self.async_create_entry(title=user_input[CONF_NAME], data=user_input)
+            api_key = user_input[CONF_API_KEY].strip()
+            user_input = {**user_input, CONF_API_KEY: api_key}
+            if not api_key:
+                errors[CONF_API_KEY] = "invalid_api_key"
+            else:
+                try:
+                    api_status = await _is_pw_api_online(
+                        self.hass,
+                        api_key,
+                        user_input[CONF_LATITUDE] or self.hass.config.latitude,
+                        user_input[CONF_LONGITUDE] or self.hass.config.longitude,
+                        user_input[CONF_ENDPOINT] or DEFAULT_ENDPOINT,
+                    )
+                except ClientError, TimeoutError:
+                    errors["base"] = "cannot_connect"
+                else:
+                    if api_status in (401, 403):
+                        errors[CONF_API_KEY] = "invalid_api_key"
+                    elif api_status != 200:
+                        errors["base"] = "cannot_connect"
+
+            if not errors:
+                return self.async_create_entry(
+                    title=user_input[CONF_NAME], data=user_input
+                )
 
         return self.async_show_form(
             step_id="init",
-            data_schema=self._get_options_schema(),
+            data_schema=self.add_suggested_values_to_schema(
+                self._get_options_schema(), user_input
+            ),
+            errors=errors,
         )
 
     def _get_options_schema(self):
         return vol.Schema(
             {
+                vol.Required(
+                    CONF_API_KEY,
+                    default=self.config_entry.options.get(
+                        CONF_API_KEY, self.config_entry.data[CONF_API_KEY]
+                    ),
+                ): TextSelector(TextSelectorConfig(type=TextSelectorType.TEXT)),
                 vol.Optional(
                     CONF_NAME,
                     default=self.config_entry.options.get(

@@ -51,7 +51,7 @@ ATTRIBUTION = "Powered by Pirate Weather"
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     """Set up Pirate Weather as config entry."""
     name = entry.data[CONF_NAME]
-    api_key = entry.data[CONF_API_KEY]
+    api_key = _get_config_value(entry, CONF_API_KEY)
     latitude = _get_config_value(entry, CONF_LATITUDE)
     longitude = _get_config_value(entry, CONF_LONGITUDE)
     forecast_mode = "daily"

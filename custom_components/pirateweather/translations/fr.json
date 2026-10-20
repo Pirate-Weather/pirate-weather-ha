@@ -35,6 +35,10 @@
         }
     },
     "options": {
+        "error": {
+            "cannot_connect": "Échec de la connexion",
+            "invalid_api_key": "Clé API invalide"
+        },
         "step": {
             "init": {
                 "data": {

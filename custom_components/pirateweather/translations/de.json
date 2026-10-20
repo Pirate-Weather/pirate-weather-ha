@@ -35,6 +35,10 @@
         }
     },
     "options": {
+        "error": {
+            "cannot_connect": "Fehler beim Verbinden",
+            "invalid_api_key": "Ungültiger API-Schlüssel"
+        },
         "step": {
             "init": {
                 "data": {

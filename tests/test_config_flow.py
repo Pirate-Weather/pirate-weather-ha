@@ -4,6 +4,8 @@ from __future__ import annotations
 
 from unittest.mock import AsyncMock, Mock, patch
 
+import pytest
+from aiohttp import ClientError
 from homeassistant import config_entries
 from homeassistant.const import CONF_API_KEY, CONF_LATITUDE, CONF_LONGITUDE, CONF_NAME
 from homeassistant.core import HomeAssistant
@@ -159,3 +161,89 @@ async def test_options_flow(
     result = await hass.config_entries.options.async_init(mock_config_entry.entry_id)
     assert result["type"] is FlowResultType.FORM
     assert result["step_id"] == "init"
+    assert (
+        result["data_schema"]({})[CONF_API_KEY] == mock_config_entry.data[CONF_API_KEY]
+    )
+
+
+async def test_options_flow_change_api_key(
+    hass: HomeAssistant, mock_config_entry
+) -> None:
+    """Save a validated replacement and show it when options are reopened."""
+    mock_config_entry.add_to_hass(hass)
+    original_data = dict(mock_config_entry.data)
+    result = await hass.config_entries.options.async_init(mock_config_entry.entry_id)
+    user_input = {**result["data_schema"]({}), CONF_API_KEY: "  replacement_key  "}
+
+    with patch(
+        "custom_components.pirateweather.config_flow._is_pw_api_online",
+        return_value=200,
+    ) as validate:
+        result = await hass.config_entries.options.async_configure(
+            result["flow_id"], user_input=user_input
+        )
+
+    assert result["type"] is FlowResultType.CREATE_ENTRY
+    assert mock_config_entry.options[CONF_API_KEY] == "replacement_key"
+    assert mock_config_entry.data == original_data
+    validate.assert_awaited_once_with(
+        hass,
+        "replacement_key",
+        user_input[CONF_LATITUDE],
+        user_input[CONF_LONGITUDE],
+        user_input[CONF_ENDPOINT],
+    )
+    result = await hass.config_entries.options.async_init(mock_config_entry.entry_id)
+    assert result["data_schema"]({})[CONF_API_KEY] == "replacement_key"
+
+
+@pytest.mark.parametrize(
+    ("api_key", "status", "exception", "errors"),
+    [
+        ("bad_key", 401, None, {CONF_API_KEY: "invalid_api_key"}),
+        ("bad_key", 403, None, {CONF_API_KEY: "invalid_api_key"}),
+        ("   ", 200, None, {CONF_API_KEY: "invalid_api_key"}),
+        ("new_key", 429, None, {"base": "cannot_connect"}),
+        ("new_key", 500, None, {"base": "cannot_connect"}),
+        ("new_key", 200, ClientError(), {"base": "cannot_connect"}),
+        ("new_key", 200, TimeoutError(), {"base": "cannot_connect"}),
+    ],
+)
+async def test_options_flow_rejects_invalid_api_key(
+    hass: HomeAssistant, mock_config_entry, *, api_key, status, exception, errors
+) -> None:
+    """Failed validation preserves the saved key and permits a corrected submission."""
+    mock_config_entry.add_to_hass(hass)
+    hass.config_entries.async_update_entry(
+        mock_config_entry, options={CONF_API_KEY: "working_key"}
+    )
+    original_data = dict(mock_config_entry.data)
+    result = await hass.config_entries.options.async_init(mock_config_entry.entry_id)
+    user_input = {**result["data_schema"]({}), CONF_API_KEY: api_key}
+
+    with patch(
+        "custom_components.pirateweather.config_flow._is_pw_api_online",
+        return_value=status,
+        side_effect=exception,
+    ) as validate:
+        result = await hass.config_entries.options.async_configure(
+            result["flow_id"], user_input=user_input
+        )
+
+    assert result["type"] is FlowResultType.FORM
+    assert result["errors"] == errors
+    assert mock_config_entry.options[CONF_API_KEY] == "working_key"
+    assert mock_config_entry.data == original_data
+    if not api_key.strip():
+        validate.assert_not_awaited()
+
+    with patch(
+        "custom_components.pirateweather.config_flow._is_pw_api_online",
+        return_value=200,
+    ):
+        result = await hass.config_entries.options.async_configure(
+            result["flow_id"],
+            user_input={**user_input, CONF_API_KEY: "corrected_key"},
+        )
+    assert result["type"] is FlowResultType.CREATE_ENTRY
+    assert mock_config_entry.options[CONF_API_KEY] == "corrected_key"

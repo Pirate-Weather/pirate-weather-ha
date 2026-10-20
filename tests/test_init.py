@@ -6,6 +6,7 @@ from unittest.mock import AsyncMock, Mock, patch
 
 from aiohttp import ClientError
 from homeassistant.config_entries import ConfigEntryState
+from homeassistant.const import CONF_API_KEY
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers import device_registry as dr
 from homeassistant.helpers.device_registry import DeviceEntryType
@@ -55,6 +56,36 @@ async def test_unload_entry(
 
     assert mock_config_entry.state is ConfigEntryState.NOT_LOADED
     assert mock_config_entry.entry_id not in hass.data.get(DOMAIN, {})
+
+
+async def test_options_api_key_reload(
+    hass: HomeAssistant,
+    mock_get_clientsession,
+    mock_get_clientsession_config_flow,
+    mock_aiohttp_session,
+    mock_config_entry,
+) -> None:
+    """Changing the key reloads the integration and uses it for weather requests."""
+    mock_config_entry.add_to_hass(hass)
+    assert await hass.config_entries.async_setup(mock_config_entry.entry_id)
+    await hass.async_block_till_done()
+    mock_aiohttp_session.get.reset_mock()
+
+    result = await hass.config_entries.options.async_init(mock_config_entry.entry_id)
+    await hass.config_entries.options.async_configure(
+        result["flow_id"],
+        user_input={**result["data_schema"]({}), CONF_API_KEY: "replacement_key"},
+    )
+    await hass.async_block_till_done()
+
+    assert mock_config_entry.state is ConfigEntryState.LOADED
+    assert (
+        hass.data[DOMAIN][mock_config_entry.entry_id][CONF_API_KEY] == "replacement_key"
+    )
+    # One validation request and one forecast request during the reload.
+    assert mock_aiohttp_session.get.call_count == 2
+    for request in mock_aiohttp_session.get.call_args_list:
+        assert "/forecast/replacement_key/" in request.args[0]
 
 
 async def test_setup_entry_with_coordinator_error(
