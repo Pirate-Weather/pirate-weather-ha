@@ -63,5 +63,14 @@
                 }         
             }
         }
+    },
+    "selector": {
+        "platform": {
+            "options": {
+                "Weather": "Weerentiteit",
+                "Sensor": "Sensoren",
+                "Both": "Weerentiteit en sensoren"
+            }
+        }
     }
 }

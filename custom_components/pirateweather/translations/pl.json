@@ -62,5 +62,14 @@
                 }         
             }
         }
+    },
+    "selector": {
+        "platform": {
+            "options": {
+                "Weather": "Encja pogody",
+                "Sensor": "Sensory",
+                "Both": "Encja pogody i sensory"
+            }
+        }
     }
 }

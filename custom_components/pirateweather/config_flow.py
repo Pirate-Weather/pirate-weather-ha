@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import logging
 from datetime import timedelta
+from typing import Any
 
 import homeassistant.helpers.config_validation as cv
 import voluptuous as vol
@@ -26,6 +27,9 @@ from homeassistant.const import (
 from homeassistant.core import callback
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
 from homeassistant.helpers.selector import (
+    Selector,
+    SelectSelector,
+    SelectSelectorConfig,
     TextSelector,
     TextSelectorConfig,
     TextSelectorType,
@@ -57,6 +61,80 @@ _LOGGER = logging.getLogger(__name__)
 
 CONF_FORECAST = "forecast"
 CONF_HOURLY_FORECAST = "hourly_forecast"
+_BOTH_PLATFORMS = "Both"
+_SENSOR_SETTINGS = {
+    CONF_FORECAST: "",
+    CONF_HOURLY_FORECAST: "",
+    CONF_MONITORED_CONDITIONS: [],
+}
+
+
+def _platform_selection(platforms: list[str]) -> str:
+    """Represent the stored platform list as a single form selection."""
+    if all(platform in platforms for platform in PW_PLATFORMS):
+        return _BOTH_PLATFORMS
+    return platforms[0] if platforms else PW_PLATFORMS[1]
+
+
+def _forecast_selection(value: Any) -> str:
+    """Display legacy forecast lists as editable comma-separated values."""
+    if isinstance(value, list):
+        return ",".join(str(item) for item in value)
+    return str(value)
+
+
+class _PlatformSelector(SelectSelector):
+    """Show one platform choice while retaining the existing stored list format."""
+
+    def __init__(self) -> None:
+        super().__init__(
+            SelectSelectorConfig(
+                options=[*PW_PLATFORMS, _BOTH_PLATFORMS],
+                translation_key="platform",
+            )
+        )
+
+    def __call__(self, data: Any) -> list[str]:
+        """Accept form selections and previously stored platform lists."""
+        if isinstance(data, list):
+            return cv.multi_select(PW_PLATFORMS)(data)
+        selection = super().__call__(data)
+        return list(PW_PLATFORMS) if selection == _BOTH_PLATFORMS else [selection]
+
+
+class _SensorSettingSelector(Selector):
+    """Expose a standard selector only when the form enables sensors."""
+
+    def __init__(self, selector: Selector) -> None:
+        self._selector = selector
+        self.selector_type = selector.selector_type
+        self.config = selector.config
+
+    def __call__(self, data: Any) -> Any:
+        """Validate the value with the wrapped selector."""
+        return self._selector(data)
+
+    def serialize(self) -> dict[str, Any]:
+        """Add native ha-form visibility metadata to the selector schema."""
+        return {
+            **self._selector.serialize(),
+            "visible": {
+                "field": PW_PLATFORM,
+                "operator": "in",
+                "value": [PW_PLATFORMS[0], _BOTH_PLATFORMS],
+            },
+        }
+
+
+def _form_values(user_input: dict | None) -> dict | None:
+    """Keep platform suggestions in the form's single-selection format."""
+    if user_input is None:
+        return None
+    values = {**user_input, PW_PLATFORM: _platform_selection(user_input[PW_PLATFORM])}
+    for key in (CONF_FORECAST, CONF_HOURLY_FORECAST):
+        if key in values:
+            values[key] = _forecast_selection(values[key])
+    return values
 
 
 class PirateWeatherConfigFlow(ConfigFlow, domain=DOMAIN):
@@ -86,17 +164,29 @@ class PirateWeatherConfigFlow(ConfigFlow, domain=DOMAIN):
                     CONF_LONGITUDE, default=self.hass.config.longitude
                 ): cv.longitude,
                 vol.Optional(CONF_SCAN_INTERVAL, default=DEFAULT_SCAN_INTERVAL): int,
-                vol.Required(PW_PLATFORM, default=[PW_PLATFORMS[1]]): cv.multi_select(
-                    PW_PLATFORMS
-                ),
+                vol.Required(PW_PLATFORM, default=PW_PLATFORMS[1]): _PlatformSelector(),
                 vol.Required(CONF_LANGUAGE, default=DEFAULT_LANGUAGE): vol.In(
                     LANGUAGES
                 ),
                 vol.Optional(CONF_MODELS, default=""): str,
-                vol.Optional(CONF_FORECAST, default=""): str,
-                vol.Optional(CONF_HOURLY_FORECAST, default=""): str,
-                vol.Optional(CONF_MONITORED_CONDITIONS, default=[]): cv.multi_select(
-                    ALL_CONDITIONS
+                vol.Optional(CONF_FORECAST, default=""): _SensorSettingSelector(
+                    TextSelector()
+                ),
+                vol.Optional(CONF_HOURLY_FORECAST, default=""): _SensorSettingSelector(
+                    TextSelector()
+                ),
+                vol.Optional(
+                    CONF_MONITORED_CONDITIONS, default=[]
+                ): _SensorSettingSelector(
+                    SelectSelector(
+                        SelectSelectorConfig(
+                            options=[
+                                {"value": key, "label": label}
+                                for key, label in ALL_CONDITIONS.items()
+                            ],
+                            multiple=True,
+                        )
+                    )
                 ),
                 vol.Optional(PW_ROUND, default="No"): vol.In(["Yes", "No"]),
                 vol.Optional(CONF_UNITS, default=DEFAULT_UNITS): vol.In(
@@ -163,7 +253,13 @@ class PirateWeatherConfigFlow(ConfigFlow, domain=DOMAIN):
             else:
                 return self.async_create_entry(title=DEFAULT_NAME, data=user_input)
 
-        return self.async_show_form(step_id="user", data_schema=schema, errors=errors)
+        return self.async_show_form(
+            step_id="user",
+            data_schema=self.add_suggested_values_to_schema(
+                schema, _form_values(user_input)
+            ),
+            errors=errors,
+        )
 
     async def async_step_import(self, import_input=None):
         """Set the config entry up from yaml."""
@@ -209,6 +305,18 @@ class PirateWeatherOptionsFlow(OptionsFlow):
         """Manage the options."""
         errors = {}
         if user_input is not None:
+            if PW_PLATFORMS[0] not in user_input[PW_PLATFORM]:
+                # Hidden fields may be omitted or cleared by the frontend.
+                # Retain saved selections when users turn sensors off.
+                user_input = {
+                    **user_input,
+                    **{
+                        key: self.config_entry.options.get(
+                            key, self.config_entry.data.get(key, default)
+                        )
+                        for key, default in _SENSOR_SETTINGS.items()
+                    },
+                }
             api_key = user_input[CONF_API_KEY].strip()
             user_input = {**user_input, CONF_API_KEY: api_key}
             if not api_key:
@@ -236,7 +344,7 @@ class PirateWeatherOptionsFlow(OptionsFlow):
         return self.async_show_form(
             step_id="init",
             data_schema=self.add_suggested_values_to_schema(
-                self._get_options_schema(), user_input
+                self._get_options_schema(), _form_values(user_input)
             ),
             errors=errors,
         )
@@ -279,11 +387,13 @@ class PirateWeatherOptionsFlow(OptionsFlow):
                 ): int,
                 vol.Required(
                     PW_PLATFORM,
-                    default=self.config_entry.options.get(
-                        PW_PLATFORM,
-                        self.config_entry.data.get(PW_PLATFORM, []),
+                    default=_platform_selection(
+                        self.config_entry.options.get(
+                            PW_PLATFORM,
+                            self.config_entry.data.get(PW_PLATFORM, []),
+                        )
                     ),
-                ): cv.multi_select(PW_PLATFORMS),
+                ): _PlatformSelector(),
                 vol.Optional(
                     CONF_LANGUAGE,
                     default=self.config_entry.options.get(
@@ -302,29 +412,39 @@ class PirateWeatherOptionsFlow(OptionsFlow):
                 ): str,
                 vol.Optional(
                     CONF_FORECAST,
-                    default=str(
+                    default=_forecast_selection(
                         self.config_entry.options.get(
                             CONF_FORECAST,
                             self.config_entry.data.get(CONF_FORECAST, ""),
                         ),
                     ),
-                ): str,
+                ): _SensorSettingSelector(TextSelector()),
                 vol.Optional(
                     CONF_HOURLY_FORECAST,
-                    default=str(
+                    default=_forecast_selection(
                         self.config_entry.options.get(
                             CONF_HOURLY_FORECAST,
                             self.config_entry.data.get(CONF_HOURLY_FORECAST, ""),
                         ),
                     ),
-                ): str,
+                ): _SensorSettingSelector(TextSelector()),
                 vol.Optional(
                     CONF_MONITORED_CONDITIONS,
                     default=self.config_entry.options.get(
                         CONF_MONITORED_CONDITIONS,
                         self.config_entry.data.get(CONF_MONITORED_CONDITIONS, []),
                     ),
-                ): cv.multi_select(ALL_CONDITIONS),
+                ): _SensorSettingSelector(
+                    SelectSelector(
+                        SelectSelectorConfig(
+                            options=[
+                                {"value": key, "label": label}
+                                for key, label in ALL_CONDITIONS.items()
+                            ],
+                            multiple=True,
+                        )
+                    )
+                ),
                 vol.Optional(
                     CONF_UNITS,
                     default=self.config_entry.options.get(

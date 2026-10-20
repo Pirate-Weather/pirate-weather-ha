@@ -62,5 +62,14 @@
         }
       }
     }
+  },
+  "selector": {
+    "platform": {
+      "options": {
+        "Weather": "Entita počasia",
+        "Sensor": "Senzory",
+        "Both": "Entita počasia a senzory"
+      }
+    }
   }
 }

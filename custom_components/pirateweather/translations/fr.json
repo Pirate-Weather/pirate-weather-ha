@@ -63,5 +63,14 @@
                 }         
             }
         }
+    },
+    "selector": {
+        "platform": {
+            "options": {
+                "Weather": "Entité météo",
+                "Sensor": "Capteurs",
+                "Both": "Entité météo et capteurs"
+            }
+        }
     }
 }
