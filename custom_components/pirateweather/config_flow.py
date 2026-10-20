@@ -79,7 +79,6 @@ class PirateWeatherConfigFlow(ConfigFlow, domain=DOMAIN):
         schema = vol.Schema(
             {
                 vol.Required(CONF_API_KEY): str,
-                vol.Optional(CONF_NAME, default=DEFAULT_NAME): str,
                 vol.Optional(
                     CONF_LATITUDE, default=self.hass.config.latitude
                 ): cv.latitude,
@@ -112,7 +111,6 @@ class PirateWeatherConfigFlow(ConfigFlow, domain=DOMAIN):
             longitude = user_input[CONF_LONGITUDE]
             forecast_mode = "daily"
             forecast_platform = user_input[PW_PLATFORM]
-            entity_name = user_input[CONF_NAME]
             endpoint = user_input[CONF_ENDPOINT]
 
             # Convert scan interval to timedelta
@@ -127,10 +125,16 @@ class PirateWeatherConfigFlow(ConfigFlow, domain=DOMAIN):
                     CONF_SCAN_INTERVAL
                 ].total_seconds()
 
-            # Unique value includes the location and forcastHours/ forecastDays to seperate WeatherEntity/ Sensor
-            # await self.async_set_unique_id(f"pw-{latitude}-{longitude}-{forecastDays}-{forecastHours}-{forecastMode}-{entityNamee}")
+            # Keep identity independent of names, including for legacy entries.
+            self._async_abort_entries_match(
+                {
+                    CONF_LATITUDE: latitude,
+                    CONF_LONGITUDE: longitude,
+                    PW_PLATFORM: forecast_platform,
+                }
+            )
             await self.async_set_unique_id(
-                f"pw-{latitude}-{longitude}-{forecast_platform}-{forecast_mode}-{entity_name}"
+                f"pw-{latitude}-{longitude}-{forecast_platform}-{forecast_mode}"
             )
 
             self._abort_if_unique_id_configured()
@@ -157,9 +161,7 @@ class PirateWeatherConfigFlow(ConfigFlow, domain=DOMAIN):
             if errors:
                 _LOGGER.warning(errors)
             else:
-                return self.async_create_entry(
-                    title=user_input[CONF_NAME], data=user_input
-                )
+                return self.async_create_entry(title=DEFAULT_NAME, data=user_input)
 
         return self.async_show_form(step_id="user", data_schema=schema, errors=errors)
 
@@ -167,8 +169,8 @@ class PirateWeatherConfigFlow(ConfigFlow, domain=DOMAIN):
         """Set the config entry up from yaml."""
         config = import_input.copy()
 
-        if CONF_NAME not in config:
-            config[CONF_NAME] = DEFAULT_NAME
+        # Legacy YAML names are no longer part of integration configuration.
+        config.pop(CONF_NAME, None)
         if CONF_LATITUDE not in config:
             config[CONF_LATITUDE] = self.hass.config.latitude
         if CONF_LONGITUDE not in config:
@@ -229,9 +231,7 @@ class PirateWeatherOptionsFlow(OptionsFlow):
                         errors["base"] = "cannot_connect"
 
             if not errors:
-                return self.async_create_entry(
-                    title=user_input[CONF_NAME], data=user_input
-                )
+                return self.async_create_entry(title="", data=user_input)
 
         return self.async_show_form(
             step_id="init",
@@ -250,13 +250,6 @@ class PirateWeatherOptionsFlow(OptionsFlow):
                         CONF_API_KEY, self.config_entry.data[CONF_API_KEY]
                     ),
                 ): TextSelector(TextSelectorConfig(type=TextSelectorType.TEXT)),
-                vol.Optional(
-                    CONF_NAME,
-                    default=self.config_entry.options.get(
-                        CONF_NAME,
-                        self.config_entry.data.get(CONF_NAME, DEFAULT_NAME),
-                    ),
-                ): str,
                 vol.Optional(
                     CONF_LATITUDE,
                     default=self.config_entry.options.get(

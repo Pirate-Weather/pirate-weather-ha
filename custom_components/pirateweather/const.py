@@ -28,7 +28,7 @@ from homeassistant.const import (
 )
 
 DOMAIN = "pirateweather"
-DEFAULT_NAME = "PirateWeather"
+DEFAULT_NAME = "Pirate Weather"
 DEFAULT_LANGUAGE = "en"
 DEFAULT_UNITS = "us"
 DEFAULT_SCAN_INTERVAL = 1200

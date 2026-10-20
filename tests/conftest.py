@@ -139,6 +139,7 @@ async def mock_config_entry(mock_config_entry_data):
     return MockConfigEntry(
         version=2,
         domain=DOMAIN,
+        title=DEFAULT_NAME,
         data=mock_config_entry_data,
         unique_id="test_unique_id",
     )

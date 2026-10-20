@@ -15,6 +15,8 @@ I'm really hoping to keep free access going for this API, but it does take money
 
 If you get an `AttributeError: PRECIPITATION` upon importing the integration please check that you are running HA 2022.10 or later. If you are running an earlier version please try updating your HA install and try the import again. If you are unable to update your version of HA then you can use the [legacy branch](https://github.com/alexander0042/pirate-weather-ha/tree/Legacy-Dark-Sky) instead.
 
+New integration entries are named Pirate Weather automatically. To rename an entry, use its menu under **Settings > Devices & services**. Setup and Configure no longer ask for a name. Existing entry titles and entity IDs are preserved; legacy name values in stored settings or YAML imports are ignored.
+
 ## Notices
 While this integration is designed to be compatible with Dark Sky, the underlying code is significantly different. This version is designed to work with more modern versions of Home Assistant, and relies on asyncio, unified data update coordinators, and setup via the UI! A [legacy branch](https://github.com/alexander0042/pirate-weather-ha/tree/Legacy-Dark-Sky) that is a 1:1 replacement for the previous Dark Sky integration is also available, but is not recommended.
 

@@ -14,7 +14,6 @@ from homeassistant.const import (
     CONF_LONGITUDE,
     CONF_MODE,
     CONF_MONITORED_CONDITIONS,
-    CONF_NAME,
     CONF_SCAN_INTERVAL,
 )
 from homeassistant.core import HomeAssistant
@@ -26,6 +25,7 @@ from .const import (
     CONF_MODELS,
     CONF_UNITS,
     DEFAULT_ENDPOINT,
+    DEFAULT_NAME,
     DEFAULT_SCAN_INTERVAL,
     DOMAIN,
     ENTRY_NAME,
@@ -50,7 +50,7 @@ ATTRIBUTION = "Powered by Pirate Weather"
 
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     """Set up Pirate Weather as config entry."""
-    name = entry.data[CONF_NAME]
+    name = entry.title or DEFAULT_NAME
     api_key = _get_config_value(entry, CONF_API_KEY)
     latitude = _get_config_value(entry, CONF_LATITUDE)
     longitude = _get_config_value(entry, CONF_LONGITUDE)
