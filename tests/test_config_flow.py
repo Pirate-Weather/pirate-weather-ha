@@ -41,7 +41,7 @@ async def test_form(
             CONF_API_KEY: mock_api_key,
             CONF_LATITUDE: mock_latitude,
             CONF_LONGITUDE: mock_longitude,
-            CONF_ENDPOINT: DEFAULT_ENDPOINT,
+            "advanced": {CONF_ENDPOINT: DEFAULT_ENDPOINT},
         },
     )
     await hass.async_block_till_done()
@@ -94,7 +94,7 @@ async def test_form_invalid_api_key(
                 CONF_API_KEY: "invalid_key",
                 CONF_LATITUDE: mock_latitude,
                 CONF_LONGITUDE: mock_longitude,
-                CONF_ENDPOINT: DEFAULT_ENDPOINT,
+                "advanced": {CONF_ENDPOINT: DEFAULT_ENDPOINT},
             },
         )
         await hass.async_block_till_done()
@@ -123,7 +123,7 @@ async def test_form_duplicate(
             CONF_API_KEY: mock_api_key,
             CONF_LATITUDE: mock_latitude,
             CONF_LONGITUDE: mock_longitude,
-            CONF_ENDPOINT: DEFAULT_ENDPOINT,
+            "advanced": {CONF_ENDPOINT: DEFAULT_ENDPOINT},
         },
     )
     await hass.async_block_till_done()
@@ -141,7 +141,7 @@ async def test_form_duplicate(
             CONF_API_KEY: mock_api_key,
             CONF_LATITUDE: mock_latitude,
             CONF_LONGITUDE: mock_longitude,
-            CONF_ENDPOINT: DEFAULT_ENDPOINT,
+            "advanced": {CONF_ENDPOINT: DEFAULT_ENDPOINT},
         },
     )
     await hass.async_block_till_done()
@@ -161,7 +161,8 @@ async def test_options_flow(
     assert result["step_id"] == "init"
     assert CONF_NAME not in result["data_schema"].schema
     assert (
-        result["data_schema"]({})[CONF_API_KEY] == mock_config_entry.data[CONF_API_KEY]
+        result["data_schema"]({"advanced": {}})[CONF_API_KEY]
+        == mock_config_entry.data[CONF_API_KEY]
     )
 
 
@@ -181,7 +182,8 @@ async def test_form_duplicate_legacy_name(
     )
     result = await hass.config_entries.flow.async_configure(
         result["flow_id"],
-        {
+        {"advanced": {}}
+        | {
             key: mock_config_entry.data[key]
             for key in (CONF_API_KEY, CONF_LATITUDE, CONF_LONGITUDE, PW_PLATFORM)
         },
@@ -226,7 +228,7 @@ async def test_options_ignores_legacy_name(
     result = await hass.config_entries.options.async_init(mock_config_entry.entry_id)
     assert CONF_NAME not in result["data_schema"].schema
     result = await hass.config_entries.options.async_configure(
-        result["flow_id"], result["data_schema"]({})
+        result["flow_id"], result["data_schema"]({"advanced": {}})
     )
     assert result["type"] is FlowResultType.CREATE_ENTRY
     assert CONF_NAME not in mock_config_entry.options
@@ -241,7 +243,10 @@ async def test_options_flow_change_api_key(
     mock_config_entry.add_to_hass(hass)
     original_data = dict(mock_config_entry.data)
     result = await hass.config_entries.options.async_init(mock_config_entry.entry_id)
-    user_input = {**result["data_schema"]({}), CONF_API_KEY: "  replacement_key  "}
+    user_input = {
+        **result["data_schema"]({"advanced": {}}),
+        CONF_API_KEY: "  replacement_key  ",
+    }
 
     with patch(
         "custom_components.pirateweather.config_flow._is_pw_api_online",
@@ -259,10 +264,10 @@ async def test_options_flow_change_api_key(
         "replacement_key",
         user_input[CONF_LATITUDE],
         user_input[CONF_LONGITUDE],
-        user_input[CONF_ENDPOINT],
+        user_input["advanced"][CONF_ENDPOINT],
     )
     result = await hass.config_entries.options.async_init(mock_config_entry.entry_id)
-    assert result["data_schema"]({})[CONF_API_KEY] == "replacement_key"
+    assert result["data_schema"]({"advanced": {}})[CONF_API_KEY] == "replacement_key"
 
 
 @pytest.mark.parametrize(
@@ -287,7 +292,7 @@ async def test_options_flow_rejects_invalid_api_key(
     )
     original_data = dict(mock_config_entry.data)
     result = await hass.config_entries.options.async_init(mock_config_entry.entry_id)
-    user_input = {**result["data_schema"]({}), CONF_API_KEY: api_key}
+    user_input = {**result["data_schema"]({"advanced": {}}), CONF_API_KEY: api_key}
 
     with patch(
         "custom_components.pirateweather.config_flow._is_pw_api_online",
