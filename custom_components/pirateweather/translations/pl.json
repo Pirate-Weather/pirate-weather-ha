@@ -35,6 +35,10 @@
         }
     },
     "options": {
+        "error": {
+            "cannot_connect": "Nie udało się połączyć",
+            "invalid_api_key": "Nieprawidłowy klucz API"
+        },
         "step": {
             "init": {
                 "data": {

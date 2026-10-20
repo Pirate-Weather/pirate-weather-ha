@@ -35,6 +35,10 @@
         }
     },
     "options": {
+        "error": {
+            "cannot_connect": "Verbinding Mislukt",
+            "invalid_api_key": "Foutieve API-sleutel"
+        },
         "step": {
             "init": {
                 "data": {

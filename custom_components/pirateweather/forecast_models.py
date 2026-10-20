@@ -1,6 +1,6 @@
 """Taken from the fantastic Dark Sky library: https://github.com/ZeevG/python-forecast.io in October 2024. Updated in April 2025 using the Pirate Weather library: https://github.com/cloneofghosts/python-pirate-weather."""
 
-import datetime
+import datetime as dt
 
 import requests
 
@@ -140,20 +140,20 @@ class PirateWeatherDataPoint(UnicodeMixin):
         self.d = d or {}
 
         try:
-            self.time = datetime.datetime.fromtimestamp(int(self.d["time"]))
+            self.time = dt.datetime.fromtimestamp(int(self.d["time"]))
             self.utime = self.d["time"]
         except KeyError:
             pass
 
         try:
             sr_time = int(self.d["sunriseTime"])
-            self.sunriseTime = datetime.datetime.fromtimestamp(sr_time)
+            self.sunriseTime = dt.datetime.fromtimestamp(sr_time)
         except KeyError:
             self.sunriseTime = None
 
         try:
             ss_time = int(self.d["sunsetTime"])
-            self.sunsetTime = datetime.datetime.fromtimestamp(ss_time)
+            self.sunsetTime = dt.datetime.fromtimestamp(ss_time)
         except KeyError:
             self.sunsetTime = None
 

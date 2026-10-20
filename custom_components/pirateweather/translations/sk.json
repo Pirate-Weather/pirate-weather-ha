@@ -35,6 +35,10 @@
     }
   },
   "options": {
+    "error": {
+      "cannot_connect": "Nepodarilo sa pripojiť",
+      "invalid_api_key": "Neplatný API kľúč"
+    },
     "step": {
       "init": {
         "data": {

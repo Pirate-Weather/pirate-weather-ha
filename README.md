@@ -5,6 +5,8 @@ To get a feel for the data returned by this API, check out <https://merrysky.net
 
 Configuration now includes an optional field to exclude specific weather models from the forecast.
 
+To view or change your saved API key, open Pirate Weather under **Settings > Devices & services** and select **Configure**. The API key field shows the current key and can be edited. Saving validates the key before applying the settings and automatically reloads the integration; no Home Assistant restart is needed. If validation fails, the saved settings are kept.
+
 I'm really hoping to keep free access going for this API, but it does take money to run the AWS back-end. If you'd like to support this project, I have a sponsorship link setup on my [profile](https://github.com/sponsors/alexander0042/)! This project (especially the free tier) wouldn't be possibile without the ongoing support from the project sponsors, so they're the [heros](https://github.com/SJV83) [here](https://github.com/matthewj301)! 
 
 [![](https://img.shields.io/static/v1?label=Sponsor&message=%E2%9D%A4&logo=GitHub&color=%23fe8e86)](https://github.com/sponsors/alexander0042)

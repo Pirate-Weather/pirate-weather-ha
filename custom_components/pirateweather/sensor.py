@@ -1,6 +1,6 @@
 """Support for Pirate Weather (Dark Sky Compatable) weather service."""
 
-import datetime
+import datetime as dt
 import logging
 from dataclasses import dataclass, field
 from typing import Literal, NamedTuple
@@ -1274,9 +1274,9 @@ class PirateWeatherSensor(SensorEntity):
             try:
                 flags = self._weather_coordinator.data.flags()
                 model_time_string = flags.sourceTimes[self.entity_description.key]
-                native_val = datetime.datetime.strptime(
+                native_val = dt.datetime.strptime(
                     model_time_string[0:-1], "%Y-%m-%d %H"
-                ).replace(tzinfo=datetime.UTC)
+                ).replace(tzinfo=dt.UTC)
             except KeyError:
                 native_val = None
 
@@ -1364,7 +1364,7 @@ class PirateWeatherSensor(SensorEntity):
             "sunset_time",
             "time",
         ]:
-            out_state = datetime.datetime.fromtimestamp(state, datetime.UTC)
+            out_state = dt.datetime.fromtimestamp(state, dt.UTC)
 
         elif self.type == "fire_risk_level":
             out_state = fire_index(state)
