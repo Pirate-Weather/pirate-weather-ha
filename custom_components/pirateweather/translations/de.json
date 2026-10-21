@@ -5,7 +5,10 @@
         },
         "error": {
             "cannot_connect": "Fehler beim Verbinden",
-            "invalid_api_key": "Ungültiger API-Schlüssel"
+            "invalid_api_key": "Ungültiger API-Schlüssel",
+            "select_forecast_days": "Wähle mindestens einen Tag.",
+            "select_forecast_hours": "Wähle mindestens eine Stunde.",
+            "invalid_hourly_range": "Die Endstunde muss mindestens der Startstunde entsprechen."
         },
         "step": {
             "user": {
@@ -26,24 +29,39 @@
                     "latitude": "Breitengrad. Auf 0 setzen um aktuelle Position zu verwenden",
                     "longitude": "Längengerad. Auf 0 setzen um aktuelle Position zu verwenden",
                     "mode": "Vorhersage-Modus für die Wetter-Entität",
-                    "forecast": "Tägliche Vorhersage-Sensoren im csv-Format von 0-7 (z. B. '0,1,3'). Wird nur verwendet, wenn Sensoren angefordert werden.",
-                    "hourly_forecast": "Stündliche Vorhersage-Sensoren im csv-Format von 0-168 (z. B. '0,1,10'). Nur verwendet, wenn Sensoren angefordert werden.",
-                    "monitored_conditions": "Überwachte Bedingungen, für die Sensoren erstellt werden sollen. Wird nur verwendet, wenn Sensoren angefordert werden.",
+                    "monitored_conditions": "Überwachte Bedingungen, für die Sensoren erstellt werden sollen.",
                     "pw_platform": "Wetter- und/oder Sensor-Entität. Sensor wird für jede Bedingung zu jeder Zeit Entitäten erstellen. Wenn Sie unsicher sind, wählen Sie nur Wetter!",
-                    "scan_interval": "Sekunden, die zwischen den Aktualisierungen gewartet werden. Es wird nicht empfohlen, diesen Wert unter 900 Sekunden (15 Minuten) zu senken."
+                    "scan_interval": "Sekunden, die zwischen den Aktualisierungen gewartet werden. Es wird nicht empfohlen, diesen Wert unter 900 Sekunden (15 Minuten) zu senken.",
+                    "daily_forecast_enabled": "Sensoren für die Tagesvorhersage",
+                    "forecast_days": "Vorhersagetage",
+                    "hourly_forecast_enabled": "Sensoren für die stündliche Vorhersage",
+                    "hourly_schedule": "Stundenplan",
+                    "forecast_hours": "Bestimmte Stunden",
+                    "hourly_count": "Anzahl der nächsten Stunden",
+                    "hourly_start": "Startstunde",
+                    "hourly_end": "Endstunde",
+                    "hourly_interval": "Intervall (Stunden)"
                 },
                 "description": "Pirate Weather-Integration einrichten. Besuche pirateweather.net um einen API-Schlüssel zu generieren.",
                 "data_description": {
-                    "forecast": "z.B. '0,1,4' (ohne Anführungszeichen)",
-                    "hourly_forecast": "z.B. '0,1,4' (ohne Anführungszeichen)"
+                    "forecast_hours": "Stunden ab jetzt (0–167). 0 ist die aktuelle Vorhersagestunde.",
+                    "hourly_count": "Beginnt in 1 Stunde und umfasst jede Stunde bis zu dieser Anzahl (1–167).",
+                    "hourly_end": "Stunden ab jetzt (0–167). Das Ende wird einbezogen, wenn es im Intervall liegt."
                 }
+            },
+            "forecast_summary": {
+                "title": "Vorhersagesensoren prüfen",
+                "description": "Die gemeinsame Auswahl erstellt {daily_count} tägliche und {hourly_count} stündliche Vorhersagesensoren (insgesamt {forecast_total}). Nur unterstützte Bedingungen werden gezählt. Die Erstellung von Sensoren für aktuelle Bedingungen bleibt unverändert. Zum Speichern absenden."
             }
         }
     },
     "options": {
         "error": {
             "cannot_connect": "Fehler beim Verbinden",
-            "invalid_api_key": "Ungültiger API-Schlüssel"
+            "invalid_api_key": "Ungültiger API-Schlüssel",
+            "select_forecast_days": "Wähle mindestens einen Tag.",
+            "select_forecast_hours": "Wähle mindestens eine Stunde.",
+            "invalid_hourly_range": "Die Endstunde muss mindestens der Startstunde entsprechen."
         },
         "step": {
             "init": {
@@ -65,16 +83,28 @@
                     "longitude": "Längengerad. Auf 0 setzen um aktuelle Position zu verwenden",
                     "scan_interval": "Sekunden, die zwischen den Aktualisierungen gewartet werden. Es wird nicht empfohlen, diesen Wert unter 900 Sekunden (15 Minuten) zu senken.",
                     "mode": "Vorhersage-Modus für die Wetter-Entität",
-                    "forecast": "Tägliche Vorhersage-Sensoren im csv-Format von 0-7 (z. B. '0,1,3'). Wird nur verwendet, wenn Sensoren angefordert werden.\n HINWEIS: Das Entfernen von Sensoren führt zu verwaisten Einheiten, die gelöscht werden müssen.",
-                    "hourly_forecast": "Stündliche Vorhersage-Sensoren im csv-Format von 0-168 (z. B. '0,1,10'). Nur verwendet, wenn Sensoren angefordert werden.\n HINWEIS: Das Entfernen von Sensoren führt zu verwaisten Einheiten, die gelöscht werden müssen.",
-                    "monitored_conditions": "Überwachte Bedingungen, für die Sensoren erstellt werden sollen. Wird nur verwendet, wenn Sensoren angefordert werden.",
-                    "pw_platform": "Wetter- und/oder Sensor-Entität. Sensor wird für jede Bedingung zu jeder Zeit Entitäten erstellen. Wenn Sie unsicher sind, wählen Sie nur Wetter!"
+                    "monitored_conditions": "Überwachte Bedingungen, für die Sensoren erstellt werden sollen.",
+                    "pw_platform": "Wetter- und/oder Sensor-Entität. Sensor wird für jede Bedingung zu jeder Zeit Entitäten erstellen. Wenn Sie unsicher sind, wählen Sie nur Wetter!",
+                    "daily_forecast_enabled": "Sensoren für die Tagesvorhersage",
+                    "forecast_days": "Vorhersagetage",
+                    "hourly_forecast_enabled": "Sensoren für die stündliche Vorhersage",
+                    "hourly_schedule": "Stundenplan",
+                    "forecast_hours": "Bestimmte Stunden",
+                    "hourly_count": "Anzahl der nächsten Stunden",
+                    "hourly_start": "Startstunde",
+                    "hourly_end": "Endstunde",
+                    "hourly_interval": "Intervall (Stunden)"
                 },
                 "description": "Pirate Weather-Integration einrichten. Besuche pirateweather.net um einen API-Schlüssel zu generieren.",
                 "data_description": {
-                    "forecast": "z.B '0,1,4'.\n Gib 'None' (ohne Anführungszeichen) ein, um bestehende Sensoren zu entfernen.",
-                    "hourly_forecast": "z.B. '0,1,4'.\n Gib 'None' (ohne Anführungszeichen) ein, um bestehende Sensoren zu entfernen."
+                    "forecast_hours": "Stunden ab jetzt (0–167). 0 ist die aktuelle Vorhersagestunde.",
+                    "hourly_count": "Beginnt in 1 Stunde und umfasst jede Stunde bis zu dieser Anzahl (1–167).",
+                    "hourly_end": "Stunden ab jetzt (0–167). Das Ende wird einbezogen, wenn es im Intervall liegt."
                 }
+            },
+            "forecast_summary": {
+                "title": "Vorhersagesensoren prüfen",
+                "description": "Die gemeinsame Auswahl erstellt {daily_count} tägliche und {hourly_count} stündliche Vorhersagesensoren (insgesamt {forecast_total}). Nur unterstützte Bedingungen werden gezählt. Die Erstellung von Sensoren für aktuelle Bedingungen bleibt unverändert. Zum Speichern absenden."
             }
         }
     },
@@ -84,6 +114,25 @@
                 "Weather": "Wetterentität",
                 "Sensor": "Sensoren",
                 "Both": "Wetterentität und Sensoren"
+            }
+        },
+        "forecast_day": {
+            "options": {
+                "0": "Heute",
+                "1": "Morgen",
+                "2": "In 2 Tagen",
+                "3": "In 3 Tagen",
+                "4": "In 4 Tagen",
+                "5": "In 5 Tagen",
+                "6": "In 6 Tagen",
+                "7": "In 7 Tagen"
+            }
+        },
+        "hourly_schedule": {
+            "options": {
+                "specific": "Bestimmte Stunden",
+                "next": "Nächste N Stunden",
+                "interval": "Regelmäßige Intervalle"
             }
         }
     }

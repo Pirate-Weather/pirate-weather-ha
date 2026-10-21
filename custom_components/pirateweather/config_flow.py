@@ -10,6 +10,7 @@ import homeassistant.helpers.config_validation as cv
 import voluptuous as vol
 from aiohttp import ClientError
 from homeassistant.config_entries import (
+    SOURCE_IMPORT,
     ConfigEntry,
     ConfigFlow,
     ConfigFlowResult,
@@ -28,7 +29,6 @@ from homeassistant.core import callback
 from homeassistant.data_entry_flow import section
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
 from homeassistant.helpers.selector import (
-    Selector,
     SelectSelector,
     SelectSelectorConfig,
     TextSelector,
@@ -56,12 +56,20 @@ from .const import (
     PW_PREVPLATFORM,
     PW_ROUND,
 )
+from .forecast_config import (
+    CONF_FORECAST,
+    CONF_HOURLY_FORECAST,
+    SensorSettingSelector,
+    apply_forecast_controls,
+    forecast_form_defaults,
+    forecast_offsets,
+    forecast_schema,
+)
+from .sensor import SENSOR_TYPES
 
 ATTRIBUTION = "Powered by Pirate Weather"
 _LOGGER = logging.getLogger(__name__)
 
-CONF_FORECAST = "forecast"
-CONF_HOURLY_FORECAST = "hourly_forecast"
 _ADVANCED = "advanced"
 _ADVANCED_SETTINGS = (CONF_MODELS, PW_ROUND, CONF_ENDPOINT, CONF_UNITS)
 _BOTH_PLATFORMS = "Both"
@@ -77,13 +85,6 @@ def _platform_selection(platforms: list[str]) -> str:
     if all(platform in platforms for platform in PW_PLATFORMS):
         return _BOTH_PLATFORMS
     return platforms[0] if platforms else PW_PLATFORMS[1]
-
-
-def _forecast_selection(value: Any) -> str:
-    """Display legacy forecast lists as editable comma-separated values."""
-    if isinstance(value, list):
-        return ",".join(str(item) for item in value)
-    return str(value)
 
 
 def _with_advanced_section(schema: vol.Schema) -> vol.Schema:
@@ -126,45 +127,65 @@ class _PlatformSelector(SelectSelector):
         return list(PW_PLATFORMS) if selection == _BOTH_PLATFORMS else [selection]
 
 
-class _SensorSettingSelector(Selector):
-    """Expose a standard selector only when the form enables sensors."""
-
-    def __init__(self, selector: Selector) -> None:
-        self._selector = selector
-        self.selector_type = selector.selector_type
-        self.config = selector.config
-
-    def __call__(self, data: Any) -> Any:
-        """Validate the value with the wrapped selector."""
-        return self._selector(data)
-
-    def serialize(self) -> dict[str, Any]:
-        """Add native ha-form visibility metadata to the selector schema."""
-        return {
-            **self._selector.serialize(),
-            "visible": {
-                "field": PW_PLATFORM,
-                "operator": "in",
-                "value": [PW_PLATFORMS[0], _BOTH_PLATFORMS],
-            },
-        }
-
-
 def _form_values(user_input: dict | None) -> dict | None:
     """Keep platform suggestions in the form's single-selection format."""
     if user_input is None:
         return None
     values = {**user_input, PW_PLATFORM: _platform_selection(user_input[PW_PLATFORM])}
-    for key in (CONF_FORECAST, CONF_HOURLY_FORECAST):
-        if key in values:
-            values[key] = _forecast_selection(values[key])
+    values.update(forecast_form_defaults(values))
+    values.pop(CONF_FORECAST, None)
+    values.pop(CONF_HOURLY_FORECAST, None)
     values[_ADVANCED] = {
         key: values.pop(key) for key in _ADVANCED_SETTINGS if key in values
     }
     return values
 
 
-class PirateWeatherConfigFlow(ConfigFlow, domain=DOMAIN):
+class _ForecastSummaryMixin:
+    """Preview forecast sensor counts without changing current sensor creation."""
+
+    def _finish_configuration(self, values: dict, title: str) -> ConfigFlowResult:
+        if (
+            self.context.get("source") != SOURCE_IMPORT
+            and PW_PLATFORMS[0] in values[PW_PLATFORM]
+            and (values.get(CONF_FORECAST) or values.get(CONF_HOURLY_FORECAST))
+        ):
+            self._pending_data = values
+            self._pending_title = title
+            return self._forecast_summary_form()
+        return self.async_create_entry(title=title, data=values)
+
+    def _forecast_summary_form(self) -> ConfigFlowResult:
+        """Count only conditions supported by each forecast type."""
+        values = self._pending_data
+        conditions = values.get(CONF_MONITORED_CONDITIONS, [])
+        daily_count = len(forecast_offsets(values.get(CONF_FORECAST))) * sum(
+            "daily" in SENSOR_TYPES[condition].forecast_mode for condition in conditions
+        )
+        hourly_count = len(forecast_offsets(values.get(CONF_HOURLY_FORECAST))) * sum(
+            "hourly" in SENSOR_TYPES[condition].forecast_mode
+            for condition in conditions
+        )
+        return self.async_show_form(
+            step_id="forecast_summary",
+            data_schema=vol.Schema({}),
+            description_placeholders={
+                "daily_count": str(daily_count),
+                "hourly_count": str(hourly_count),
+                "forecast_total": str(daily_count + hourly_count),
+            },
+        )
+
+    async def async_step_forecast_summary(self, user_input=None) -> ConfigFlowResult:
+        """Save the selected forecasts after the user has reviewed the count."""
+        if user_input is not None:
+            return self.async_create_entry(
+                title=self._pending_title, data=self._pending_data
+            )
+        return self._forecast_summary_form()
+
+
+class PirateWeatherConfigFlow(_ForecastSummaryMixin, ConfigFlow, domain=DOMAIN):
     """Config flow for PirateWeather."""
 
     VERSION = CONFIG_FLOW_VERSION
@@ -196,15 +217,9 @@ class PirateWeatherConfigFlow(ConfigFlow, domain=DOMAIN):
                     LANGUAGES
                 ),
                 vol.Optional(CONF_MODELS, default=""): str,
-                vol.Optional(CONF_FORECAST, default=""): _SensorSettingSelector(
-                    TextSelector()
-                ),
-                vol.Optional(CONF_HOURLY_FORECAST, default=""): _SensorSettingSelector(
-                    TextSelector()
-                ),
                 vol.Optional(
                     CONF_MONITORED_CONDITIONS, default=[]
-                ): _SensorSettingSelector(
+                ): SensorSettingSelector(
                     SelectSelector(
                         SelectSelectorConfig(
                             options=[
@@ -223,10 +238,12 @@ class PirateWeatherConfigFlow(ConfigFlow, domain=DOMAIN):
             }
         )
 
-        schema = _with_advanced_section(schema)
+        schema = _with_advanced_section(schema.extend(forecast_schema({})))
 
         if user_input is not None:
-            user_input = _flatten_form_values(user_input)
+            user_input, errors = apply_forecast_controls(
+                _flatten_form_values(user_input)
+            )
             latitude = user_input[CONF_LATITUDE]
             longitude = user_input[CONF_LONGITUDE]
             forecast_mode = "daily"
@@ -281,7 +298,7 @@ class PirateWeatherConfigFlow(ConfigFlow, domain=DOMAIN):
             if errors:
                 _LOGGER.warning(errors)
             else:
-                return self.async_create_entry(title=DEFAULT_NAME, data=user_input)
+                return self._finish_configuration(user_input, DEFAULT_NAME)
 
         return self.async_show_form(
             step_id="user",
@@ -328,7 +345,7 @@ class PirateWeatherConfigFlow(ConfigFlow, domain=DOMAIN):
         return await self.async_step_user(config)
 
 
-class PirateWeatherOptionsFlow(OptionsFlow):
+class PirateWeatherOptionsFlow(_ForecastSummaryMixin, OptionsFlow):
     """Handle options."""
 
     async def async_step_init(self, user_input: dict | None = None) -> ConfigFlowResult:
@@ -348,6 +365,13 @@ class PirateWeatherOptionsFlow(OptionsFlow):
                         for key, default in _SENSOR_SETTINGS.items()
                     },
                 }
+                user_input.update(
+                    forecast_form_defaults(
+                        {**self.config_entry.data, **self.config_entry.options}
+                    )
+                )
+            else:
+                user_input, errors = apply_forecast_controls(user_input)
             api_key = user_input[CONF_API_KEY].strip()
             user_input = {**user_input, CONF_API_KEY: api_key}
             if not api_key:
@@ -370,7 +394,7 @@ class PirateWeatherOptionsFlow(OptionsFlow):
                         errors["base"] = "cannot_connect"
 
             if not errors:
-                return self.async_create_entry(title="", data=user_input)
+                return self._finish_configuration(user_input, "")
 
         return self.async_show_form(
             step_id="init",
@@ -442,30 +466,12 @@ class PirateWeatherOptionsFlow(OptionsFlow):
                     ),
                 ): str,
                 vol.Optional(
-                    CONF_FORECAST,
-                    default=_forecast_selection(
-                        self.config_entry.options.get(
-                            CONF_FORECAST,
-                            self.config_entry.data.get(CONF_FORECAST, ""),
-                        ),
-                    ),
-                ): _SensorSettingSelector(TextSelector()),
-                vol.Optional(
-                    CONF_HOURLY_FORECAST,
-                    default=_forecast_selection(
-                        self.config_entry.options.get(
-                            CONF_HOURLY_FORECAST,
-                            self.config_entry.data.get(CONF_HOURLY_FORECAST, ""),
-                        ),
-                    ),
-                ): _SensorSettingSelector(TextSelector()),
-                vol.Optional(
                     CONF_MONITORED_CONDITIONS,
                     default=self.config_entry.options.get(
                         CONF_MONITORED_CONDITIONS,
                         self.config_entry.data.get(CONF_MONITORED_CONDITIONS, []),
                     ),
-                ): _SensorSettingSelector(
+                ): SensorSettingSelector(
                     SelectSelector(
                         SelectSelectorConfig(
                             options=[
@@ -501,7 +507,11 @@ class PirateWeatherOptionsFlow(OptionsFlow):
                 ): str,
             }
         )
-        return _with_advanced_section(schema)
+        return _with_advanced_section(
+            schema.extend(
+                forecast_schema({**self.config_entry.data, **self.config_entry.options})
+            )
+        )
 
 
 async def _is_pw_api_online(hass, api_key, lat, lon, endpoint):

@@ -5,7 +5,10 @@
         },
         "error": {
             "cannot_connect": "Nepodařilo se připojit",
-            "invalid_api_key": "Neplatný API klíč"
+            "invalid_api_key": "Neplatný API klíč",
+            "select_forecast_days": "Vyberte alespoň jeden den.",
+            "select_forecast_hours": "Vyberte alespoň jednu hodinu.",
+            "invalid_hourly_range": "Koncová hodina musí být stejná nebo vyšší než počáteční."
         },
         "step": {
             "user": {
@@ -26,24 +29,39 @@
                     "latitude": "Zeměpisná šířka",
                     "longitude": "Zeměpisná délka",
                     "mode": "Režim předpovědi pro entitu Počasí",
-                    "forecast": "Denní předpovědi senzorů ve formátu csv od 0 do 7 (např. '0,1,3'). Používá se pouze pokud jsou požadovány senzory.",
-                    "hourly_forecast":  "Hodinové předpovědi senzorů ve formátu csv od 0 do 168 (např. '0,1,10'). Používá se pouze pokud jsou požadovány senzory.",
-                    "monitored_conditions": "Monitorované podmínky pro vytváření senzorů. Používá se pouze pokud jsou požadovány senzory.",
+                    "monitored_conditions": "Monitorované podmínky pro vytváření senzorů.",
                     "pw_platform": "Entita počasí a/nebo entita senzoru. Senzor vytvoří entity pro každou podmínku v každém čase. Pokud si nejste jisti, vyberte pouze Počasí!",
-                    "scan_interval": "Sekundy čekání mezi aktualizacemi. Snížení této hodnoty pod 900 sekund (15 minut) se nedoporučuje."
+                    "scan_interval": "Sekundy čekání mezi aktualizacemi. Snížení této hodnoty pod 900 sekund (15 minut) se nedoporučuje.",
+                    "daily_forecast_enabled": "Senzory denní předpovědi",
+                    "forecast_days": "Dny předpovědi",
+                    "hourly_forecast_enabled": "Senzory hodinové předpovědi",
+                    "hourly_schedule": "Hodinový rozvrh",
+                    "forecast_hours": "Konkrétní hodiny",
+                    "hourly_count": "Počet následujících hodin",
+                    "hourly_start": "Počáteční hodina",
+                    "hourly_end": "Koncová hodina",
+                    "hourly_interval": "Interval (hodiny)"
                 },
                 "description": "Nastavte integraci Pirate Weather. Pro generování API klíče jděte na pirateweather.net",
                 "data_description": {
-                  "forecast": "např. '0,1,4' (bez uvozovek)",
-                  "hourly_forecast": "např. '0,1,4' (bez uvozovek)"
-                }                
+                    "forecast_hours": "Počet hodin od nynějška (0–167). 0 je aktuální hodina předpovědi.",
+                    "hourly_count": "Začíná za 1 hodinu a zahrnuje každou hodinu až do tohoto počtu (1–167).",
+                    "hourly_end": "Počet hodin od nynějška (0–167). Konec je zahrnut, pokud odpovídá intervalu."
+                }
+            },
+            "forecast_summary": {
+                "title": "Kontrola senzorů předpovědi",
+                "description": "Ze společného výběru podmínek vznikne {daily_count} denních a {hourly_count} hodinových senzorů předpovědi (celkem {forecast_total}). Počítají se jen podporované podmínky. Vytváření senzorů aktuálních podmínek se nemění. Odesláním uložíte."
             }
         }
     },
     "options": {
         "error": {
             "cannot_connect": "Nepodařilo se připojit",
-            "invalid_api_key": "Neplatný API klíč"
+            "invalid_api_key": "Neplatný API klíč",
+            "select_forecast_days": "Vyberte alespoň jeden den.",
+            "select_forecast_hours": "Vyberte alespoň jednu hodinu.",
+            "invalid_hourly_range": "Koncová hodina musí být stejná nebo vyšší než počáteční."
         },
         "step": {
             "init": {
@@ -64,16 +82,28 @@
                     "latitude": "Zeměpisná šířka",
                     "longitude": "Zeměpisná délka",
                     "mode": "Režim předpovědi pro Entitu Počasí",
-                    "forecast": "Denní předpovědi senzorů ve formátu csv od 0 do 7 (např. '0,1,3'). Používá se pouze pokud jsou požadovány senzory.\n POZNÁMKA: Odebrání senzorů způsobí, že vzniknou nedostupné entity, které je potřeba smazat.",
-                    "hourly_forecast":  "Hodinové předpovědi senzorů ve formátu csv od 0 do 168 (např. '0,1,10'). Používá se pouze pokud jsou požadovány senzory.\n POZNÁMKA: Odebrání senzorů způsobí, že vzniknou nedostupné entity, které je potřeba smazat.",
-                    "monitored_conditions": "Monitorované podmínky pro vytváření senzorů. Používá se pouze pokud jsou požadovány senzory.\n POZNÁMKA: Odebrání senzorů způsobí, že vzniknou nedostupné entity, které je potřeba smazat.",
-                    "pw_platform": "Entita Počasí a/nebo Entita Senzoru. Senzor vytvoří entity pro každou podmínku v každém čase. Pokud si nejste jisti, vyberte pouze Počasí!"
+                    "monitored_conditions": "Monitorované podmínky pro vytváření senzorů.",
+                    "pw_platform": "Entita Počasí a/nebo Entita Senzoru. Senzor vytvoří entity pro každou podmínku v každém čase. Pokud si nejste jisti, vyberte pouze Počasí!",
+                    "daily_forecast_enabled": "Senzory denní předpovědi",
+                    "forecast_days": "Dny předpovědi",
+                    "hourly_forecast_enabled": "Senzory hodinové předpovědi",
+                    "hourly_schedule": "Hodinový rozvrh",
+                    "forecast_hours": "Konkrétní hodiny",
+                    "hourly_count": "Počet následujících hodin",
+                    "hourly_start": "Počáteční hodina",
+                    "hourly_end": "Koncová hodina",
+                    "hourly_interval": "Interval (hodiny)"
                 },
                 "description": "Nastavte integraci Pirate Weather. Pro vygenerování API klíče jděte na pirateweather.net",
                 "data_description": {
-                  "forecast": "např. '0,1,4'.\n Pro odebrání existujících senzorů napište 'None' (bez uvozovek).",
-                  "hourly_forecast": "např. '0,1,4'.\n Pro odebrání existujících senzorů napište 'None' (bez uvozovek)."
-                }         
+                    "forecast_hours": "Počet hodin od nynějška (0–167). 0 je aktuální hodina předpovědi.",
+                    "hourly_count": "Začíná za 1 hodinu a zahrnuje každou hodinu až do tohoto počtu (1–167).",
+                    "hourly_end": "Počet hodin od nynějška (0–167). Konec je zahrnut, pokud odpovídá intervalu."
+                }
+            },
+            "forecast_summary": {
+                "title": "Kontrola senzorů předpovědi",
+                "description": "Ze společného výběru podmínek vznikne {daily_count} denních a {hourly_count} hodinových senzorů předpovědi (celkem {forecast_total}). Počítají se jen podporované podmínky. Vytváření senzorů aktuálních podmínek se nemění. Odesláním uložíte."
             }
         }
     },
@@ -83,6 +113,25 @@
                 "Weather": "Entita počasí",
                 "Sensor": "Senzory",
                 "Both": "Entita počasí a senzory"
+            }
+        },
+        "forecast_day": {
+            "options": {
+                "0": "Dnes",
+                "1": "Zítra",
+                "2": "Za 2 dní",
+                "3": "Za 3 dní",
+                "4": "Za 4 dní",
+                "5": "Za 5 dní",
+                "6": "Za 6 dní",
+                "7": "Za 7 dní"
+            }
+        },
+        "hourly_schedule": {
+            "options": {
+                "specific": "Konkrétní hodiny",
+                "next": "Následujících N hodin",
+                "interval": "Pravidelné intervaly"
             }
         }
     }
