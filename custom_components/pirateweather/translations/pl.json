@@ -110,9 +110,9 @@
     "selector": {
         "platform": {
             "options": {
-                "Weather": "Encja pogody",
-                "Sensor": "Sensory",
-                "Both": "Encja pogody i sensory"
+                "weather": "Encja pogody",
+                "sensor": "Sensory",
+                "both": "Encja pogody i sensory"
             }
         },
         "forecast_day": {

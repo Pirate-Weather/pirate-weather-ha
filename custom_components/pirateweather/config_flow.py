@@ -72,7 +72,7 @@ _LOGGER = logging.getLogger(__name__)
 
 _ADVANCED = "advanced"
 _ADVANCED_SETTINGS = (CONF_MODELS, PW_ROUND, CONF_ENDPOINT, CONF_UNITS)
-_BOTH_PLATFORMS = "Both"
+_BOTH_PLATFORMS = "both"
 _SENSOR_SETTINGS = {
     CONF_FORECAST: "",
     CONF_HOURLY_FORECAST: "",
@@ -84,7 +84,7 @@ def _platform_selection(platforms: list[str]) -> str:
     """Represent the stored platform list as a single form selection."""
     if all(platform in platforms for platform in PW_PLATFORMS):
         return _BOTH_PLATFORMS
-    return platforms[0] if platforms else PW_PLATFORMS[1]
+    return (platforms[0] if platforms else PW_PLATFORMS[1]).lower()
 
 
 def _with_advanced_section(schema: vol.Schema) -> vol.Schema:
@@ -114,7 +114,8 @@ class _PlatformSelector(SelectSelector):
     def __init__(self) -> None:
         super().__init__(
             SelectSelectorConfig(
-                options=[*PW_PLATFORMS, _BOTH_PLATFORMS],
+                options=[platform.lower() for platform in PW_PLATFORMS]
+                + [_BOTH_PLATFORMS],
                 translation_key="platform",
             )
         )
@@ -123,8 +124,10 @@ class _PlatformSelector(SelectSelector):
         """Accept form selections and previously stored platform lists."""
         if isinstance(data, list):
             return cv.multi_select(PW_PLATFORMS)(data)
-        selection = super().__call__(data)
-        return list(PW_PLATFORMS) if selection == _BOTH_PLATFORMS else [selection]
+        selection = super().__call__(data.lower() if isinstance(data, str) else data)
+        if selection == _BOTH_PLATFORMS:
+            return list(PW_PLATFORMS)
+        return [platform for platform in PW_PLATFORMS if platform.lower() == selection]
 
 
 def _form_values(user_input: dict | None) -> dict | None:
@@ -212,7 +215,9 @@ class PirateWeatherConfigFlow(_ForecastSummaryMixin, ConfigFlow, domain=DOMAIN):
                     CONF_LONGITUDE, default=self.hass.config.longitude
                 ): cv.longitude,
                 vol.Optional(CONF_SCAN_INTERVAL, default=DEFAULT_SCAN_INTERVAL): int,
-                vol.Required(PW_PLATFORM, default=PW_PLATFORMS[1]): _PlatformSelector(),
+                vol.Required(
+                    PW_PLATFORM, default=PW_PLATFORMS[1].lower()
+                ): _PlatformSelector(),
                 vol.Required(CONF_LANGUAGE, default=DEFAULT_LANGUAGE): vol.In(
                     LANGUAGES
                 ),

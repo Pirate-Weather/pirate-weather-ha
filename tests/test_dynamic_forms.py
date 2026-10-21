@@ -2,6 +2,10 @@
 
 from __future__ import annotations
 
+import json
+import re
+from pathlib import Path
+
 import probatio
 import pytest
 from homeassistant import config_entries
@@ -70,10 +74,10 @@ async def test_sensor_visibility_schema(hass, mock_config_entry, flow_type):
     _, result = await start_flow(hass, mock_config_entry, flow_type)
     fields = serialized_fields(result)
     platform = fields[PW_PLATFORM]
-    assert platform["default"] == "Weather"
+    assert platform["default"] == "weather"
     assert platform["selector"]["select"]["multiple"] is False
-    assert platform["selector"]["select"]["options"] == ["Sensor", "Weather", "Both"]
-    sensors = {"field": PW_PLATFORM, "operator": "in", "value": ["Sensor", "Both"]}
+    assert platform["selector"]["select"]["options"] == ["sensor", "weather", "both"]
+    sensors = {"field": PW_PLATFORM, "operator": "in", "value": ["sensor", "both"]}
     for key in [CONF_MONITORED_CONDITIONS, DAILY_ENABLED, HOURLY_ENABLED]:
         assert fields[key]["visible"] == sensors
     assert fields[DAILY_DAYS]["visible"] == {
@@ -108,7 +112,7 @@ async def test_sensor_visibility_schema(hass, mock_config_entry, flow_type):
 @pytest.mark.parametrize("flow_type", ["setup", "options"])
 @pytest.mark.parametrize(
     ("selection", "platforms"),
-    [("Weather", ["Weather"]), ("Sensor", ["Sensor"]), ("Both", ["Sensor", "Weather"])],
+    [("weather", ["Weather"]), ("sensor", ["Sensor"]), ("both", ["Sensor", "Weather"])],
 )
 async def test_platform_selection_saved_as_list(
     hass,
@@ -126,15 +130,15 @@ async def test_platform_selection_saved_as_list(
         PW_PLATFORM: selection,
         "advanced": {},
     }
-    if selection != "Weather":
+    if selection != "weather":
         values.update(FORM_SETTINGS)
     result = await manager.async_configure(result["flow_id"], values)
-    if selection != "Weather":
+    if selection != "weather":
         assert result["step_id"] == "forecast_summary"
         result = await manager.async_configure(result["flow_id"], {})
     assert result["type"] is FlowResultType.CREATE_ENTRY
     assert result["data"][PW_PLATFORM] == platforms
-    if selection != "Weather":
+    if selection != "weather":
         for key, value in SENSOR_SETTINGS.items():
             assert result["data"][key] == value
 
@@ -167,7 +171,7 @@ async def test_hidden_sensor_settings_preserved(
     unique_id = mock_config_entry.unique_id
     manager = hass.config_entries.options
     result = await manager.async_init(mock_config_entry.entry_id)
-    values = {PW_PLATFORM: "Weather", "advanced": {}}
+    values = {PW_PLATFORM: "weather", "advanced": {}}
     if clear_hidden_fields:
         values.update(
             {
@@ -187,7 +191,7 @@ async def test_hidden_sensor_settings_preserved(
     assert fields[DAILY_DAYS]["default"] == ["0", "2"]
     assert fields[HOURLY_SCHEDULE]["default"] == "interval"
     result = await manager.async_configure(
-        result["flow_id"], {PW_PLATFORM: "Both", "advanced": {}}
+        result["flow_id"], {PW_PLATFORM: "both", "advanced": {}}
     )
     assert result["step_id"] == "forecast_summary"
     result = await manager.async_configure(result["flow_id"], {})
@@ -203,19 +207,19 @@ async def test_validation_error_retains_sensor_form_values(hass, mock_config_ent
     manager, result = await start_flow(hass, mock_config_entry, "options")
     result = await manager.async_configure(
         result["flow_id"],
-        {CONF_API_KEY: " ", PW_PLATFORM: "Both", "advanced": {}, **FORM_SETTINGS},
+        {CONF_API_KEY: " ", PW_PLATFORM: "both", "advanced": {}, **FORM_SETTINGS},
     )
     assert result["type"] is FlowResultType.FORM
     assert result["errors"] == {CONF_API_KEY: "invalid_api_key"}
     fields = serialized_fields(result)
-    assert fields[PW_PLATFORM]["description"]["suggested_value"] == "Both"
+    assert fields[PW_PLATFORM]["description"]["suggested_value"] == "both"
     for key, value in FORM_SETTINGS.items():
         assert fields[key]["description"]["suggested_value"] == value
 
 
 @pytest.mark.parametrize(
     ("platforms", "selection"),
-    [(["Weather"], "Weather"), (["Sensor"], "Sensor"), (["Weather", "Sensor"], "Both")],
+    [(["Weather"], "weather"), (["Sensor"], "sensor"), (["Weather", "Sensor"], "both")],
 )
 async def test_legacy_platforms_and_forecasts_in_options(
     hass, mock_config_entry, mock_get_clientsession_config_flow, *, platforms, selection
@@ -241,7 +245,7 @@ async def test_legacy_platforms_and_forecasts_in_options(
     assert fields[HOURLY_ENABLED]["default"] is True
     assert fields[HOURLY_HOURS]["default"] == ["0", "6", "12"]
     result = await manager.async_configure(
-        result["flow_id"], {PW_PLATFORM: "Both", "advanced": {}}
+        result["flow_id"], {PW_PLATFORM: "both", "advanced": {}}
     )
     assert result["step_id"] == "forecast_summary"
     result = await manager.async_configure(result["flow_id"], {})
@@ -320,7 +324,7 @@ async def test_forecast_schedules(
         result["flow_id"],
         {
             CONF_API_KEY: mock_config_entry.data[CONF_API_KEY],
-            PW_PLATFORM: "Sensor",
+            PW_PLATFORM: "sensor",
             "advanced": {},
             CONF_MONITORED_CONDITIONS: ["temperature"],
             **controls,
@@ -353,7 +357,7 @@ async def test_summary_counts_supported_conditions(
         result["flow_id"],
         {
             CONF_API_KEY: mock_config_entry.data[CONF_API_KEY],
-            PW_PLATFORM: "Both",
+            PW_PLATFORM: "both",
             "advanced": {},
             **FORM_SETTINGS,
             CONF_MONITORED_CONDITIONS: conditions,
@@ -401,7 +405,7 @@ async def test_forecast_validation(
     manager, result = await start_flow(hass, mock_config_entry, flow_type)
     values = {
         CONF_API_KEY: mock_config_entry.data[CONF_API_KEY],
-        PW_PLATFORM: "Sensor",
+        PW_PLATFORM: "sensor",
         "advanced": {},
         **controls,
     }
@@ -437,7 +441,7 @@ async def test_invalid_forecast_bounds(hass, mock_config_entry, key, value):
     manager, result = await start_flow(hass, mock_config_entry, "options")
     with pytest.raises(InvalidData):
         await manager.async_configure(
-            result["flow_id"], {PW_PLATFORM: "Both", "advanced": {}, key: value}
+            result["flow_id"], {PW_PLATFORM: "both", "advanced": {}, key: value}
         )
 
 
@@ -474,7 +478,7 @@ async def test_cancel_forecast_preview_does_not_save(
     """Cancellation at review leaves existing settings and conditions untouched."""
     manager, result = await start_flow(hass, mock_config_entry, "options")
     result = await manager.async_configure(
-        result["flow_id"], {PW_PLATFORM: "Both", "advanced": {}, **FORM_SETTINGS}
+        result["flow_id"], {PW_PLATFORM: "both", "advanced": {}, **FORM_SETTINGS}
     )
     assert result["step_id"] == "forecast_summary"
     manager.async_abort(result["flow_id"])
@@ -546,3 +550,25 @@ async def test_legacy_entity_ids_survive_options_save(
         state = hass.states.get(entity_id)
         assert state is not None
         assert state.state not in {"unknown", "unavailable"}
+
+
+@pytest.mark.parametrize("language", ["cs", "de", "en", "fr", "nl", "pl", "sk"])
+def test_selector_translation_keys(language):
+    """Every selector option uses a hassfest-compatible key in every language."""
+    translations = json.loads(
+        (
+            Path(__file__).parents[1]
+            / "custom_components"
+            / "pirateweather"
+            / "translations"
+            / f"{language}.json"
+        ).read_text()
+    )
+    for selector in translations["selector"].values():
+        for key in selector["options"]:
+            assert re.fullmatch(r"[a-z0-9](?:[a-z0-9_-]*[a-z0-9])?", key), key
+    assert set(translations["selector"]["platform"]["options"]) == {
+        "sensor",
+        "weather",
+        "both",
+    }

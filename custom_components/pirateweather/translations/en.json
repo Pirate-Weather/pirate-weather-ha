@@ -111,9 +111,9 @@
     "selector": {
         "platform": {
             "options": {
-                "Weather": "Weather entity",
-                "Sensor": "Sensors",
-                "Both": "Weather entity and sensors"
+                "weather": "Weather entity",
+                "sensor": "Sensors",
+                "both": "Weather entity and sensors"
             }
         },
         "forecast_day": {

@@ -110,9 +110,9 @@
     "selector": {
         "platform": {
             "options": {
-                "Weather": "Entita počasí",
-                "Sensor": "Senzory",
-                "Both": "Entita počasí a senzory"
+                "weather": "Entita počasí",
+                "sensor": "Senzory",
+                "both": "Entita počasí a senzory"
             }
         },
         "forecast_day": {

@@ -18,7 +18,7 @@ from homeassistant.helpers.selector import (
     SelectSelectorMode,
 )
 
-from .const import PW_PLATFORM, PW_PLATFORMS
+from .const import PW_PLATFORM
 
 CONF_FORECAST = "forecast"
 CONF_HOURLY_FORECAST = "hourly_forecast"
@@ -84,7 +84,7 @@ class SensorSettingSelector(Selector):
         sensors = {
             "field": PW_PLATFORM,
             "operator": "in",
-            "value": [PW_PLATFORMS[0], "Both"],
+            "value": ["sensor", "both"],
         }
         visible = (
             {"condition": "and", "conditions": [sensors, *self._conditions]}
