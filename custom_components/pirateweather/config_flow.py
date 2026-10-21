@@ -5,6 +5,7 @@ from __future__ import annotations
 import logging
 from datetime import timedelta
 from typing import Any
+from uuid import uuid4
 
 import homeassistant.helpers.config_validation as cv
 import voluptuous as vol
@@ -26,7 +27,7 @@ from homeassistant.const import (
     CONF_SCAN_INTERVAL,
 )
 from homeassistant.core import callback
-from homeassistant.data_entry_flow import section
+from homeassistant.data_entry_flow import AbortFlow, section
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
 from homeassistant.helpers.selector import (
     SelectSelector,
@@ -39,6 +40,7 @@ from homeassistant.helpers.selector import (
 from .const import (
     ALL_CONDITIONS,
     CONF_ENDPOINT,
+    CONF_INSTANCE_ID,
     CONF_LANGUAGE,
     CONF_MODELS,
     CONF_UNITS,
@@ -156,6 +158,10 @@ class _ForecastSummaryMixin:
             self._pending_data = values
             self._pending_title = title
             return self._forecast_summary_form()
+        return self._create_configuration_entry(values, title)
+
+    def _create_configuration_entry(self, values: dict, title: str) -> ConfigFlowResult:
+        """Save a reviewed configuration or updated options."""
         return self.async_create_entry(title=title, data=values)
 
     def _forecast_summary_form(self) -> ConfigFlowResult:
@@ -182,8 +188,8 @@ class _ForecastSummaryMixin:
     async def async_step_forecast_summary(self, user_input=None) -> ConfigFlowResult:
         """Save the selected forecasts after the user has reviewed the count."""
         if user_input is not None:
-            return self.async_create_entry(
-                title=self._pending_title, data=self._pending_data
+            return self._create_configuration_entry(
+                self._pending_data, self._pending_title
             )
         return self._forecast_summary_form()
 
@@ -192,6 +198,27 @@ class PirateWeatherConfigFlow(_ForecastSummaryMixin, ConfigFlow, domain=DOMAIN):
     """Config flow for PirateWeather."""
 
     VERSION = CONFIG_FLOW_VERSION
+
+    def __init__(self) -> None:
+        """Allocate an immutable identity for this new integration instance."""
+        super().__init__()
+        self._instance_id = uuid4().hex
+
+    def _abort_if_duplicate_configuration(self, values: dict) -> None:
+        """Compare effective settings independently of instance identity."""
+        for entry in self._async_current_entries(include_ignore=False):
+            saved = {**entry.data, **entry.options}
+            if (
+                saved.get(CONF_LATITUDE) == values[CONF_LATITUDE]
+                and saved.get(CONF_LONGITUDE) == values[CONF_LONGITUDE]
+                and set(saved.get(PW_PLATFORM, [])) == set(values[PW_PLATFORM])
+            ):
+                raise AbortFlow("already_configured")
+
+    def _create_configuration_entry(self, values: dict, title: str) -> ConfigFlowResult:
+        """Recheck duplicates after API validation and forecast review."""
+        self._abort_if_duplicate_configuration(values)
+        return super()._create_configuration_entry(values, title)
 
     @staticmethod
     @callback
@@ -251,8 +278,6 @@ class PirateWeatherConfigFlow(_ForecastSummaryMixin, ConfigFlow, domain=DOMAIN):
             )
             latitude = user_input[CONF_LATITUDE]
             longitude = user_input[CONF_LONGITUDE]
-            forecast_mode = "daily"
-            forecast_platform = user_input[PW_PLATFORM]
             endpoint = user_input[CONF_ENDPOINT]
 
             # Convert scan interval to timedelta
@@ -267,17 +292,8 @@ class PirateWeatherConfigFlow(_ForecastSummaryMixin, ConfigFlow, domain=DOMAIN):
                     CONF_SCAN_INTERVAL
                 ].total_seconds()
 
-            # Keep identity independent of names, including for legacy entries.
-            self._async_abort_entries_match(
-                {
-                    CONF_LATITUDE: latitude,
-                    CONF_LONGITUDE: longitude,
-                    PW_PLATFORM: forecast_platform,
-                }
-            )
-            await self.async_set_unique_id(
-                f"pw-{latitude}-{longitude}-{forecast_platform}-{forecast_mode}"
-            )
+            self._abort_if_duplicate_configuration(user_input)
+            await self.async_set_unique_id(f"pw-{self._instance_id}")
 
             self._abort_if_unique_id_configured()
 
@@ -303,7 +319,9 @@ class PirateWeatherConfigFlow(_ForecastSummaryMixin, ConfigFlow, domain=DOMAIN):
             if errors:
                 _LOGGER.warning(errors)
             else:
-                return self._finish_configuration(user_input, DEFAULT_NAME)
+                return self._finish_configuration(
+                    {**user_input, CONF_INSTANCE_ID: self._instance_id}, DEFAULT_NAME
+                )
 
         return self.async_show_form(
             step_id="user",
