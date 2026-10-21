@@ -5,62 +5,134 @@
         },
         "error": {
             "cannot_connect": "Verbinding Mislukt",
-            "invalid_api_key": "Foutieve API-sleutel"
+            "invalid_api_key": "Foutieve API-sleutel",
+            "select_forecast_days": "Selecteer minstens één dag.",
+            "select_forecast_hours": "Selecteer minstens één uur.",
+            "invalid_hourly_range": "Het einduur moet gelijk aan of groter dan het beginuur zijn."
         },
         "step": {
             "user": {
+                "sections": {
+                    "advanced": {
+                        "name": "Geavanceerd",
+                        "data": {
+                            "models": "Weermodellen om uit te sluiten (csv)",
+                            "pw_round": "Rond waarden af ​​op het dichtstbijzijnde gehele getal. Zorg ervoor dat de geselecteerde eenheden overeenkomen met de systeemeenheden.",
+                            "endpoint": "Eindpunt voor gebruik van dev of lokale bron, met https://. Standaard is dit api.pirateweather.net",
+                            "units": "Eenheden."
+                        }
+                    }
+                },
                 "data": {
                     "api_key": "API-sleutel",
                     "language": "Taal",
                     "latitude": "Breedtegraad",
                     "longitude": "Lengtegraad",
                     "mode": "Voorspellingsmodus voor de Weer entiteit",
-                    "units": "Eenheden.",
-                    "models": "Weermodellen om uit te sluiten (csv)",
-                    "forecast": "Dagelijkse prognoses sensoren in csv-vorm van 0-7 (bijv. '0,1,3'). Wordt alleen gebruikt als sensoren worden aangeroepen.",
-                    "hourly_forecast":  "Uurlijkse prognoses sensoren in csv-vorm van 0-168 (bijv. '0,1,10'). Wordt alleen gebruikt als sensoren worden aangeroepen.",
-                    "monitored_conditions": "Gecontroleerde omstandigheden om sensoren voor te creëren. Wordt alleen gebruikt als sensoren worden aangeroepen.",
+                    "monitored_conditions": "Gecontroleerde omstandigheden om sensoren voor te creëren.",
                     "pw_platform": "Weer Entiteit en/of Sensor Entiteit. Sensor maakt op elk moment entiteiten voor elke voorwaarde. Als u het niet zeker weet, selecteert u alleen Weer!",
-                    "pw_round": "Rond waarden af ​​op het dichtstbijzijnde gehele getal. Zorg ervoor dat de geselecteerde eenheden overeenkomen met de systeemeenheden.",
-                    "scan_interval": "Seconden wachten tussen updates. Het wordt niet aanbevolen om dit onder de 900 seconden (15 minuten) te zetten."    , 
-                    "endpoint": "Eindpunt voor gebruik van dev of lokale bron, met https://. Standaard is dit api.pirateweather.net"                                     
+                    "scan_interval": "Seconden wachten tussen updates. Het wordt niet aanbevolen om dit onder de 900 seconden (15 minuten) te zetten.",
+                    "daily_forecast_enabled": "Sensoren voor dagelijkse voorspellingen",
+                    "forecast_days": "Voorspellingsdagen",
+                    "hourly_forecast_enabled": "Sensoren voor voorspellingen per uur",
+                    "hourly_schedule": "Uurschema",
+                    "forecast_hours": "Specifieke uren",
+                    "hourly_count": "Aantal komende uren",
+                    "hourly_start": "Beginuur",
+                    "hourly_end": "Einduur",
+                    "hourly_interval": "Interval (uren)"
                 },
                 "description": "Stel Pirate Weather-integratie in. Ga naar pirateweather.net om een ​​API-sleutel te genereren.",
                 "data_description": {
-                  "forecast": "bijv. '0,1,4' (zonder aanhalingstekens)",
-                  "hourly_forecast": "bijv. '0,1,4' (zonder aanhalingstekens)"
-                }                
+                    "forecast_hours": "Uren vanaf nu (0–167). 0 is het huidige voorspellingsuur.",
+                    "hourly_count": "Begint over 1 uur en omvat elk uur tot dit aantal (1–167).",
+                    "hourly_end": "Uren vanaf nu (0–167). Het einde telt mee als het op het interval valt."
+                }
+            },
+            "forecast_summary": {
+                "title": "Voorspellingssensoren controleren",
+                "description": "De gedeelde selectie maakt {daily_count} dagelijkse en {hourly_count} uurlijkse voorspellingssensoren ({forecast_total} totaal). Alleen ondersteunde omstandigheden worden geteld. Sensoren voor huidige omstandigheden blijven ongewijzigd. Verstuur om op te slaan."
             }
         }
     },
     "options": {
         "error": {
             "cannot_connect": "Verbinding Mislukt",
-            "invalid_api_key": "Foutieve API-sleutel"
+            "invalid_api_key": "Foutieve API-sleutel",
+            "select_forecast_days": "Selecteer minstens één dag.",
+            "select_forecast_hours": "Selecteer minstens één uur.",
+            "invalid_hourly_range": "Het einduur moet gelijk aan of groter dan het beginuur zijn."
         },
         "step": {
             "init": {
+                "sections": {
+                    "advanced": {
+                        "name": "Geavanceerd",
+                        "data": {
+                            "models": "Weermodellen om uit te sluiten (csv)",
+                            "pw_round": "Rond waarden af ​​op het dichtstbijzijnde gehele getal. Zorg ervoor dat de geselecteerde eenheden overeenkomen met de systeemeenheden.",
+                            "endpoint": "Eindpunt voor gebruik van dev of lokale bron, met https://. Standaard is dit api.pirateweather.net",
+                            "units": "Eenheden."
+                        }
+                    }
+                },
                 "data": {
                     "api_key": "API-sleutel",
                     "language": "Taal",
                     "latitude": "Breedtegraad",
                     "longitude": "Lengtegraad",
                     "mode": "Voorspellingsmodus voor de Weer entiteit",
-                    "units": "Eenheden.",
-                    "models": "Weermodellen om uit te sluiten (csv)",
-                    "forecast": "Dagelijkse prognoses sensoren in csv-vorm van 0-7 (bijv. '0,1,3'). Wordt alleen gebruikt als sensoren worden aangeroepen.",
-                    "hourly_forecast":  "Uurlijkse prognoses sensoren in csv-vorm van 0-168 (bijv. '0,1,10'). Wordt alleen gebruikt als sensoren worden aangeroepen.",
-                    "monitored_conditions": "Gecontroleerde omstandigheden om sensoren voor te creëren. Wordt alleen gebruikt als sensoren worden aangeroepen.",
+                    "monitored_conditions": "Gecontroleerde omstandigheden om sensoren voor te creëren.",
                     "pw_platform": "Weer Entiteit en/of Sensor Entiteit. Sensor maakt op elk moment entiteiten voor elke voorwaarde. Als u het niet zeker weet, selecteert u alleen Weer!",
-                    "pw_round": "Rond waarden af ​​op het dichtstbijzijnde gehele getal. Zorg ervoor dat de geselecteerde eenheden overeenkomen met de systeemeenheden.",
-                    "scan_interval": "Seconden wachten tussen updates. Het wordt niet aanbevolen om dit onder de 900 seconden (15 minuten) te zetten.", 
-                    "endpoint": "Eindpunt voor gebruik van dev of lokale bron, met https://. Standaard is dit api.pirateweather.net"                                         
+                    "scan_interval": "Seconden wachten tussen updates. Het wordt niet aanbevolen om dit onder de 900 seconden (15 minuten) te zetten.",
+                    "daily_forecast_enabled": "Sensoren voor dagelijkse voorspellingen",
+                    "forecast_days": "Voorspellingsdagen",
+                    "hourly_forecast_enabled": "Sensoren voor voorspellingen per uur",
+                    "hourly_schedule": "Uurschema",
+                    "forecast_hours": "Specifieke uren",
+                    "hourly_count": "Aantal komende uren",
+                    "hourly_start": "Beginuur",
+                    "hourly_end": "Einduur",
+                    "hourly_interval": "Interval (uren)"
                 },
                 "description": "Stel Pirate Weather-integratie in. Ga naar pirateweather.net om een ​​API-sleutel te genereren.",
                 "data_description": {
-                  "forecast": "bijv. '0,1,4' (zonder aanhalingstekens)",
-                  "hourly_forecast": "bijv. '0,1,4.\n om bestaande sensoren te verwijderen, type 'None' (zonder aanhalingstekens)"
-                }         
+                    "forecast_hours": "Uren vanaf nu (0–167). 0 is het huidige voorspellingsuur.",
+                    "hourly_count": "Begint over 1 uur en omvat elk uur tot dit aantal (1–167).",
+                    "hourly_end": "Uren vanaf nu (0–167). Het einde telt mee als het op het interval valt."
+                }
+            },
+            "forecast_summary": {
+                "title": "Voorspellingssensoren controleren",
+                "description": "De gedeelde selectie maakt {daily_count} dagelijkse en {hourly_count} uurlijkse voorspellingssensoren ({forecast_total} totaal). Alleen ondersteunde omstandigheden worden geteld. Sensoren voor huidige omstandigheden blijven ongewijzigd. Verstuur om op te slaan."
+            }
+        }
+    },
+    "selector": {
+        "platform": {
+            "options": {
+                "weather": "Weerentiteit",
+                "sensor": "Sensoren",
+                "both": "Weerentiteit en sensoren"
+            }
+        },
+        "forecast_day": {
+            "options": {
+                "0": "Vandaag",
+                "1": "Morgen",
+                "2": "Over 2 dagen",
+                "3": "Over 3 dagen",
+                "4": "Over 4 dagen",
+                "5": "Over 5 dagen",
+                "6": "Over 6 dagen",
+                "7": "Over 7 dagen"
+            }
+        },
+        "hourly_schedule": {
+            "options": {
+                "specific": "Specifieke uren",
+                "next": "Volgende N uur",
+                "interval": "Regelmatige intervallen"
             }
         }
     }

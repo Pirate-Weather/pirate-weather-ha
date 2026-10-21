@@ -39,6 +39,7 @@ CONF_LANGUAGE = "language"
 CONF_UNITS = "units"
 CONF_ENDPOINT = "endpoint"
 CONF_MODELS = "models"
+CONF_INSTANCE_ID = "instance_id"
 CONFIG_FLOW_VERSION = 2
 ENTRY_NAME = "name"
 ENTRY_WEATHER_COORDINATOR = "weather_coordinator"

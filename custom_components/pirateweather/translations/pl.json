@@ -5,61 +5,133 @@
         },
         "error": {
             "cannot_connect": "Nie udało się połączyć",
-            "invalid_api_key": "Nieprawidłowy klucz API"
+            "invalid_api_key": "Nieprawidłowy klucz API",
+            "select_forecast_days": "Wybierz co najmniej jeden dzień.",
+            "select_forecast_hours": "Wybierz co najmniej jedną godzinę.",
+            "invalid_hourly_range": "Godzina końcowa musi być większa lub równa początkowej."
         },
         "step": {
             "user": {
+                "sections": {
+                    "advanced": {
+                        "name": "Zaawansowane",
+                        "data": {
+                            "models": "Modele pogodowe do wykluczenia (csv)",
+                            "pw_round": "Zaokrąglij wartości do najbliższej liczby całkowitej. Upewnij się, że wybrane jednostki pasują do jednostek systemowych.",
+                            "endpoint": "Punkt końcowy do użycia dev lub lokalnego źródła, z https://. Domyślnie jest to api.pirateweather.net",
+                            "units": "Jednostki."
+                        }
+                    }
+                },
                 "data": {
                     "api_key": "Klucz API",
                     "language": "Język",
                     "latitude": "Szerokość geograficzna",
                     "longitude": "Długość geograficzna",
                     "mode": "Tryb prognozy dla encji Pogoda",
-                    "units": "Jednostki.",
-                    "models": "Modele pogodowe do wykluczenia (csv)",
-                    "forecast": "Czujniki prognozy dziennej w postaci csv od 0 do 7 (np. '0,1,3'). Używane tylko wtedy, gdy wymagane są sensory.",
-                    "hourly_forecast":  "Sensory prognozy godzinowej w formie csv od 0 do 168 (np. '0,1,10'). Używane tylko wtedy, gdy wymagane są sensory.",
-                    "monitored_conditions": "Monitorowane warunki do tworzenia czujników. Używane tylko wtedy, gdy wymagane są sensory.",
+                    "monitored_conditions": "Monitorowane warunki do tworzenia czujników.",
                     "pw_platform": "Encja Pogody i/lub Encja Sensora. Sensor będzie tworzył encjei dla każdego warunku w każdym czasie. Jeśli nie jesteś pewien, wybierz tylko Pogoda!",
-                    "pw_round": "Zaokrąglij wartości do najbliższej liczby całkowitej. Upewnij się, że wybrane jednostki pasują do jednostek systemowych.",
-                    "scan_interval": "Sekundy oczekiwania między aktualizacjami. Nie zaleca się skracania tego poniżej 900 sekund (15 minut).", 
-                    "endpoint": "Punkt końcowy do użycia dev lub lokalnego źródła, z https://. Domyślnie jest to api.pirateweather.net"                                         
+                    "scan_interval": "Sekundy oczekiwania między aktualizacjami. Nie zaleca się skracania tego poniżej 900 sekund (15 minut).",
+                    "daily_forecast_enabled": "Czujniki prognozy dziennej",
+                    "forecast_days": "Dni prognozy",
+                    "hourly_forecast_enabled": "Czujniki prognozy godzinowej",
+                    "hourly_schedule": "Harmonogram godzinowy",
+                    "forecast_hours": "Wybrane godziny",
+                    "hourly_count": "Liczba kolejnych godzin",
+                    "hourly_start": "Godzina początkowa",
+                    "hourly_end": "Godzina końcowa",
+                    "hourly_interval": "Odstęp (godziny)"
                 },
                 "description": "Skonfiguruj integrację Pirate Weather. Aby wygenerować klucz API, przejdź do pirateweather.net",
                 "data_description": {
-                  "forecast": "np. '0,1,4' (bez cudzysłowów)",
-                  "hourly_forecast": "np. '0,1,4' (bez cudzysłowów)"
-                }                
+                    "forecast_hours": "Godziny od teraz (0–167). 0 to bieżąca godzina prognozy.",
+                    "hourly_count": "Zaczyna za 1 godzinę i obejmuje każdą godzinę do tej liczby (1–167).",
+                    "hourly_end": "Godziny od teraz (0–167). Koniec jest uwzględniany, jeśli wypada w odstępie."
+                }
+            },
+            "forecast_summary": {
+                "title": "Przegląd czujników prognozy",
+                "description": "Wspólny wybór utworzy {daily_count} dziennych i {hourly_count} godzinowych czujników prognozy (łącznie {forecast_total}). Zliczane są tylko obsługiwane warunki. Tworzenie czujników aktualnych warunków nie zmienia się. Zatwierdź, aby zapisać."
             }
         }
     },
     "options": {
         "error": {
             "cannot_connect": "Nie udało się połączyć",
-            "invalid_api_key": "Nieprawidłowy klucz API"
+            "invalid_api_key": "Nieprawidłowy klucz API",
+            "select_forecast_days": "Wybierz co najmniej jeden dzień.",
+            "select_forecast_hours": "Wybierz co najmniej jedną godzinę.",
+            "invalid_hourly_range": "Godzina końcowa musi być większa lub równa początkowej."
         },
         "step": {
             "init": {
+                "sections": {
+                    "advanced": {
+                        "name": "Zaawansowane",
+                        "data": {
+                            "models": "Modele pogodowe do wykluczenia (csv)",
+                            "pw_round": "Zaokrąglij wartości do najbliższej liczby całkowitej. Upewnij się, że wybrane jednostki pasują do jednostek systemowych.",
+                            "endpoint": "Punkt końcowy do użycia dev lub lokalnego źródła, z https://. Domyślnie jest to api.pirateweather.net",
+                            "units": "Jednostki."
+                        }
+                    }
+                },
                 "data": {
                     "api_key": "Klucz API",
                     "language": "Język",
                     "latitude": "Szerokość geograficzna",
                     "longitude": "Długość geograficzna",
                     "mode": "Tryb prognozy dla encji Pogoda",
-                    "units": "Jednostki.",
-                    "models": "Modele pogodowe do wykluczenia (csv)",
-                    "forecast": "Czujniki prognozy dziennej w postaci csv od 0 do 7 (np. '0,1,3'). Używane tylko wtedy, gdy wymagane są sensory. UWAGA: Usunięcie czujników spowoduje utworzenie osieroconych encji, które należy usunąć.",
-                    "hourly_forecast":  "Sensory prognozy godzinowej w formie csv od 0 do 168 (np. '0,1,10'). Używane tylko wtedy, gdy wymagane są sensory. UWAGA: Usunięcie czujników spowoduje utworzenie osieroconych encji, które należy usunąć.",
-                    "monitored_conditions": "Monitorowane warunki do tworzenia czujników. Używane tylko wtedy, gdy wymagane są sensory. UWAGA: Usunięcie czujników spowoduje utworzenie osieroconych encji, które należy usunąć.",
+                    "monitored_conditions": "Monitorowane warunki do tworzenia czujników.",
                     "pw_platform": "Encja Pogody i/lub Encja Sensora. Sensor będzie tworzył encjei dla każdego warunku w każdym czasie. Jeśli nie jesteś pewien, wybierz tylko Pogoda!",
-                    "pw_round": "Zaokrąglij wartości do najbliższej liczby całkowitej. Upewnij się, że wybrane jednostki pasują do jednostek systemowych.", 
-                    "endpoint": "Punkt końcowy do użycia dev lub lokalnego źródła, z https://. Domyślnie jest to api.pirateweather.net"
+                    "daily_forecast_enabled": "Czujniki prognozy dziennej",
+                    "forecast_days": "Dni prognozy",
+                    "hourly_forecast_enabled": "Czujniki prognozy godzinowej",
+                    "hourly_schedule": "Harmonogram godzinowy",
+                    "forecast_hours": "Wybrane godziny",
+                    "hourly_count": "Liczba kolejnych godzin",
+                    "hourly_start": "Godzina początkowa",
+                    "hourly_end": "Godzina końcowa",
+                    "hourly_interval": "Odstęp (godziny)"
                 },
                 "description": "Skonfiguruj integrację Pirate Weather. Aby wygenerować klucz API, przejdź do pirateweather.net",
                 "data_description": {
-                  "forecast": "np. '0,1,4'",
-                  "hourly_forecast": "np. '0,1,4'"
-                }         
+                    "forecast_hours": "Godziny od teraz (0–167). 0 to bieżąca godzina prognozy.",
+                    "hourly_count": "Zaczyna za 1 godzinę i obejmuje każdą godzinę do tej liczby (1–167).",
+                    "hourly_end": "Godziny od teraz (0–167). Koniec jest uwzględniany, jeśli wypada w odstępie."
+                }
+            },
+            "forecast_summary": {
+                "title": "Przegląd czujników prognozy",
+                "description": "Wspólny wybór utworzy {daily_count} dziennych i {hourly_count} godzinowych czujników prognozy (łącznie {forecast_total}). Zliczane są tylko obsługiwane warunki. Tworzenie czujników aktualnych warunków nie zmienia się. Zatwierdź, aby zapisać."
+            }
+        }
+    },
+    "selector": {
+        "platform": {
+            "options": {
+                "weather": "Encja pogody",
+                "sensor": "Sensory",
+                "both": "Encja pogody i sensory"
+            }
+        },
+        "forecast_day": {
+            "options": {
+                "0": "Dzisiaj",
+                "1": "Jutro",
+                "2": "Za 2 dni",
+                "3": "Za 3 dni",
+                "4": "Za 4 dni",
+                "5": "Za 5 dni",
+                "6": "Za 6 dni",
+                "7": "Za 7 dni"
+            }
+        },
+        "hourly_schedule": {
+            "options": {
+                "specific": "Wybrane godziny",
+                "next": "Kolejne N godzin",
+                "interval": "Regularne odstępy"
             }
         }
     }
