@@ -57,6 +57,7 @@ from .const import (
     PW_PREVPLATFORM,
     PW_ROUND,
 )
+from .values import valid_number
 from .weather_update_coordinator import WeatherUpdateCoordinator
 
 _LOGGER = logging.getLogger(__name__)
@@ -164,12 +165,19 @@ async def async_setup_platform(
     )
 
 
+def _number(value, digits=None, scale=1):
+    """Return a valid measurement, optionally scaled and rounded."""
+    if not valid_number(value):
+        return None
+    value *= scale
+    return round(value, digits) if digits is not None else value
+
+
 def _get_precip(forecast, unit_system: str) -> float | None:
     """Get and convert precipitation accumulation."""
-    precip = forecast.d.get("precipAccumulation")
-    if precip is not None and unit_system != "us":
-        return precip * 10
-    return precip
+    return _number(
+        forecast.d.get("precipAccumulation"), scale=1 if unit_system == "us" else 10
+    )
 
 
 def _map_daily_forecast(forecast, unit_system) -> Forecast:
@@ -177,20 +185,20 @@ def _map_daily_forecast(forecast, unit_system) -> Forecast:
     return {
         "datetime": utc_from_timestamp(forecast.d.get("time")).isoformat(),
         "condition": MAP_CONDITION.get(forecast.d.get("icon")),
-        "native_temperature": forecast.d.get("temperatureHigh"),
-        "native_templow": forecast.d.get("temperatureLow"),
+        "native_temperature": _number(forecast.d.get("temperatureHigh")),
+        "native_templow": _number(forecast.d.get("temperatureLow")),
         "native_precipitation": precip,
-        "precipitation_probability": round(
-            forecast.d.get("precipProbability") * 100, 0
+        "precipitation_probability": _number(
+            forecast.d.get("precipProbability"), 0, scale=100
         ),
-        "humidity": round(forecast.d.get("humidity") * 100, 2),
-        "cloud_coverage": round(forecast.d.get("cloudCover") * 100, 0),
-        "native_wind_speed": round(forecast.d.get("windSpeed"), 2),
-        "native_wind_gust_speed": round(forecast.d.get("windGust"), 2),
-        "wind_bearing": round(forecast.d.get("windBearing"), 0),
-        "native_dew_point": forecast.d.get("dewPoint"),
-        "native_pressure": forecast.d.get("pressure"),
-        "uv_index": round(forecast.d.get("uvIndex"), 2),
+        "humidity": _number(forecast.d.get("humidity"), 2, scale=100),
+        "cloud_coverage": _number(forecast.d.get("cloudCover"), 0, scale=100),
+        "native_wind_speed": _number(forecast.d.get("windSpeed"), 2),
+        "native_wind_gust_speed": _number(forecast.d.get("windGust"), 2),
+        "wind_bearing": _number(forecast.d.get("windBearing"), 0),
+        "native_dew_point": _number(forecast.d.get("dewPoint")),
+        "native_pressure": _number(forecast.d.get("pressure")),
+        "uv_index": _number(forecast.d.get("uvIndex"), 2),
     }
 
 
@@ -213,20 +221,20 @@ def _map_day_night_forecast(
         "is_daytime": is_daytime,
         "datetime": utc_from_timestamp(forecast.d.get("time")).isoformat(),
         "condition": MAP_CONDITION.get(forecast.d.get("icon")),
-        "native_temperature": forecast.d.get("temperature"),
-        "native_apparent_temperature": forecast.d.get("apparentTemperature"),
-        "native_dew_point": forecast.d.get("dewPoint"),
-        "native_pressure": forecast.d.get("pressure"),
-        "native_wind_speed": round(forecast.d.get("windSpeed"), 2),
-        "wind_bearing": round(forecast.d.get("windBearing"), 0),
-        "native_wind_gust_speed": round(forecast.d.get("windGust"), 2),
-        "humidity": round(forecast.d.get("humidity") * 100, 2),
+        "native_temperature": _number(forecast.d.get("temperature")),
+        "native_apparent_temperature": _number(forecast.d.get("apparentTemperature")),
+        "native_dew_point": _number(forecast.d.get("dewPoint")),
+        "native_pressure": _number(forecast.d.get("pressure")),
+        "native_wind_speed": _number(forecast.d.get("windSpeed"), 2),
+        "wind_bearing": _number(forecast.d.get("windBearing"), 0),
+        "native_wind_gust_speed": _number(forecast.d.get("windGust"), 2),
+        "humidity": _number(forecast.d.get("humidity"), 2, scale=100),
         "native_precipitation": precip,
-        "precipitation_probability": round(
-            forecast.d.get("precipProbability") * 100, 0
+        "precipitation_probability": _number(
+            forecast.d.get("precipProbability"), 0, scale=100
         ),
-        "cloud_coverage": round(forecast.d.get("cloudCover") * 100, 0),
-        "uv_index": round(forecast.d.get("uvIndex"), 2),
+        "cloud_coverage": _number(forecast.d.get("cloudCover"), 0, scale=100),
+        "uv_index": _number(forecast.d.get("uvIndex"), 2),
     }
 
 
@@ -235,20 +243,20 @@ def _map_hourly_forecast(forecast, unit_system) -> Forecast:
     return {
         "datetime": utc_from_timestamp(forecast.d.get("time")).isoformat(),
         "condition": MAP_CONDITION.get(forecast.d.get("icon")),
-        "native_temperature": forecast.d.get("temperature"),
-        "native_apparent_temperature": forecast.d.get("apparentTemperature"),
-        "native_dew_point": forecast.d.get("dewPoint"),
-        "native_pressure": forecast.d.get("pressure"),
-        "native_wind_speed": round(forecast.d.get("windSpeed"), 2),
-        "wind_bearing": round(forecast.d.get("windBearing"), 0),
-        "native_wind_gust_speed": round(forecast.d.get("windGust"), 2),
-        "humidity": round(forecast.d.get("humidity") * 100, 2),
+        "native_temperature": _number(forecast.d.get("temperature")),
+        "native_apparent_temperature": _number(forecast.d.get("apparentTemperature")),
+        "native_dew_point": _number(forecast.d.get("dewPoint")),
+        "native_pressure": _number(forecast.d.get("pressure")),
+        "native_wind_speed": _number(forecast.d.get("windSpeed"), 2),
+        "wind_bearing": _number(forecast.d.get("windBearing"), 0),
+        "native_wind_gust_speed": _number(forecast.d.get("windGust"), 2),
+        "humidity": _number(forecast.d.get("humidity"), 2, scale=100),
         "native_precipitation": precip,
-        "precipitation_probability": round(
-            forecast.d.get("precipProbability") * 100, 0
+        "precipitation_probability": _number(
+            forecast.d.get("precipProbability"), 0, scale=100
         ),
-        "cloud_coverage": round(forecast.d.get("cloudCover") * 100, 0),
-        "uv_index": round(forecast.d.get("uvIndex"), 2),
+        "cloud_coverage": _number(forecast.d.get("cloudCover"), 0, scale=100),
+        "uv_index": _number(forecast.d.get("uvIndex"), 2),
     }
 
 
@@ -334,7 +342,10 @@ class PirateWeather(SingleCoordinatorWeatherEntity[WeatherUpdateCoordinator]):
     @property
     def available(self):
         """Return if weather data is available from Pirate Weather."""
-        return self._weather_coordinator.data is not None
+        return (
+            self._weather_coordinator.last_update_success
+            and self._weather_coordinator.data is not None
+        )
 
     @property
     def attribution(self):
@@ -346,92 +357,66 @@ class PirateWeather(SingleCoordinatorWeatherEntity[WeatherUpdateCoordinator]):
         """Return the name of the sensor."""
         return self._name
 
+    def _current_number(self, key, digits=2, scale=1):
+        """Read a numeric current condition without inventing missing values."""
+        return _number(
+            self._weather_coordinator.data.currently().d.get(key), digits, scale
+        )
+
     @property
     def native_temperature(self):
         """Return the temperature."""
-        temperature = self._weather_coordinator.data.currently().d.get("temperature")
-
-        return round(temperature, 2) if temperature != -999 else None
+        return self._current_number("temperature")
 
     @property
     def native_apparent_temperature(self):
         """Return the apparent temperature."""
-        native_apparent_temperature = self._weather_coordinator.data.currently().d.get(
-            "apparentTemperature"
-        )
-
-        return (
-            round(native_apparent_temperature, 2)
-            if native_apparent_temperature != -999
-            else None
-        )
+        return self._current_number("apparentTemperature")
 
     @property
     def cloud_coverage(self):
         """Return the cloud coverage."""
-        cloud_cover = self._weather_coordinator.data.currently().d.get("cloudCover")
-
-        return (
-            round(cloud_cover * 100, 2)
-            if cloud_cover is not None and cloud_cover != -999
-            else None
-        )
+        return self._current_number("cloudCover", scale=100)
 
     @property
     def humidity(self):
         """Return the humidity."""
-        humidity = self._weather_coordinator.data.currently().d.get("humidity") * 100.0
-
-        return round(humidity, 2) if humidity != -999 else None
+        return self._current_number("humidity", scale=100)
 
     @property
     def native_dew_point(self):
         """Return the dew point."""
-        native_dew_point = self._weather_coordinator.data.currently().d.get("dewPoint")
-
-        return round(native_dew_point, 2) if native_dew_point != -999 else None
+        return self._current_number("dewPoint")
 
     @property
     def native_wind_speed(self):
         """Return the wind speed."""
-        windspeed = self._weather_coordinator.data.currently().d.get("windSpeed")
-
-        return round(windspeed, 2) if windspeed != -999 else None
+        return self._current_number("windSpeed")
 
     @property
     def native_wind_gust_speed(self):
         """Return the wind gust speed."""
-        wind_gust = self._weather_coordinator.data.currently().d.get("windGust")
-
-        return round(wind_gust, 2) if wind_gust != -999 else None
+        return self._current_number("windGust")
 
     @property
     def wind_bearing(self):
         """Return the wind bearing."""
-        wind_bearing = self._weather_coordinator.data.currently().d.get("windBearing")
-
-        return wind_bearing if wind_bearing != -999 else None
+        return self._current_number("windBearing", digits=None)
 
     @property
     def ozone(self):
-        """Return the ozone level."""
-        ozone = self._weather_coordinator.data.currently().d.get("ozone")
-
-        return round(ozone, 2) if ozone != -999 else None
+        """Return the ozone."""
+        return self._current_number("ozone")
 
     @property
     def native_pressure(self):
         """Return the pressure."""
-        pressure = self._weather_coordinator.data.currently().d.get("pressure")
-
-        return round(pressure, 2) if pressure != -999 else None
+        return self._current_number("pressure")
 
     @property
     def native_visibility(self):
         """Return the visibility."""
-        visibility = self._weather_coordinator.data.currently().d.get("visibility")
-
-        return round(visibility, 2) if visibility != -999 else None
+        return self._current_number("visibility")
 
     @property
     def condition(self):
