@@ -22,6 +22,8 @@ Choose **Weather entity**, **Sensors**, or **Weather entity and sensors** during
 Weather model exclusions, rounding, endpoint, and units are grouped in a collapsed **Advanced** section in setup and Configure. Expand it to edit these settings; their existing values are kept when the section stays closed.
 
 ## Notices
+Forecast sections are read from scheduled asynchronous updates. Missing optional sections do not trigger extra HTTP requests from entity properties.
+
 While this integration is designed to be compatible with Dark Sky, the underlying code is significantly different. This version is designed to work with more modern versions of Home Assistant, and relies on asyncio, unified data update coordinators, and setup via the UI! A [legacy branch](https://github.com/alexander0042/pirate-weather-ha/tree/Legacy-Dark-Sky) that is a 1:1 replacement for the previous Dark Sky integration is also available, but is not recommended.
 
 The underlying API should return similar results, but specific weather variables may be missing, and additional testing is needed to find and correct these edge cases. Please [document any issues](https://github.com/alexander0042/pirate-weather-ha/issues), and I can either update this integration or the weather API. 
