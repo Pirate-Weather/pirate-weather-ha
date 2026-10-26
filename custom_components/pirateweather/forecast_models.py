@@ -2,8 +2,6 @@
 
 import datetime as dt
 
-import requests
-
 
 class UnicodeMixin:
     """Provide string representation for Python 2/3 compatibility."""
@@ -28,12 +26,6 @@ class Forecast(UnicodeMixin):
         self._alerts = []
         for alert_json in self.json.get("alerts", []):
             self._alerts.append(Alert(alert_json))
-
-    def update(self):
-        """Update the forecast data by making a new request to the same URL."""
-        r = requests.get(self.response.url)
-        self.json = r.json()
-        self.response = r
 
     def currently(self):
         """Return the current weather data block."""
@@ -68,29 +60,12 @@ class Forecast(UnicodeMixin):
         return self._alerts
 
     def _pirateweather_data(self, key):
-        """Fetch and return specific weather data (currently, minutely, hourly, daily, flags and day_night)."""
-        keys = ["minutely", "currently", "hourly", "daily", "flags", "day_night"]
-        try:
-            if key not in self.json:
-                keys.remove(key)
-                url = "{}&exclude={}{}".format(
-                    self.response.url.split("&")[0],
-                    ",".join(keys),
-                    ",alerts",
-                )
-
-                response = requests.get(url).json()
-                self.json[key] = response[key]
-
-            if key == "currently":
-                return PirateWeatherDataPoint(self.json[key])
-            if key == "flags":
-                return PirateWeatherFlagsBlock(self.json[key])
-            return PirateWeatherDataBlock(self.json[key])
-        except KeyError:
-            if key == "currently":
-                return PirateWeatherDataPoint()
-            return PirateWeatherDataBlock()
+        """Read the last coordinator response without issuing network requests."""
+        if key == "currently":
+            return PirateWeatherDataPoint(self.json.get(key))
+        if key == "flags":
+            return PirateWeatherFlagsBlock(self.json.get(key))
+        return PirateWeatherDataBlock(self.json.get(key))
 
 
 class PirateWeatherDataBlock(UnicodeMixin):
@@ -119,7 +94,7 @@ class PirateWeatherFlagsBlock(UnicodeMixin):
         self.units = d.get("units")
         self.version = d.get("version")
         self.nearestStation = d.get("nearest-station")
-        self.sources = list(d.get("sources"))
+        self.sources = list(d.get("sources") or [])
         self.sourceTimes = d.get("sourceTimes")
         self.processTime = d.get("processTime")
         self.ingestVersion = d.get("ingestVersion")
