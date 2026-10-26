@@ -51,6 +51,7 @@ from .const import (
     PW_PREVPLATFORM,
     PW_ROUND,
 )
+from .values import valid_number
 from .weather_update_coordinator import WeatherUpdateCoordinator
 
 _LOGGER = logging.getLogger(__name__)
@@ -1169,7 +1170,10 @@ class PirateWeatherSensor(SensorEntity):
     @property
     def available(self) -> bool:
         """Return if weather data is available from Pirate Weather."""
-        return self._weather_coordinator.data is not None
+        return (
+            self._weather_coordinator.last_update_success
+            and self._weather_coordinator.data is not None
+        )
 
     @property
     def attribution(self):
@@ -1223,7 +1227,7 @@ class PirateWeatherSensor(SensorEntity):
     def extra_state_attributes(self):
         """Return the state attributes."""
         if self.type == "alerts":
-            extra_attr = self._alerts
+            extra_attr = dict(self._alerts or {})
             extra_attr[ATTR_ATTRIBUTION] = ATTRIBUTION
         else:
             extra_attr = {ATTR_ATTRIBUTION: ATTRIBUTION}
@@ -1291,10 +1295,10 @@ class PirateWeatherSensor(SensorEntity):
 
         elif self.forecast_hour is not None:
             hourly = self._weather_coordinator.data.hourly()
-            if hasattr(hourly, "data"):
+            if 0 <= self.forecast_hour < len(hourly.data):
                 native_val = self.get_state(hourly.data[self.forecast_hour].d)
             else:
-                native_val = 0
+                native_val = None
 
         elif self.type == "daily_summary":
             native_val = getattr(self._weather_coordinator.data.daily(), "summary", "")
@@ -1302,10 +1306,10 @@ class PirateWeatherSensor(SensorEntity):
 
         elif self.forecast_day is not None:
             daily = self._weather_coordinator.data.daily()
-            if hasattr(daily, "data"):
+            if 0 <= self.forecast_day < len(daily.data):
                 native_val = self.get_state(daily.data[self.forecast_day].d)
             else:
-                native_val = 0
+                native_val = None
         else:
             currently = self._weather_coordinator.data.currently()
             native_val = self.get_state(currently.d)
@@ -1332,7 +1336,7 @@ class PirateWeatherSensor(SensorEntity):
             state = data.get(lookup_type)
 
             # If the sensor is numeric and the data is -999 set return None instead of -999
-            if isinstance(state, (int, float)) and state == -999:
+            if isinstance(state, (int, float)) and not valid_number(state):
                 return None
 
         if state is None:

@@ -60,13 +60,16 @@ class WeatherUpdateCoordinator(DataUpdateCoordinator):
 
     async def _async_update_data(self):
         """Update the data."""
-        data = {}
-        async with asyncio.timeout(60):
-            try:
-                data = await self._get_pw_weather()
-            except ClientError as err:
-                raise UpdateFailed(f"Error communicating with API: {err}") from err
-        return data
+        try:
+            async with asyncio.timeout(60):
+                return await self._get_pw_weather()
+        except (ClientError, TimeoutError) as err:
+            # Request URLs contain the API key. Do not expose exception text.
+            raise UpdateFailed(
+                f"Error communicating with API ({type(err).__name__})"
+            ) from None
+        except ValueError:
+            raise UpdateFailed("Invalid weather response") from None
 
     async def _get_pw_weather(self):
         """Poll weather data from PW."""
@@ -112,6 +115,12 @@ class WeatherUpdateCoordinator(DataUpdateCoordinator):
         async with session.get(forecast_string) as resp:
             resp.raise_for_status()
             json_text = await resp.json()
+            if (
+                not isinstance(json_text, dict)
+                or not isinstance(json_text.get("currently"), dict)
+                or not json_text["currently"]
+            ):
+                raise UpdateFailed("Weather response is missing current conditions")
             headers = resp.headers
             _LOGGER.debug("Pirate Weather data update from: %s", self.endpoint)
             return Forecast(json_text, resp, headers)

@@ -21,6 +21,8 @@ Choose **Weather entity**, **Sensors**, or **Weather entity and sensors** during
 
 Weather model exclusions, rounding, endpoint, and units are grouped in a collapsed **Advanced** section in setup and Configure. Expand it to edit these settings; their existing values are kept when the section stays closed.
 
+Weather and sensor entities become unavailable after a failed API update and recover after the next successful update. Missing numeric measurements and forecast offsets beyond the returned horizon are reported as unknown.
+
 ## Notices
 Forecast sections are read from scheduled asynchronous updates. Missing optional sections do not trigger extra HTTP requests from entity properties.
 
