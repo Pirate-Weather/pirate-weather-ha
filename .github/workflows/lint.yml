@@ -17,7 +17,7 @@ jobs:
           uses: "actions/checkout@v7.0.1"
 
         - name: "Set up Python"
-          uses: actions/setup-python@v7.0.0
+          uses: actions/setup-python@v7.1.0
           with:
             python-version: "3.x"
             cache: "pip"
@@ -32,6 +32,6 @@ jobs:
           run: python3 -m ruff check . --fix
 
         - name: "Auto Commit"
-          uses: stefanzweifel/git-auto-commit-action@v7.2.0
+          uses: stefanzweifel/git-auto-commit-action@v7.2.1
           with:
             commit_message: 'style fixes by ruff'
