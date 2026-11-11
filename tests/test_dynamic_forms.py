@@ -552,7 +552,8 @@ async def test_legacy_entity_ids_survive_options_save(
         assert state.state not in {"unknown", "unavailable"}
 
 
-@pytest.mark.parametrize("language", ["cs", "de", "en", "fr", "nl", "pl", "sk"])
+
+@pytest.mark.parametrize("language", ["cs", "de", "en", "es", "fr", "nl", "pl", "sk"])
 def test_selector_translation_keys(language):
     """Every selector option uses a hassfest-compatible key in every language."""
     translations = json.loads(

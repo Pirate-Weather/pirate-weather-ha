@@ -31,7 +31,7 @@
                     "mode": "Forecast mode for the Weather entity",
                     "monitored_conditions": "Monitored conditions to create sensors for.",
                     "pw_platform": "Entities to create",
-                    "scan_interval": "Seconds to wait between updates. Reducing this below 900 seconds (15 minutes) is not recomended.",
+                    "scan_interval": "Seconds to wait between updates. Reducing this below 900 seconds (15 minutes) is not recommended.",
                     "daily_forecast_enabled": "Daily forecast sensors",
                     "forecast_days": "Forecast days",
                     "hourly_forecast_enabled": "Hourly forecast sensors",
