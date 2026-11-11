@@ -1,0 +1,139 @@
+{
+    "config": {
+        "abort": {
+            "already_configured": "La ubicación ya está configurada"
+        },
+        "error": {
+            "cannot_connect": "No se pudo conectar",
+            "invalid_api_key": "Clave API no válida",
+            "select_forecast_days": "Selecciona al menos un día.",
+            "select_forecast_hours": "Selecciona al menos una hora.",
+            "invalid_hourly_range": "La hora de fin debe ser mayor o igual que la hora de inicio."
+        },
+        "step": {
+            "user": {
+                "sections": {
+                    "advanced": {
+                        "name": "Avanzado",
+                        "data": {
+                            "models": "Modelos meteorológicos que se excluirán (CSV)",
+                            "pw_round": "Redondear los valores al entero más cercano. Asegúrate de que las unidades seleccionadas coincidan con las del sistema.",
+                            "endpoint": "Punto de conexión para usar una fuente de desarrollo o local, con https://. El valor predeterminado es api.pirateweather.net",
+                            "units": "Unidades."
+                        }
+                    }
+                },
+                "data": {
+                    "api_key": "Clave API",
+                    "language": "Idioma",
+                    "latitude": "Latitud. Establece 0 para usar la ubicación actual",
+                    "longitude": "Longitud. Establece 0 para usar la ubicación actual",
+                    "mode": "Modo de pronóstico para la entidad meteorológica",
+                    "monitored_conditions": "Condiciones supervisadas para las que se crearán sensores.",
+                    "pw_platform": "Entidades que se crearán",
+                    "scan_interval": "Segundos entre actualizaciones. No se recomienda reducir este valor por debajo de 900 segundos (15 minutos).",
+                    "daily_forecast_enabled": "Sensores de pronóstico diario",
+                    "forecast_days": "Días del pronóstico",
+                    "hourly_forecast_enabled": "Sensores de pronóstico por hora",
+                    "hourly_schedule": "Programación por hora",
+                    "forecast_hours": "Horas específicas",
+                    "hourly_count": "Número de próximas horas",
+                    "hourly_start": "Hora de inicio",
+                    "hourly_end": "Hora de fin",
+                    "hourly_interval": "Intervalo (horas)"
+                },
+                "description": "Configura la integración de Pirate Weather. Para generar una clave API, visita pirateweather.net",
+                "data_description": {
+                    "forecast_hours": "Horas a partir de ahora (0–167). 0 corresponde a la hora actual del pronóstico.",
+                    "hourly_count": "Comienza dentro de 1 hora e incluye todas las horas hasta este número (1–167).",
+                    "hourly_end": "Horas a partir de ahora (0–167). La hora de fin se incluye si coincide con el intervalo."
+                }
+            },
+            "forecast_summary": {
+                "title": "Revisar sensores de pronóstico",
+                "description": "La selección compartida de condiciones creará {daily_count} sensores de pronóstico diario y {hourly_count} de pronóstico por hora ({forecast_total} en total). Solo se cuentan las condiciones compatibles con cada tipo de pronóstico. La creación de sensores de condiciones actuales no cambia. Envía para guardar."
+            }
+        }
+    },
+    "options": {
+        "error": {
+            "cannot_connect": "No se pudo conectar",
+            "invalid_api_key": "Clave API no válida",
+            "select_forecast_days": "Selecciona al menos un día.",
+            "select_forecast_hours": "Selecciona al menos una hora.",
+            "invalid_hourly_range": "La hora de fin debe ser mayor o igual que la hora de inicio."
+        },
+        "step": {
+            "init": {
+                "sections": {
+                    "advanced": {
+                        "name": "Avanzado",
+                        "data": {
+                            "models": "Modelos meteorológicos que se excluirán (CSV)",
+                            "pw_round": "Redondear los valores al entero más cercano. Asegúrate de que las unidades seleccionadas coincidan con las del sistema.",
+                            "endpoint": "Punto de conexión para usar una fuente de desarrollo o local, con https://. El valor predeterminado es api.pirateweather.net",
+                            "units": "Unidades."
+                        }
+                    }
+                },
+                "data": {
+                    "api_key": "Clave API",
+                    "language": "Idioma",
+                    "latitude": "Latitud. Establece 0 para usar la ubicación actual",
+                    "longitude": "Longitud. Establece 0 para usar la ubicación actual",
+                    "scan_interval": "Segundos entre actualizaciones. No se recomienda reducir este valor por debajo de 900 segundos (15 minutos).",
+                    "mode": "Modo de pronóstico para la entidad meteorológica",
+                    "monitored_conditions": "Condiciones supervisadas para las que se crearán sensores.",
+                    "pw_platform": "Entidades que se crearán",
+                    "daily_forecast_enabled": "Sensores de pronóstico diario",
+                    "forecast_days": "Días del pronóstico",
+                    "hourly_forecast_enabled": "Sensores de pronóstico por hora",
+                    "hourly_schedule": "Programación por hora",
+                    "forecast_hours": "Horas específicas",
+                    "hourly_count": "Número de próximas horas",
+                    "hourly_start": "Hora de inicio",
+                    "hourly_end": "Hora de fin",
+                    "hourly_interval": "Intervalo (horas)"
+                },
+                "description": "Configura la integración de Pirate Weather. Para generar una clave API, visita pirateweather.net",
+                "data_description": {
+                    "forecast_hours": "Horas a partir de ahora (0–167). 0 corresponde a la hora actual del pronóstico.",
+                    "hourly_count": "Comienza dentro de 1 hora e incluye todas las horas hasta este número (1–167).",
+                    "hourly_end": "Horas a partir de ahora (0–167). La hora de fin se incluye si coincide con el intervalo."
+                }
+            },
+            "forecast_summary": {
+                "title": "Revisar sensores de pronóstico",
+                "description": "La selección compartida de condiciones creará {daily_count} sensores de pronóstico diario y {hourly_count} de pronóstico por hora ({forecast_total} en total). Solo se cuentan las condiciones compatibles con cada tipo de pronóstico. La creación de sensores de condiciones actuales no cambia. Envía para guardar."
+            }
+        }
+    },
+    "selector": {
+        "platform": {
+            "options": {
+                "weather": "Entidad meteorológica",
+                "sensor": "Sensores",
+                "both": "Entidad meteorológica y sensores"
+            }
+        },
+        "forecast_day": {
+            "options": {
+                "0": "Hoy",
+                "1": "Mañana",
+                "2": "Dentro de 2 días",
+                "3": "Dentro de 3 días",
+                "4": "Dentro de 4 días",
+                "5": "Dentro de 5 días",
+                "6": "Dentro de 6 días",
+                "7": "Dentro de 7 días"
+            }
+        },
+        "hourly_schedule": {
+            "options": {
+                "specific": "Horas específicas",
+                "next": "Próximas N horas",
+                "interval": "Intervalos regulares"
+            }
+        }
+    }
+}
