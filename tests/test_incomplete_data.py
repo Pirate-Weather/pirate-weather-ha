@@ -175,6 +175,8 @@ def test_forecast_mapping_tolerates_missing_numbers(mapper, value):
             "temperature": value,
             "temperatureHigh": value,
             "temperatureLow": value,
+            "apparentTemperature": value,
+            "apparentTemperatureHigh": value,
             "precipAccumulation": value,
             "precipProbability": value,
             "humidity": value,
@@ -191,6 +193,22 @@ def test_forecast_mapping_tolerates_missing_numbers(mapper, value):
     for key, measurement in result.items():
         if key not in {"datetime", "condition", "is_daytime"}:
             assert measurement is None, key
+
+
+def test_daily_forecast_maps_apparent_temperature_high():
+    """Daily forecasts expose the day's feels-like high, matching the temperature high."""
+    point = SimpleNamespace(
+        d={
+            "time": 1700000000,
+            "temperatureHigh": 80.0,
+            "temperatureLow": 59.0,
+            "apparentTemperatureHigh": 81.0,
+            "apparentTemperatureLow": 58.0,
+        }
+    )
+    result = _map_daily_forecast(point, "us")
+    assert result["native_temperature"] == 80.0
+    assert result["native_apparent_temperature"] == 81.0
 
 
 @pytest.mark.parametrize("mode", ["daily", "hourly"])

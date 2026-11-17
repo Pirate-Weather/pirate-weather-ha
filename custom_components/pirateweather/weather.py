@@ -187,6 +187,9 @@ def _map_daily_forecast(forecast, unit_system) -> Forecast:
         "condition": MAP_CONDITION.get(forecast.d.get("icon")),
         "native_temperature": _number(forecast.d.get("temperatureHigh")),
         "native_templow": _number(forecast.d.get("temperatureLow")),
+        "native_apparent_temperature": _number(
+            forecast.d.get("apparentTemperatureHigh")
+        ),
         "native_precipitation": precip,
         "precipitation_probability": _number(
             forecast.d.get("precipProbability"), 0, scale=100
